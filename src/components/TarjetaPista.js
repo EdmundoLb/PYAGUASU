@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Icono from "./Icono";
+import RenderizadorMatematico from "./RenderizadorMatematico";
 
 // Colapsada por defecto. Una vez abierta, se queda abierta (no hay forma de
 // volver a colapsarla desde acá) — para "resetearla" ante una pista nueva,
@@ -29,7 +30,7 @@ export default function TarjetaPista({ pista }) {
     <div className="mensaje-nuevo p-3.5 rounded-xl bg-secondary-fixed text-on-secondary-fixed text-body-sm shadow-elevation-1 flex items-start gap-2">
       <Icono nombre="lightbulb" size={18} className="flex-shrink-0 mt-0.5" />
       <p>
-        <strong>Pista:</strong> {pista}
+        <strong>Pista:</strong> <RenderizadorMatematico texto={pista} />
       </p>
     </div>
   );

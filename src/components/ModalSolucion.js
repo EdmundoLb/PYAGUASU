@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import Icono from "./Icono";
+import RenderizadorMatematico from "./RenderizadorMatematico";
 
 // Solo muestra pasos que el estudiante ya se ganó (acertó o pidió ayuda) —
 // nunca adelanta pasos que todavía no se resolvieron en la conversación.
@@ -48,7 +49,7 @@ export default function ModalSolucion({ pasos, resultadoFinal, analogiaCotidiana
                 {p.paso ?? i + 1}
               </span>
               <div className="flex-1 px-3.5 py-2.5 rounded-lg bg-surface-container-low border-l-4 border-tertiary font-mono text-body-sm text-primary font-bold overflow-x-auto">
-                {p.formula}
+                <RenderizadorMatematico texto={p.formula} />
               </div>
             </li>
           ))}
@@ -58,7 +59,7 @@ export default function ModalSolucion({ pasos, resultadoFinal, analogiaCotidiana
           <div className="p-4 rounded-xl bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-between gap-3">
             <span className="font-semibold text-body-sm uppercase tracking-wide">Resultado</span>
             <span className="font-mono font-bold text-title-lg">
-              {resultadoFinal.valor} {resultadoFinal.unidad || ""}
+              <RenderizadorMatematico texto={resultadoFinal.valor} /> {resultadoFinal.unidad || ""}
             </span>
           </div>
         )}

@@ -36,7 +36,9 @@ export default function OpcionQuiz({ opcion, letra, estado = "idle", onResponder
         disabled={disabled}
         onClick={manejarClick}
         aria-label={`Opción ${letra}: ${opcion.texto}`}
-        className={`min-h-[44px] w-full px-3 py-3 rounded-xl border-2 text-left text-body-md font-medium shadow-elevation-1 active:scale-[0.98] transition-all duration-200 disabled:opacity-60 flex items-center gap-3 ${estilo}`}
+        className={`min-h-[44px] w-full px-3 py-3 rounded-xl border-2 text-left text-body-md font-medium shadow-elevation-1 active:scale-[0.98] transition-all duration-200 disabled:opacity-60 flex items-center gap-3 ${estilo} ${
+          estado === "incorrecta" ? "sacudir" : ""
+        }`}
       >
         <span
           className={`w-7 h-7 rounded-full flex items-center justify-center font-mono text-label-md font-bold flex-shrink-0 transition-colors duration-200 ${estiloLetra}`}
