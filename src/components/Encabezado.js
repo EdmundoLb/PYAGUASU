@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Icono from "./Icono";
+import TarjetaXp from "./TarjetaXp";
 
-export default function Encabezado({ conectado }) {
+export default function Encabezado({ conectado, perfilActivo, claseActiva }) {
   return (
     <header className="sticky top-0 z-10 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
       <div className="h-1 bg-gradient-to-r from-primary via-secondary-container to-tertiary" />
@@ -20,16 +21,20 @@ export default function Encabezado({ conectado }) {
                   conectado ? "bg-tertiary animate-pulse" : "bg-outline"
                 }`}
               />
-              <span className="text-label-sm text-on-surface-variant">
-                {conectado ? "Tu profe está en línea" : "Sin conexión"}
+              <span className="text-label-sm text-on-surface-variant truncate">
+                {claseActiva ? claseActiva.nombre : conectado ? "Tu profe está en línea" : "Sin conexión"}
               </span>
             </div>
           </div>
         </div>
-        <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed text-label-sm font-semibold flex-shrink-0">
-          <Icono nombre="function" size={14} />
-          Física · Nivel medio
-        </span>
+        {perfilActivo ? (
+          <TarjetaXp perfil={perfilActivo} variante="compacta" />
+        ) : (
+          <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed text-label-sm font-semibold flex-shrink-0">
+            <Icono nombre="function" size={14} />
+            Física · Nivel medio
+          </span>
+        )}
       </div>
     </header>
   );
