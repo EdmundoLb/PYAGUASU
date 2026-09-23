@@ -1,6 +1,6 @@
 # Kyhyje'ỹ IA — webapp
 
-Tutor de Física con IA generativa en jopara y guaraní paraguayo completo,
+Tutor de Física con IA generativa en castellano y jopara,
 para el Hackathon Kyhyje'ỹ IA. Next.js (App Router) + Tailwind v4, con una
 capa de IA desacoplada que hoy usa Gemini y que puede pasar a Claude
 cambiando una variable de entorno.
@@ -32,14 +32,15 @@ la rúbrica del hackathon (enseñar/corregir, no traducir ni resolver de una).
    ```
 
 4. Abrir [http://localhost:3000](http://localhost:3000). El primer uso pasa
-   por: elegir idioma (jopara/guaraní) → test rápido de 3 preguntas de estilo
-   de aprendizaje → recién ahí la pantalla para escribir el problema.
+   por: elegir rol (alumno/docente) → elegir perfil → elegir idioma
+   (jopara/castellano) → test rápido de 3 preguntas de estilo de aprendizaje
+   → recién ahí la pantalla para escribir el problema.
 
 ## Flujo de onboarding (antes de la primera pregunta de física)
 
 1. **`PantallaIdioma`**: elige entre "jopara" (mezcla con castellano) o
-   "guaraní" (completo, sin mezclar) — bloquea el resto de la app hasta
-   elegir. Se guarda en `appState.userLanguage`.
+   "castellano" (español simple, sin mezclar guaraní) — bloquea el resto de
+   la app hasta elegir. Se guarda en `appState.userLanguage`.
 2. **`PantallaQuizDiagnostico`**: 3 preguntas situacionales (`src/lib/quiz/diagnostico.js`,
    `PREGUNTAS_DIAGNOSTICO`) basadas en VAK + Felder-Silverman. Cada opción
    suma un punto a `visualScore` / `auditoryScore` / `kinestheticScore`; al
@@ -76,7 +77,7 @@ src/
     page.js             -> fase idioma/quiz/inicio/conversando + pantalla de chat con el tutor
     api/tutor/route.js  -> endpoint que avanza UN turno de la conversación
   components/
-    PantallaIdioma.js          -> paso 1 del onboarding: elegir jopara/guaraní
+    PantallaIdioma.js          -> paso 1 del onboarding: elegir jopara/castellano
     PantallaQuizDiagnostico.js -> paso 2 del onboarding: test VAK/Felder-Silverman
     BurbujaChat.js              -> el último mensaje del tutor se resalta como
                                     "tarjeta de lección" (activa=true), coloreada
@@ -107,13 +108,13 @@ sesión. `POST /api/tutor` recibe:
   con `correcta`, `mensaje` (feedback), `pista` (si se equivocó) o
   `formula` (si ese paso ya se cerró), hasta llegar a `completado: true`
   con `resultadoFinal` y `analogiaCotidiana`.
-- `idioma` es `'jopara'` o `'guarani'` (`route.js` cae a `'jopara'` si viene
+- `idioma` es `'jopara'` o `'castellano'` (`route.js` cae a `'jopara'` si viene
   cualquier otro valor). `learningLevel` es `'visual' | 'auditor' | 'kinestesico'`
   o `''` si el test todavía no se completó.
 
 ## Pendiente crítico (ver informe del proyecto)
 
-- **Vocabulario de guaraní jopara y guaraní completo**: `src/lib/ai/prompt.js`
+- **Vocabulario de guaraní jopara**: `src/lib/ai/prompt.js`
   (`VOCABULARIO_JOPARA_BORRADOR`) y `src/lib/quiz/diagnostico.js` (las 3
   preguntas del test, traducidas a mano) son un punto de partida técnico, NO
   validado por un hablante/lingüista. Es tarea P0 del rol de lingüista del
