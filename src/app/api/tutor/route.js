@@ -1,4 +1,5 @@
 import { avanzarTurno } from '@/lib/ai';
+import { construirSolicitudProblemaGenerado } from '@/lib/ai/prompt';
 
 export async function POST(request) {
   let body;
@@ -8,23 +9,43 @@ export async function POST(request) {
     return Response.json({ error: 'Body inválido, se esperaba JSON.' }, { status: 400 });
   }
 
-  const { idioma, materia, esInicial, enunciado, mensaje, pedirAyuda, historial, learningLevel } = body || {};
+  const {
+    idioma,
+    materia,
+    esInicial,
+    enunciado,
+    mensaje,
+    pedirAyuda,
+    historial,
+    learningLevel,
+    // Presentes solo cuando el alumno eligió "Elegir un tema para
+    // practicar" en vez de traer su propio enunciado (ver PantallaInicio).
+    temaSeleccionado,
+    dificultadSeleccionada,
+  } = body || {};
   const NIVELES_APRENDIZAJE_VALIDOS = ['visual', 'auditor', 'kinestesico'];
+  const tieneEnunciadoPropio = typeof enunciado === 'string' && enunciado.trim();
 
-  if (esInicial && (typeof enunciado !== 'string' || !enunciado.trim())) {
-    return Response.json({ error: 'Falta el enunciado del problema.' }, { status: 400 });
+  if (esInicial && !tieneEnunciadoPropio && !temaSeleccionado) {
+    return Response.json({ error: 'Falta el enunciado del problema o un tema para generar uno.' }, { status: 400 });
   }
   if (!esInicial && !pedirAyuda && (typeof mensaje !== 'string' || !mensaje.trim())) {
     return Response.json({ error: 'Falta la respuesta del estudiante.' }, { status: 400 });
   }
 
+  const enunciadoFinal = tieneEnunciadoPropio
+    ? enunciado
+    : esInicial && temaSeleccionado
+      ? construirSolicitudProblemaGenerado({ tema: temaSeleccionado, dificultad: dificultadSeleccionada })
+      : enunciado || '';
+
   try {
     const turno = await avanzarTurno({
       historial: Array.isArray(historial) ? historial : [],
-      idioma: idioma === 'guarani' ? 'guarani' : 'jopara',
+      idioma: idioma === 'castellano' ? 'castellano' : 'jopara',
       materia: materia || 'Física',
       esInicial: Boolean(esInicial),
-      enunciado: enunciado || '',
+      enunciado: enunciadoFinal,
       mensaje: mensaje || '',
       pedirAyuda: Boolean(pedirAyuda),
       learningLevel: NIVELES_APRENDIZAJE_VALIDOS.includes(learningLevel) ? learningLevel : '',
