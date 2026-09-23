@@ -16,14 +16,17 @@ export const TURNO_JSON_SCHEMA = {
         type: 'object',
         properties: {
           etiqueta: { type: 'string' },
-          valor: { type: 'string' },
+          valor: {
+            type: 'string',
+            description: 'Si es un valor numérico con unidad o una expresión, envolvela en $...$ (ej. "$1200\\text{ kg}$"); si es solo texto descriptivo, dejalo en texto plano.',
+          },
         },
         required: ['etiqueta', 'valor'],
       },
     },
     incognita: {
       type: 'string',
-      description: 'Qué se está buscando calcular. Repetilo en cada turno.',
+      description: 'Qué se está buscando calcular. Repetilo en cada turno. Si es una variable o expresión, envolvela en $...$ (ej. "$v_f$").',
     },
     correcta: {
       type: 'boolean',
@@ -52,7 +55,7 @@ export const TURNO_JSON_SCHEMA = {
     formula: {
       type: 'string',
       description:
-        'Fórmula o cálculo YA CONFIRMADO de un paso que se acaba de cerrar (porque el estudiante acertó o pidió ayuda directa). Vacío si en este turno todavía no corresponde revelar ninguna fórmula.',
+        'Fórmula o cálculo YA CONFIRMADO de un paso que se acaba de cerrar (porque el estudiante acertó o pidió ayuda directa). Vacío si en este turno todavía no corresponde revelar ninguna fórmula. Envolvé la fórmula completa en $...$ (LaTeX simple, una sola línea, ej. "$v = \\frac{d}{t} = \\frac{100}{8} = 12.5\\text{ m/s}$").',
     },
     opcionesRespuesta: {
       type: 'array',
@@ -95,7 +98,7 @@ export const TURNO_JSON_SCHEMA = {
       type: 'object',
       description: 'Solo presente si completado=true.',
       properties: {
-        valor: { type: 'string' },
+        valor: { type: 'string', description: 'Envolvelo en $...$ si es un valor/expresión (ej. "$12.5$").' },
         unidad: { type: 'string' },
       },
     },
@@ -103,6 +106,27 @@ export const TURNO_JSON_SCHEMA = {
       type: 'string',
       description:
         'OBLIGATORIO cuando completado=true: una analogía cotidiana real (idealmente de Paraguay) del resultado final. Cadena vacía "" en cualquier otro turno.',
+    },
+    verificacion: {
+      type: 'object',
+      description:
+        'Presente SIEMPRE que "formula" o "resultadoFinal" traigan un cálculo numérico nuevo en este turno (se omite en pasos puramente conceptuales, sin ningún número nuevo). Es la MISMA cuenta que ya pusiste en "formula"/"resultadoFinal", pero en formato de calculadora simple (sin LaTeX, sin unidades en el texto), para que el servidor la verifique automáticamente con una librería matemática.',
+      properties: {
+        expresion: {
+          type: 'string',
+          description: 'La cuenta en texto plano, evaluable tal cual. Ej. "100/8" o "0.5*1200*20*20". Solo números y operadores + - * / ^ ( ).',
+        },
+        resultado: {
+          type: 'number',
+          description: 'El número al que llegaste con esa cuenta (sin unidad), tal como lo usaste en tu respuesta.',
+        },
+      },
+      required: ['expresion', 'resultado'],
+    },
+    enunciadoGenerado: {
+      type: 'string',
+      description:
+        'OBLIGATORIO solo en el turno inicial cuando el estudiante NO trajo un enunciado propio, sino que te pidió practicar un tema y vos inventaste el problema: el enunciado completo que inventaste, para mostrárselo tal cual como si él lo hubiera escrito. Cadena vacía en cualquier otro caso (incluido cuando el estudiante sí trajo su propio enunciado).',
     },
   },
   required: [
