@@ -1,15 +1,16 @@
-# Néike Pyahureko — webapp
+# Kyhyje'ỹ IA — webapp
 
 Tutor de Física con IA generativa en jopara y guaraní paraguayo completo,
 para el Hackathon Kyhyje'ỹ IA. Next.js (App Router) + Tailwind v4, con una
 capa de IA desacoplada que hoy usa Gemini y que puede pasar a Claude
 cambiando una variable de entorno.
 
-El nombre del producto es **Néike Pyahureko**; el tutor de IA se presenta
-dentro del chat como **"Profe Física"** (personaje/mascota, no el nombre de
-la app — mismo patrón que "Duo" en Duolingo). El nombre completo todavía
-tiene que pasar por el lingüista del equipo antes de la demo, igual que el
-vocabulario jopara.
+El nombre del producto es **Kyhyje'ỹ IA** (el mismo nombre del hackathon);
+el tutor de IA se presenta dentro del chat como **"Profe Física"**
+(personaje/mascota, no el nombre de la app — mismo patrón que "Duo" en
+Duolingo). El vocabulario jopara/guaraní que usa el tutor todavía tiene que
+pasar por el lingüista del equipo antes de la demo (ver "Pendiente crítico"
+más abajo).
 
 **Es un tutor socrático, no un solucionador**: la IA nunca entrega la
 resolución completa de una. Parte el problema en micro-pasos, le pregunta

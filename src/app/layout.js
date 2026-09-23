@@ -14,9 +14,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata = {
-  title: "Néike Pyahureko",
+  title: "Kyhyje'ỹ IA",
   description:
-    "Tutor de Física con IA generativa en castellano y guaraní jopara, que te guía paso a paso en vez de resolver todo por vos.",
+    "Tutor de Física con IA generativa en jopara y guaraní paraguayo, que te guía paso a paso en vez de resolver todo por vos.",
 };
 
 export default function RootLayout({ children }) {

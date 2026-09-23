@@ -12,7 +12,7 @@ export default function Encabezado({ conectado }) {
           </div>
           <div className="flex flex-col min-w-0">
             <span className="font-bold text-title-md leading-none tracking-tight truncate">
-              Néike Pyahureko
+              {"Kyhyje'ỹ IA"}
             </span>
             <div className="flex items-center gap-1 mt-1">
               <span
