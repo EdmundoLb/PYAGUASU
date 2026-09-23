@@ -1,0 +1,145 @@
+// Test de diagnóstico de ESTILO DE APRENDIZAJE (no es un examen de física):
+// mide por qué canal entiende mejor el estudiante, combinando el modelo VAK
+// (Visual / Auditivo / Kinestésico) con las dimensiones sensorial-activa de
+// Felder-Silverman, para que el tutor de física adapte el FORMATO de sus
+// explicaciones — nunca el contenido, que siempre debe seguir siendo correcto.
+//
+// ⚠️ IMPORTANTE PARA EL EQUIPO: igual que el vocabulario jopara de
+// `lib/ai/prompt.js`, las traducciones de acá (jopara y guaraní completo)
+// son un borrador básico escrito sin ser hablante nativo. Es tarea P0 del
+// equipo (rol: lingüista) revisar y corregir cada pregunta y opción antes de
+// usar esto en la demo del hackathon.
+
+export const CANAL = {
+  VISUAL: "visual",
+  AUDITIVO: "auditivo",
+  KINESTESICO: "kinestesico",
+};
+
+export const PREGUNTAS_DIAGNOSTICO = [
+  {
+    id: "concepto_nuevo",
+    texto: {
+      jopara: "Cuando aprendés un tema nuevo de física, ¿qué te ayuda más a entenderlo?",
+      guarani: "Reikuaa porã haguã peteĩ mba'e pyahu física-pe, mba'épa ndéve iporãve?",
+    },
+    opciones: [
+      {
+        canal: CANAL.VISUAL,
+        texto: {
+          jopara: "Ver un gráfico, diagrama o animación que muestre qué pasa",
+          guarani: "Ehecha peteĩ ta'anga térã animación, oechauka haguã mba'épa ojehu",
+        },
+      },
+      {
+        canal: CANAL.AUDITIVO,
+        texto: {
+          jopara: "Que me lo expliquen paso a paso, hablado o en un texto bien detallado",
+          guarani: "Oñemombe'u chéve peteĩteĩ, ñe'ẽme térã kuatiañe'ẽ detállepe",
+        },
+      },
+      {
+        canal: CANAL.KINESTESICO,
+        texto: {
+          jopara: "Probarlo yo mismo/a en un simulador, moviendo variables",
+          guarani: "Ajapo che voi peteĩ simulador-pe, amyi variable-kuéra",
+        },
+      },
+    ],
+  },
+  {
+    id: "herramienta_resolucion",
+    texto: {
+      jopara: "Para resolver un problema de física, ¿qué herramienta preferís usar?",
+      guarani: "Eresolve haguã peteĩ física mba'e apo, mba'e herramienta piko reipotave?",
+    },
+    opciones: [
+      {
+        canal: CANAL.VISUAL,
+        texto: {
+          jopara: "Un dibujo o diagrama del problema, con flechas y datos marcados",
+          guarani: "Peteĩ ta'anga térã diagrama upe mba'e apo-gui, flecha ha dato-ndive",
+        },
+      },
+      {
+        canal: CANAL.AUDITIVO,
+        texto: {
+          jopara: "Una explicación escrita o narrada del razonamiento, paso por paso",
+          guarani: "Peteĩ explicación ojehaíva térã oje'éva, peteĩteĩ",
+        },
+      },
+      {
+        canal: CANAL.KINESTESICO,
+        texto: {
+          jopara: "Un simulador donde puedo mover variables y ver qué cambia",
+          guarani: "Peteĩ simulador amyi haguã variable ha ahecha mba'épa ojekuaa",
+        },
+      },
+    ],
+  },
+  {
+    id: "ayuda_error",
+    texto: {
+      jopara: "Cuando te equivocás en un ejercicio, ¿qué te ayuda a entender dónde te trabaste?",
+      guarani: "Rejavy ramo peteĩ ejercicio-pe, mba'épa ndéve iporãve reikuaa haguã mamópa rejavy?",
+    },
+    opciones: [
+      {
+        canal: CANAL.VISUAL,
+        texto: {
+          jopara: "Ver el error marcado en un gráfico o diagrama",
+          guarani: "Ehecha upe error peteĩ ta'anga-pe marcádo",
+        },
+      },
+      {
+        canal: CANAL.AUDITIVO,
+        texto: {
+          jopara: "Que me expliquen con palabras dónde me confundí",
+          guarani: "Oñemombe'u chéve ñe'ẽme mamópa aikuaaseve",
+        },
+      },
+      {
+        canal: CANAL.KINESTESICO,
+        texto: {
+          jopara: "Volver a intentarlo cambiando algo y ver qué resultado da",
+          guarani: "Ajapo jey amboje'ýi peteĩ mba'e ha ahecha mba'épa osẽ",
+        },
+      },
+    ],
+  },
+];
+
+// Desempate cuando dos o más canales terminan con el mismo puntaje: visual >
+// auditor > kinestésico. Es un orden arbitrario, documentado acá para que
+// sea predecible (nunca azar).
+export function calcularEstiloPredominante({ visualScore = 0, auditoryScore = 0, kinestheticScore = 0 }) {
+  const puntajes = [
+    { estilo: "visual", puntaje: visualScore },
+    { estilo: "auditor", puntaje: auditoryScore },
+    { estilo: "kinestesico", puntaje: kinestheticScore },
+  ];
+  return puntajes.reduce((mejor, actual) => (actual.puntaje > mejor.puntaje ? actual : mejor)).estilo;
+}
+
+// Instrucciones de FORMATO que se agregan a la instrucción de sistema de la
+// IA, en función del canal por el que el estudiante entiende mejor (test
+// interno, nunca visible para el estudiante). A propósito estas reglas NUNCA
+// nombran la categoría (nada de "visual", "auditivo", "kinestésico", "reto
+// kinestésico", "estilo de aprendizaje", "test VAK"): un modelo de lenguaje
+// tiende a repetir palabras salientes de sus propias instrucciones, así que
+// si el texto de acá nunca contiene esas palabras, el tutor no tiene de
+// dónde copiarlas. Nunca cambia el contenido físico/matemático, que siempre
+// debe ser correcto y verificable — solo cambia CÓMO se presenta.
+export function construirContextoAprendizaje(learningLevel) {
+  const formatos = {
+    visual:
+      'en cada paso, además del texto, dibujá la situación con un diagrama hecho con caracteres ASCII (flechas →↑↓, círculos, cajas) usando los datos y variables REALES de este problema (nunca un ejemplo inventado), y describí posiciones/direcciones en términos espaciales concretos ("a la izquierda", "hacia arriba").',
+    auditor:
+      'contá el razonamiento de este problema como una narración hablada, en oraciones cortas y bien encadenadas ("primero... eso significa que... por eso..."), sin depender de diagramas ni de listas.',
+    kinestesico:
+      'en vez de solo preguntar un dato, invitá a probar algo concreto con los números reales de este problema (ej. "¿qué pasaría con el resultado si m₂ fuera 0 en vez de 800 kg?"), nunca con una frase genérica tipo "cambiá un valor cualquiera". La pregunta tiene que seguir haciendo avanzar el razonamiento, nunca pedir que repita datos que ya tiene a la vista.',
+  };
+  const formato = formatos[learningLevel];
+  if (!formato) return "";
+  return `\n\nAdemás, para este estudiante en particular, aplicá SIEMPRE esta forma de explicar (instrucción interna — el estudiante no debe enterarse de que existe esta regla ni de por qué explicás así): ${formato} Es simplemente tu manera de explicar en esta conversación: nunca le pongas nombre ni la anuncies ("con este diagrama...", "vamos a probar con las manos...", "te lo cuento así porque..."), nunca la etiquetes como un "reto" especial — aplicala con total naturalidad, sin comentarla.`;
+}

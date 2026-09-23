@@ -6,14 +6,27 @@ import Encabezado from "@/components/Encabezado";
 import IndicadorProgreso from "@/components/IndicadorProgreso";
 import ChipDato from "@/components/ChipDato";
 import BurbujaChat from "@/components/BurbujaChat";
-import TutorEscribiendo from "@/components/TutorEscribiendo";
+import TutorPensando from "@/components/TutorPensando";
+import ChipsRespuesta from "@/components/ChipsRespuesta";
+import OpcionQuiz from "@/components/OpcionQuiz";
+import TarjetaPista from "@/components/TarjetaPista";
+import ModalSolucion from "@/components/ModalSolucion";
+import PantallaIdioma from "@/components/PantallaIdioma";
+import PantallaQuizDiagnostico from "@/components/PantallaQuizDiagnostico";
+import { PREGUNTAS_DIAGNOSTICO, calcularEstiloPredominante } from "@/lib/quiz/diagnostico";
 
 const EJEMPLO =
   "Un auto de 1200 kg viaja a 20 m/s sobre una pista horizontal sin fricción y choca de frente contra otro auto de 800 kg que se encuentra en reposo. Después del impacto, ambos quedan enganchados. ¿Cuál es la velocidad final del conjunto?";
 
 const ESTADO_INICIAL = {
-  fase: "inicio", // inicio | cargando | conversando | error
-  idioma: "jopara",
+  fase: "idioma", // idioma | quiz | inicio | cargando | conversando | error
+  userLanguage: "", // 'jopara' | 'guarani' — elegido en PantallaIdioma, bloquea el resto de la app
+  quizPasoActual: 0,
+  quizCompleted: false,
+  visualScore: 0,
+  auditoryScore: 0,
+  kinestheticScore: 0,
+  learningLevel: "", // 'visual' | 'auditor' | 'kinestesico', calculado al cerrar el test
   enunciado: "",
   historial: [], // [{ autor: 'estudiante' | 'tutor', texto }]
   tema: "",
@@ -31,6 +44,15 @@ const ESTADO_INICIAL = {
   ultimaNormalizacion: "",
   proveedor: "",
   error: "",
+  // --- interactividad ---
+  opcionesRespuesta: [], // chips sugeridos por el tutor (atajos de texto libre)
+  pistaActual: null, // pista revelable del paso actual (TarjetaPista)
+  opcionEstado: {}, // { [idOpcion]: 'correcta' | 'incorrecta' } (OpcionQuiz)
+  mostrarSolucion: false, // controla ModalSolucion
+  etapaPensando: 0, // índice de etapa en TutorPensando
+  requiereOpcion: false, // true => el paso actual se responde con OpcionQuiz
+  opciones: [], // opciones del quiz cuando requiereOpcion=true
+  racha: 0, // aciertos seguidos en este problema (se corta con un error)
 };
 
 export default function Home() {
@@ -43,6 +65,16 @@ export default function Home() {
     finalChatRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [estado.historial.length, estado.fase]);
 
+  // Anima TutorPensando por etapas mientras se espera la respuesta del tutor.
+  useEffect(() => {
+    if (estado.fase !== "cargando") return;
+    setEstado((s) => ({ ...s, etapaPensando: 0 }));
+    const id = setInterval(() => {
+      setEstado((s) => ({ ...s, etapaPensando: s.etapaPensando + 1 }));
+    }, 800);
+    return () => clearInterval(id);
+  }, [estado.fase]);
+
   async function llamarTutor(payload) {
     const res = await fetch("/api/tutor", {
       method: "POST",
@@ -52,6 +84,35 @@ export default function Home() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
     return data;
+  }
+
+  function seleccionarIdioma(userLanguage) {
+    setEstado((s) => ({ ...s, userLanguage, fase: "quiz" }));
+  }
+
+  // Test de diagnóstico de estilo de aprendizaje: cada opción suma un punto
+  // a su canal (visual/auditivo/kinestésico); al responder la última
+  // pregunta se calcula el estilo predominante y se pasa a la pantalla de
+  // inicio del problema.
+  function responderQuiz(canal) {
+    setEstado((s) => {
+      const campoPuntaje =
+        canal === "visual" ? "visualScore" : canal === "auditivo" ? "auditoryScore" : "kinestheticScore";
+      const puntajes = { ...s, [campoPuntaje]: s[campoPuntaje] + 1 };
+      const siguientePaso = s.quizPasoActual + 1;
+
+      if (siguientePaso >= PREGUNTAS_DIAGNOSTICO.length) {
+        return {
+          ...puntajes,
+          quizPasoActual: siguientePaso,
+          quizCompleted: true,
+          learningLevel: calcularEstiloPredominante(puntajes),
+          fase: "inicio",
+        };
+      }
+
+      return { ...puntajes, quizPasoActual: siguientePaso };
+    });
   }
 
   async function iniciar(e) {
@@ -64,7 +125,8 @@ export default function Home() {
       const turno = await llamarTutor({
         esInicial: true,
         enunciado: inputEnunciado,
-        idioma: estado.idioma,
+        idioma: estado.userLanguage,
+        learningLevel: estado.learningLevel,
         historial: [],
       });
 
@@ -86,6 +148,12 @@ export default function Home() {
         ultimaEsErrorFrecuente: false,
         ultimaNormalizacion: "",
         proveedor: turno.proveedor,
+        opcionesRespuesta: turno.opcionesRespuesta || [],
+        requiereOpcion: Boolean(turno.requiereOpcion),
+        opciones: turno.opciones || [],
+        opcionEstado: {},
+        pistaActual: null,
+        racha: 0,
       }));
     } catch (err) {
       setEstado((s) => ({ ...s, fase: "error", error: err.message }));
@@ -96,10 +164,13 @@ export default function Home() {
     // Historial tal como está ANTES de agregar este intento, para mandarle
     // al servidor exactamente lo que ya se conversó (stateless).
     const historialParaEnviar = estado.historial;
-    const idioma = estado.idioma;
+    const idioma = estado.userLanguage;
 
     // UI optimista: la burbuja del estudiante aparece al instante, no
-    // recién cuando vuelve la respuesta del servidor.
+    // recién cuando vuelve la respuesta del servidor. El color que ya se
+    // pintó en OpcionQuiz (si vino de ahí) se mantiene durante la carga:
+    // no tocamos opcionEstado/opciones acá, solo se reemplazan cuando
+    // llega el turno siguiente.
     setEstado((s) => ({
       ...s,
       fase: "cargando",
@@ -118,6 +189,7 @@ export default function Home() {
         mensaje,
         pedirAyuda,
         idioma,
+        learningLevel: estado.learningLevel,
         historial: historialParaEnviar,
       });
 
@@ -143,6 +215,12 @@ export default function Home() {
           ultimaEsErrorFrecuente: turno.correcta === false && Boolean(turno.esErrorFrecuente),
           ultimaNormalizacion: turno.correcta === false ? turno.normalizacion || "" : "",
           proveedor: turno.proveedor,
+          opcionesRespuesta: turno.opcionesRespuesta || [],
+          requiereOpcion: Boolean(turno.requiereOpcion),
+          opciones: turno.opciones || [],
+          opcionEstado: {},
+          pistaActual: turno.correcta === false ? turno.pista || null : null,
+          racha: turno.correcta === false ? 0 : turno.correcta === true ? s.racha + 1 : s.racha,
         };
       });
     } catch (err) {
@@ -156,51 +234,104 @@ export default function Home() {
     enviarTurno({ mensaje: inputRespuesta, pedirAyuda: false });
   }
 
+  function elegirChip(texto) {
+    if (estado.fase === "cargando") return;
+    enviarTurno({ mensaje: texto, pedirAyuda: false });
+  }
+
+  function elegirOpcion(opcion, idx) {
+    if (estado.fase === "cargando") return;
+    setEstado((s) => ({
+      ...s,
+      opcionEstado: { ...s.opcionEstado, [idx]: opcion.correcta ? "correcta" : "incorrecta" },
+    }));
+    enviarTurno({ mensaje: opcion.texto, pedirAyuda: false });
+  }
+
   function pedirAyudaDirecta() {
     enviarTurno({ mensaje: "", pedirAyuda: true });
   }
 
+  // "Resolver otro problema" vuelve a la pantalla de enunciado, pero
+  // conserva el idioma y el resultado del test de estilo de aprendizaje —
+  // esos no se vuelven a pedir en cada problema, solo al abrir la app.
   function reiniciar() {
-    setEstado(ESTADO_INICIAL);
+    setEstado((s) => ({
+      ...ESTADO_INICIAL,
+      fase: "inicio",
+      userLanguage: s.userLanguage,
+      quizCompleted: s.quizCompleted,
+      visualScore: s.visualScore,
+      auditoryScore: s.auditoryScore,
+      kinestheticScore: s.kinestheticScore,
+      learningLevel: s.learningLevel,
+    }));
     setInputEnunciado("");
     setInputRespuesta("");
   }
+
+  const enConversacion = !["idioma", "quiz", "inicio"].includes(estado.fase);
 
   return (
     <>
       <Encabezado conectado={estado.fase !== "error"} />
       <main
         className={`flex-1 w-full max-w-[680px] mx-auto px-4 pt-6 flex flex-col gap-5 ${
-          estado.fase !== "inicio" && !estado.completado ? "pb-28" : "pb-6"
+          enConversacion && !estado.completado
+            ? estado.requiereOpcion && estado.opciones.length > 0
+              ? "pb-72"
+              : "pb-40"
+            : "pb-6"
         }`}
       >
-        {estado.fase === "inicio" && (
-          <PantallaInicio
-            inputEnunciado={inputEnunciado}
-            setInputEnunciado={setInputEnunciado}
-            idioma={estado.idioma}
-            setIdioma={(idioma) => setEstado((s) => ({ ...s, idioma }))}
-            onIniciar={iniciar}
-          />
-        )}
+        {/* Transición suave entre pantallas. Se usa una key estable (no la
+            fase cruda) para no remontar el chat en cada turno — eso
+            rompería el scroll y el estado optimista. */}
+        <div key={enConversacion ? "chat" : estado.fase} className="mensaje-nuevo">
+          {estado.fase === "idioma" && <PantallaIdioma onSeleccionar={seleccionarIdioma} />}
 
-        {estado.fase !== "inicio" && (
-          <ConversacionTutor
-            estado={estado}
-            inputRespuesta={inputRespuesta}
-            setInputRespuesta={setInputRespuesta}
-            onResponder={responder}
-            onPedirAyuda={pedirAyudaDirecta}
-            onReiniciar={reiniciar}
-            finalChatRef={finalChatRef}
-          />
-        )}
+          {estado.fase === "quiz" && (
+            <PantallaQuizDiagnostico
+              idioma={estado.userLanguage}
+              indice={estado.quizPasoActual}
+              onResponder={responderQuiz}
+            />
+          )}
+
+          {estado.fase === "inicio" && (
+            <PantallaInicio
+              inputEnunciado={inputEnunciado}
+              setInputEnunciado={setInputEnunciado}
+              idioma={estado.userLanguage}
+              onCambiarIdioma={() => setEstado((s) => ({ ...s, fase: "idioma" }))}
+              onIniciar={iniciar}
+            />
+          )}
+
+          {enConversacion && (
+            <ConversacionTutor
+              estado={estado}
+              inputRespuesta={inputRespuesta}
+              setInputRespuesta={setInputRespuesta}
+              onResponder={responder}
+              onElegirChip={elegirChip}
+              onElegirOpcion={elegirOpcion}
+              onPedirAyuda={pedirAyudaDirecta}
+              onReiniciar={reiniciar}
+              onAbrirSolucion={() => setEstado((s) => ({ ...s, mostrarSolucion: true }))}
+              onCerrarSolucion={() => setEstado((s) => ({ ...s, mostrarSolucion: false }))}
+              finalChatRef={finalChatRef}
+            />
+          )}
+        </div>
       </main>
     </>
   );
 }
 
-function PantallaInicio({ inputEnunciado, setInputEnunciado, idioma, setIdioma, onIniciar }) {
+const ETIQUETA_IDIOMA = { jopara: "Jopara", guarani: "Guaraní" };
+
+function PantallaInicio({ inputEnunciado, setInputEnunciado, idioma, onCambiarIdioma, onIniciar }) {
   return (
     <div className="flex flex-col gap-5">
       <section className="flex flex-col gap-1.5 pt-1">
@@ -238,7 +369,8 @@ function PantallaInicio({ inputEnunciado, setInputEnunciado, idioma, setIdioma, 
           </label>
           <button
             type="button"
-            className="text-body-sm text-secondary underline underline-offset-2 flex-shrink-0"
+            aria-label="Cargar enunciado de ejemplo"
+            className="min-h-[44px] inline-flex items-center text-body-sm text-secondary underline underline-offset-2 flex-shrink-0 active:scale-[0.98] transition-all duration-200"
             onClick={() => setInputEnunciado(EJEMPLO)}
           >
             Cargar ejemplo
@@ -253,15 +385,23 @@ function PantallaInicio({ inputEnunciado, setInputEnunciado, idioma, setIdioma, 
           className="w-full p-3 rounded-xl bg-surface-container-low text-on-surface placeholder:text-outline outline-none focus:bg-surface-container-high focus:ring-2 focus:ring-primary/30 transition-all resize-none text-body-md"
         />
 
-        <div className="flex items-center gap-1 p-1 rounded-full bg-surface-container-high w-fit" role="radiogroup" aria-label="Idioma de la respuesta">
-          <IdiomaPill label="Jopara (esencial)" activo={idioma === "jopara"} onClick={() => setIdioma("jopara")} />
-          <IdiomaPill label="Castellano" activo={idioma === "castellano"} onClick={() => setIdioma("castellano")} />
+        <div className="flex items-center justify-between gap-2 px-1">
+          <span className="text-body-sm text-on-surface-variant">
+            Te voy a hablar en <strong className="text-on-surface">{ETIQUETA_IDIOMA[idioma] || idioma}</strong>
+          </span>
+          <button
+            type="button"
+            onClick={onCambiarIdioma}
+            className="min-h-[44px] inline-flex items-center text-body-sm text-secondary underline underline-offset-2 active:scale-[0.98] transition-all duration-200"
+          >
+            Cambiar
+          </button>
         </div>
 
         <button
           type="submit"
           disabled={!inputEnunciado.trim()}
-          className="min-h-[52px] rounded-full bg-secondary-container text-on-secondary-container text-title-md font-semibold shadow-elevation-2 disabled:opacity-50 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+          className="boton-degradado min-h-[52px] rounded-full text-title-md font-semibold shadow-elevation-2 disabled:opacity-50 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
         >
           <Icono nombre="smart_toy" size={22} />
           Empezar, guiame paso a paso
@@ -271,25 +411,25 @@ function PantallaInicio({ inputEnunciado, setInputEnunciado, idioma, setIdioma, 
   );
 }
 
-function IdiomaPill({ label, activo, onClick }) {
-  return (
-    <button
-      type="button"
-      role="radio"
-      aria-checked={activo}
-      onClick={onClick}
-      className={`px-3.5 py-1.5 rounded-full text-body-sm font-medium transition-colors ${
-        activo ? "bg-primary text-on-primary shadow-elevation-1" : "text-on-surface-variant"
-      }`}
-    >
-      {label}
-    </button>
-  );
-}
-
-function ConversacionTutor({ estado, inputRespuesta, setInputRespuesta, onResponder, onPedirAyuda, onReiniciar, finalChatRef }) {
+function ConversacionTutor({
+  estado,
+  inputRespuesta,
+  setInputRespuesta,
+  onResponder,
+  onElegirChip,
+  onElegirOpcion,
+  onPedirAyuda,
+  onReiniciar,
+  onAbrirSolucion,
+  onCerrarSolucion,
+  finalChatRef,
+}) {
   const { fase, tema, datos, incognita, pasoActual, totalPasosEstimados, completado } = estado;
   const cargando = fase === "cargando";
+  const modoQuiz = !completado && estado.requiereOpcion && estado.opciones.length > 0;
+  const ultimoMensajeEsTutor = estado.historial[estado.historial.length - 1]?.autor === "tutor";
+  const estadoTurnoActivo =
+    estado.ultimaCorrecta === true ? "correcta" : estado.ultimaCorrecta === false ? "incorrecta" : "nueva";
 
   return (
     <section className="flex flex-col gap-4">
@@ -302,7 +442,7 @@ function ConversacionTutor({ estado, inputRespuesta, setInputRespuesta, onRespon
           )}
         </div>
 
-        <IndicadorProgreso pasoActual={pasoActual} totalPasos={totalPasosEstimados} />
+        <IndicadorProgreso pasoActual={pasoActual} totalPasos={totalPasosEstimados} racha={estado.racha} />
 
         {Array.isArray(datos) && datos.length > 0 && (
           <div className="grid grid-cols-2 gap-2">
@@ -323,27 +463,36 @@ function ConversacionTutor({ estado, inputRespuesta, setInputRespuesta, onRespon
         )}
       </div>
 
-      {/* Chat de la conversación tutor <-> estudiante */}
+      {/* Chat de la conversación tutor <-> estudiante. El último mensaje del
+          tutor (mientras no se respondió todavía) se resalta como "el paso
+          de ahora" — el resto queda como historial de referencia, no como
+          protagonista de la pantalla. */}
       <div className="flex flex-col gap-2.5">
-        {estado.historial.slice(1).map((turno, i) => (
-          <BurbujaChat key={i} autor={turno.autor} texto={turno.texto} />
-        ))}
-        {cargando && <TutorEscribiendo />}
+        {estado.historial.slice(1).map((turno, i, arr) => {
+          const esElUltimo = i === arr.length - 1;
+          const activa = esElUltimo && turno.autor === "tutor" && !cargando && !completado;
+          return (
+            <BurbujaChat
+              key={i}
+              autor={turno.autor}
+              texto={turno.texto}
+              activa={activa}
+              estadoTurno={activa ? estadoTurnoActivo : undefined}
+            />
+          );
+        })}
+
+        {!cargando && !completado && ultimoMensajeEsTutor && !modoQuiz && (
+          <ChipsRespuesta opciones={estado.opcionesRespuesta} onElegir={onElegirChip} disabled={cargando} />
+        )}
+
+        {cargando && <TutorPensando etapa={estado.etapaPensando} />}
 
         {estado.ultimaCorrecta === false && estado.ultimaEsErrorFrecuente && estado.ultimaNormalizacion && (
-          <div className="mensaje-nuevo ml-9 flex items-start gap-2 p-3 rounded-xl bg-tertiary-fixed text-on-tertiary-fixed text-body-sm shadow-elevation-1">
+          <div className="mensaje-nuevo flex items-start gap-2 p-3 rounded-xl bg-tertiary-fixed text-on-tertiary-fixed text-body-sm shadow-elevation-1">
             <Icono nombre="groups" size={18} className="flex-shrink-0 mt-0.5" />
             <p>
               <strong>No sos el único/a:</strong> {estado.ultimaNormalizacion}
-            </p>
-          </div>
-        )}
-
-        {estado.ultimaCorrecta === false && estado.ultimaPista && (
-          <div className="mensaje-nuevo ml-9 flex items-start gap-2 p-3 rounded-xl bg-secondary-fixed text-on-secondary-fixed text-body-sm shadow-elevation-1">
-            <Icono nombre="lightbulb" size={18} className="flex-shrink-0 mt-0.5" />
-            <p>
-              <strong>Pista:</strong> {estado.ultimaPista}
             </p>
           </div>
         )}
@@ -351,26 +500,34 @@ function ConversacionTutor({ estado, inputRespuesta, setInputRespuesta, onRespon
       </div>
 
       {estado.pasosCerrados.length > 0 && (
-        <details className="rounded-2xl bg-surface-container-low shadow-elevation-1 overflow-hidden">
-          <summary className="cursor-pointer px-4 py-3 font-semibold text-body-sm text-on-surface-variant flex items-center gap-2 select-none">
-            <Icono nombre="functions" size={18} className="text-primary" />
-            Fórmulas confirmadas ({estado.pasosCerrados.length})
-          </summary>
-          <div className="flex flex-col gap-2 px-4 pb-4">
-            {estado.pasosCerrados.map((p, i) => (
-              <div
-                key={i}
-                className="px-3.5 py-2.5 rounded-lg bg-surface-container-lowest border-l-4 border-tertiary font-mono text-body-sm text-primary font-bold overflow-x-auto"
-              >
-                {p.formula}
-              </div>
-            ))}
-          </div>
-        </details>
+        <button
+          type="button"
+          onClick={onAbrirSolucion}
+          className="min-h-[44px] rounded-2xl bg-surface-container-low shadow-elevation-1 px-4 flex items-center gap-2 text-body-sm font-semibold text-on-surface-variant active:scale-[0.98] transition-all duration-200"
+        >
+          <Icono nombre="functions" size={18} className="text-primary" />
+          Ver fórmulas confirmadas ({estado.pasosCerrados.length})
+        </button>
+      )}
+
+      {estado.mostrarSolucion && (
+        <ModalSolucion
+          pasos={estado.pasosCerrados}
+          resultadoFinal={completado ? estado.resultadoFinal : null}
+          analogiaCotidiana={completado ? estado.analogiaCotidiana : ""}
+          onCerrar={onCerrarSolucion}
+        />
+      )}
+
+      {/* La pista queda escondida detrás de un toque a propósito: no se
+          regala sin que el estudiante la pida. Se remonta colapsada cada
+          vez que llega una pista nueva (key ligada al largo del historial). */}
+      {!completado && estado.pistaActual && (
+        <TarjetaPista key={`pista-${estado.historial.length}`} pista={estado.pistaActual} />
       )}
 
       {completado && estado.resultadoFinal && (
-        <div className="mensaje-nuevo flex flex-col gap-3">
+        <div className="celebrar flex flex-col gap-3">
           <div className="p-4 rounded-2xl bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-between gap-3 shadow-elevation-2">
             <span className="flex items-center gap-2 font-semibold text-body-sm uppercase tracking-wide">
               <Icono nombre="check_circle" size={22} className="text-tertiary" />
@@ -391,7 +548,7 @@ function ConversacionTutor({ estado, inputRespuesta, setInputRespuesta, onRespon
           <button
             type="button"
             onClick={onReiniciar}
-            className="min-h-[52px] rounded-full bg-primary text-on-primary text-title-md font-semibold shadow-elevation-2 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+            className="boton-degradado min-h-[52px] rounded-full text-title-md font-semibold shadow-elevation-2 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
           >
             <Icono nombre="refresh" size={20} />
             Resolver otro problema
@@ -410,36 +567,52 @@ function ConversacionTutor({ estado, inputRespuesta, setInputRespuesta, onRespon
 
       {!completado && (
         <div className="fixed bottom-0 inset-x-0 z-10 bg-surface/95 backdrop-blur-xl border-t border-surface-container-high pb-[env(safe-area-inset-bottom,0px)]">
-          <form onSubmit={onResponder} className="max-w-[680px] mx-auto px-4 py-3 flex flex-col gap-2">
-            <div className="flex items-center gap-2 bg-surface-container-lowest rounded-2xl shadow-elevation-2 p-2">
-              <input
-                type="text"
-                value={inputRespuesta}
-                onChange={(e) => setInputRespuesta(e.target.value)}
-                placeholder="Escribí tu intento para este paso..."
-                disabled={cargando}
-                autoFocus
-                className="flex-1 min-w-0 px-3 py-2.5 rounded-xl bg-surface-container-low text-on-surface placeholder:text-outline outline-none focus:bg-surface-container-high transition-colors disabled:opacity-60 text-body-md"
-              />
-              <button
-                type="submit"
-                disabled={cargando || !inputRespuesta.trim()}
-                aria-label="Enviar mi respuesta"
-                className="min-w-[48px] min-h-[48px] rounded-full bg-secondary-container text-on-secondary-container shadow-elevation-1 disabled:opacity-50 active:scale-95 transition-all flex items-center justify-center flex-shrink-0"
-              >
-                <Icono nombre="send" size={20} />
-              </button>
-            </div>
+          <div className="max-w-[680px] mx-auto px-4 py-3 flex flex-col gap-2">
+            {modoQuiz ? (
+              <div className="flex flex-col gap-2">
+                {estado.opciones.map((opcion, i) => (
+                  <OpcionQuiz
+                    key={i}
+                    letra={String.fromCharCode(65 + i)}
+                    opcion={opcion}
+                    estado={estado.opcionEstado[i] || "idle"}
+                    disabled={cargando}
+                    onResponder={() => onElegirOpcion(opcion, i)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <form onSubmit={onResponder} className="flex items-center gap-2 bg-surface-container-lowest rounded-2xl shadow-elevation-2 p-2">
+                <input
+                  type="text"
+                  value={inputRespuesta}
+                  onChange={(e) => setInputRespuesta(e.target.value)}
+                  placeholder="Escribí tu intento para este paso..."
+                  disabled={cargando}
+                  autoFocus
+                  className="flex-1 min-w-0 px-3 py-2.5 rounded-xl bg-surface-container-low text-on-surface placeholder:text-outline outline-none focus:bg-surface-container-high transition-colors disabled:opacity-60 text-body-md"
+                />
+                <button
+                  type="submit"
+                  disabled={cargando || !inputRespuesta.trim()}
+                  aria-label="Enviar mi respuesta"
+                  className="boton-degradado min-w-[44px] min-h-[44px] rounded-full shadow-elevation-1 disabled:opacity-50 active:scale-[0.98] transition-all duration-200 flex items-center justify-center flex-shrink-0"
+                >
+                  <Icono nombre="send" size={20} />
+                </button>
+              </form>
+            )}
             <button
               type="button"
               onClick={onPedirAyuda}
               disabled={cargando}
-              className="self-center flex items-center gap-1.5 px-3 py-1.5 rounded-full text-on-surface-variant text-body-sm font-medium hover:bg-surface-container-high disabled:opacity-50 transition-colors"
+              aria-label="Mostrar la respuesta de este paso"
+              className="min-h-[44px] self-center flex items-center gap-1.5 px-3 rounded-full text-on-surface-variant text-body-sm font-medium hover:bg-surface-container-high disabled:opacity-50 active:scale-[0.98] transition-all duration-200"
             >
               <Icono nombre="visibility" size={16} />
               Mostrame este paso
             </button>
-          </form>
+          </div>
         </div>
       )}
     </section>

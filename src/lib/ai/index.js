@@ -30,6 +30,7 @@ export async function avanzarTurno({
   enunciado = '',
   mensaje = '',
   pedirAyuda = false,
+  learningLevel = '',
 }) {
   if (esInicial && !enunciado.trim()) {
     throw new Error('El enunciado del problema está vacío.');
@@ -41,6 +42,15 @@ export async function avanzarTurno({
   const proveedor = elegirProveedor();
   const avanzar = proveedor === 'claude' ? avanzarTurnoConClaude : avanzarTurnoConGemini;
 
-  const turno = await avanzar({ historial, idioma, materia, esInicial, enunciado, mensaje, pedirAyuda });
-  return { ...turno, proveedor };
+  const turno = await avanzar({ historial, idioma, materia, esInicial, enunciado, mensaje, pedirAyuda, learningLevel });
+
+  // Defaults explícitos para los campos de interactividad opcional: el
+  // modelo puede omitirlos, y el frontend no debería tener que adivinar.
+  return {
+    ...turno,
+    opcionesRespuesta: Array.isArray(turno.opcionesRespuesta) ? turno.opcionesRespuesta : [],
+    requiereOpcion: Boolean(turno.requiereOpcion),
+    opciones: Array.isArray(turno.opciones) ? turno.opciones : [],
+    proveedor,
+  };
 }

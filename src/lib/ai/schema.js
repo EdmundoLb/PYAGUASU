@@ -28,7 +28,7 @@ export const TURNO_JSON_SCHEMA = {
     correcta: {
       type: 'boolean',
       description:
-        'Si este turno evalúa una respuesta del estudiante: true si acertó el paso actual, false si no. Si este es el primer turno (todavía no respondió nada), no incluyas este campo.',
+        'OBLIGATORIO en todo turno que no sea el primero: true si el estudiante acertó el paso actual, false si no. No lo omitas aunque el mensaje del estudiante parezca solo un dato o una preparación — siempre está respondiendo tu pregunta guía anterior. Solo se omite en el primerísimo turno de la conversación (cuando el mensaje es el enunciado del problema).',
     },
     mensaje: {
       type: 'string',
@@ -53,6 +53,31 @@ export const TURNO_JSON_SCHEMA = {
       type: 'string',
       description:
         'Fórmula o cálculo YA CONFIRMADO de un paso que se acaba de cerrar (porque el estudiante acertó o pidió ayuda directa). Vacío si en este turno todavía no corresponde revelar ninguna fórmula.',
+    },
+    opcionesRespuesta: {
+      type: 'array',
+      description:
+        'OPCIONAL: 2 a 4 respuestas cortas sugeridas como atajo (chips), para que el estudiante pueda tocar en vez de escribir. Son solo sugerencias de texto libre, no se evalúan por sí mismas — al tocar una se envía como si el estudiante la hubiera escrito. Usalo con moderación, no en todos los turnos. Array vacío si no aplica.',
+      items: { type: 'string' },
+    },
+    requiereOpcion: {
+      type: 'boolean',
+      description:
+        'true SOLO cuando este paso es puramente conceptual (identificar un principio, una fórmula, un concepto) y preferís plantearlo como opción múltiple en vez de respuesta libre. NUNCA lo uses para un paso que requiere que el estudiante haga un cálculo numérico — ahí siempre respuesta libre (false). Por defecto false.',
+    },
+    opciones: {
+      type: 'array',
+      description:
+        'Solo si requiereOpcion=true: entre 3 y 4 opciones de respuesta. Exactamente UNA debe tener correcta=true. Marcá errorComun=true en cualquier distractor que represente una confusión conceptual típica del tema (mismo criterio que esErrorFrecuente).',
+      items: {
+        type: 'object',
+        properties: {
+          texto: { type: 'string' },
+          correcta: { type: 'boolean' },
+          errorComun: { type: 'boolean' },
+        },
+        required: ['texto', 'correcta'],
+      },
     },
     pasoActual: {
       type: 'integer',

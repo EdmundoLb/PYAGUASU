@@ -112,17 +112,56 @@ body {
   background: var(--color-surface);
   color: var(--color-on-surface);
   font-family: var(--font-display);
+  position: relative;
+}
+
+/* Fondo "vivo": manchas de color grandes, difusas y muy tenues, tomadas de
+   la misma paleta primary/secondary/tertiary del logo, que flotan despacio
+   detrás del contenido. Da un aire más juvenil/energético sin usar ninguna
+   imagen ni ilustración — es puro color con blur. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -10%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(38rem 30rem at 8% -8%, color-mix(in srgb, var(--color-primary-container) 28%, transparent), transparent 60%),
+    radial-gradient(34rem 28rem at 108% 12%, color-mix(in srgb, var(--color-secondary-container) 24%, transparent), transparent 60%),
+    radial-gradient(30rem 26rem at 20% 108%, color-mix(in srgb, var(--color-tertiary-fixed) 26%, transparent), transparent 60%);
+  animation: flotarFondo 22s ease-in-out infinite alternate;
+}
+
+@keyframes flotarFondo {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(-1.5%, 1.5%, 0) scale(1.04);
+  }
 }
 
 .material-symbols-outlined {
-  font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 24;
+  font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 24;
   vertical-align: middle;
 }
 
-@keyframes aparecer-mensaje {
+/* Botón con degradado de la paleta de marca, para las acciones principales
+   ("empezar", "enviar", "resolver otro problema") — más enérgico que un
+   color plano, pensado para el público adolescente de la app. */
+.boton-degradado {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-container) 55%, var(--color-secondary-container) 130%);
+  color: var(--color-on-primary);
+}
+
+.boton-degradado:active {
+  filter: brightness(0.96);
+}
+
+@keyframes mensajeNuevo {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -131,7 +170,38 @@ body {
 }
 
 .mensaje-nuevo {
-  animation: aparecer-mensaje 0.25s ease-out;
+  animation: mensajeNuevo 280ms ease-out;
+}
+
+@keyframes fadeBackdrop {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.backdrop-nuevo {
+  animation: fadeBackdrop 200ms ease-out;
+}
+
+@keyframes celebrar {
+  0% {
+    opacity: 0;
+    transform: scale(0.85) translateY(6px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.03) translateY(0);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+  }
+}
+
+.celebrar {
+  animation: celebrar 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @keyframes rebotar-punto {
@@ -149,4 +219,18 @@ body {
 
 .punto-escribiendo {
   animation: rebotar-punto 1.2s ease-in-out infinite;
+}
+
+@keyframes pulso-racha {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-secondary) 45%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-secondary) 0%, transparent);
+  }
+}
+
+.racha-viva {
+  animation: pulso-racha 1.6s ease-in-out infinite;
 }
