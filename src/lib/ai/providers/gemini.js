@@ -25,13 +25,13 @@ function construirContents({ historial, mensajeNuevo }) {
   return contents;
 }
 
-async function pedirTurno(ai, modelo, { contents, materia }) {
+async function pedirTurno(ai, modelo, { contents, materia, learningLevel }) {
   const respuesta = await conReintentos(() =>
     ai.models.generateContent({
       model: modelo,
       contents,
       config: {
-        systemInstruction: construirInstruccionSistema({ materia }),
+        systemInstruction: construirInstruccionSistema({ materia, learningLevel }),
         responseMimeType: 'application/json',
         responseSchema: TURNO_JSON_SCHEMA,
         temperature: 0.4,
@@ -47,7 +47,7 @@ async function pedirTurno(ai, modelo, { contents, materia }) {
   return JSON.parse(texto);
 }
 
-export async function avanzarTurnoConGemini({ historial, idioma, materia, esInicial, enunciado, mensaje, pedirAyuda }) {
+export async function avanzarTurnoConGemini({ historial, idioma, materia, esInicial, enunciado, mensaje, pedirAyuda, learningLevel }) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error('Falta GEMINI_API_KEY en .env.local');
@@ -62,13 +62,13 @@ export async function avanzarTurnoConGemini({ historial, idioma, materia, esInic
   const ai = new GoogleGenAI({ apiKey });
 
   try {
-    return await pedirTurno(ai, MODELO_GEMINI, { contents, materia });
+    return await pedirTurno(ai, MODELO_GEMINI, { contents, materia, learningLevel });
   } catch (errorPrincipal) {
     if (!MODELO_GEMINI_RESPALDO || MODELO_GEMINI_RESPALDO === MODELO_GEMINI) {
       throw errorPrincipal;
     }
     try {
-      return await pedirTurno(ai, MODELO_GEMINI_RESPALDO, { contents, materia });
+      return await pedirTurno(ai, MODELO_GEMINI_RESPALDO, { contents, materia, learningLevel });
     } catch {
       throw errorPrincipal;
     }

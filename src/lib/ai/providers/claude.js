@@ -19,7 +19,7 @@ function construirMessages({ historial, mensajeNuevo }) {
   return messages;
 }
 
-export async function avanzarTurnoConClaude({ historial, idioma, materia, esInicial, enunciado, mensaje, pedirAyuda }) {
+export async function avanzarTurnoConClaude({ historial, idioma, materia, esInicial, enunciado, mensaje, pedirAyuda, learningLevel }) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     throw new Error('Falta ANTHROPIC_API_KEY en .env.local');
@@ -36,7 +36,7 @@ export async function avanzarTurnoConClaude({ historial, idioma, materia, esInic
     client.messages.create({
       model: MODELO_CLAUDE,
       max_tokens: 2048,
-      system: construirInstruccionSistema({ materia }),
+      system: construirInstruccionSistema({ materia, learningLevel }),
       messages: construirMessages({ historial, mensajeNuevo }),
       tools: [
         {

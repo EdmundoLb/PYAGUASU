@@ -8,7 +8,8 @@ export async function POST(request) {
     return Response.json({ error: 'Body inválido, se esperaba JSON.' }, { status: 400 });
   }
 
-  const { idioma, materia, esInicial, enunciado, mensaje, pedirAyuda, historial } = body || {};
+  const { idioma, materia, esInicial, enunciado, mensaje, pedirAyuda, historial, learningLevel } = body || {};
+  const NIVELES_APRENDIZAJE_VALIDOS = ['visual', 'auditor', 'kinestesico'];
 
   if (esInicial && (typeof enunciado !== 'string' || !enunciado.trim())) {
     return Response.json({ error: 'Falta el enunciado del problema.' }, { status: 400 });
@@ -20,12 +21,13 @@ export async function POST(request) {
   try {
     const turno = await avanzarTurno({
       historial: Array.isArray(historial) ? historial : [],
-      idioma: idioma === 'castellano' ? 'castellano' : 'jopara',
+      idioma: idioma === 'guarani' ? 'guarani' : 'jopara',
       materia: materia || 'Física',
       esInicial: Boolean(esInicial),
       enunciado: enunciado || '',
       mensaje: mensaje || '',
       pedirAyuda: Boolean(pedirAyuda),
+      learningLevel: NIVELES_APRENDIZAJE_VALIDOS.includes(learningLevel) ? learningLevel : '',
     });
     return Response.json(turno);
   } catch (error) {
