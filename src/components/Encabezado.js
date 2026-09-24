@@ -9,8 +9,9 @@ import {
   establecerSonidoActivado,
   suscribirseSonido,
 } from "@/lib/sonido";
+import TarjetaXp from "./TarjetaXp";
 
-export default function Encabezado({ conectado }) {
+export default function Encabezado({ conectado, perfilActivo, claseActiva }) {
   // La preferencia vive en localStorage (solo existe en el cliente);
   // useSyncExternalStore evita el desajuste de hidratación server/cliente
   // sin necesitar un efecto que llame setState al montar.
@@ -38,8 +39,8 @@ export default function Encabezado({ conectado }) {
                   conectado ? "bg-tertiary animate-pulse" : "bg-outline"
                 }`}
               />
-              <span className="text-label-sm text-on-surface-variant">
-                {conectado ? "Tu profe está en línea" : "Sin conexión"}
+              <span className="text-label-sm text-on-surface-variant truncate">
+                {claseActiva ? claseActiva.nombre : conectado ? "Tu profe está en línea" : "Sin conexión"}
               </span>
             </div>
           </div>
@@ -54,10 +55,14 @@ export default function Encabezado({ conectado }) {
           >
             <Icono nombre={sonido ? "volume_up" : "volume_off"} size={20} />
           </button>
-          <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed text-label-sm font-semibold flex-shrink-0">
-            <Icono nombre="function" size={14} />
-            Física · Nivel medio
-          </span>
+          {perfilActivo ? (
+            <TarjetaXp perfil={perfilActivo} variante="compacta" />
+          ) : (
+            <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed text-label-sm font-semibold flex-shrink-0">
+              <Icono nombre="function" size={14} />
+              Física · Nivel medio
+            </span>
+          )}
         </div>
       </div>
     </header>

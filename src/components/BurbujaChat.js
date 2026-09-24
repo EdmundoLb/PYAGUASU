@@ -1,7 +1,11 @@
+"use client";
+
 import Icono from "./Icono";
 import DiagramaEscena from "./DiagramaEscena";
 import SimuladorVariable from "./SimuladorVariable";
 import MascotaProfe from "./MascotaProfe";
+import RenderizadorMatematico from "./RenderizadorMatematico";
+import { useTypewriter } from "@/lib/ui/useTypewriter";
 
 // "nueva" | "correcta" | "incorrecta": estado del último intento del
 // estudiante, para que la tarjeta del paso EN CURSO cambie de color/etiqueta
@@ -37,6 +41,9 @@ export default function BurbujaChat({
   variableExplorable = null,
 }) {
   const esTutor = autor === "tutor";
+  // El efecto de "escribiendo" solo aplica al paso EN CURSO — el historial
+  // ya resuelto se sigue mostrando completo al instante, como antes.
+  const [textoRevelado, completo, saltarAlFinal] = useTypewriter(texto, { activo: esTutor && activa });
 
   // El paso EN CURSO (el último mensaje del tutor, mientras no se respondió
   // todavía) se destaca como una tarjeta de lección en vez de una burbuja
@@ -47,6 +54,7 @@ export default function BurbujaChat({
     return (
       <div
         className={`mensaje-nuevo flex flex-col gap-2 p-4 rounded-2xl bg-surface-container-lowest border-l-4 ${acento.borde} shadow-elevation-2`}
+        onClick={completo ? undefined : saltarAlFinal}
       >
         <div className="flex items-center gap-2">
           <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 shadow-elevation-1 ${acento.avatar}`}>
@@ -57,7 +65,9 @@ export default function BurbujaChat({
           </span>
         </div>
         <DiagramaEscena elementos={elementosEscena} />
-        <p className="text-body-lg leading-relaxed text-on-surface pl-10 -mt-1">{texto}</p>
+        <p className="text-body-lg leading-relaxed text-on-surface pl-10 -mt-1">
+          {completo ? <RenderizadorMatematico texto={textoRevelado} /> : textoRevelado}
+        </p>
         <SimuladorVariable variable={variableExplorable} />
       </div>
     );
@@ -77,7 +87,7 @@ export default function BurbujaChat({
             : "bg-primary text-on-primary rounded-2xl rounded-br-sm"
         }`}
       >
-        {texto}
+        <RenderizadorMatematico texto={texto} />
       </div>
       {!esTutor && (
         <div className="w-7 h-7 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center flex-shrink-0 shadow-elevation-1">
