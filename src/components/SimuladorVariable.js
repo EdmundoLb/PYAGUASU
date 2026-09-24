@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Icono from "./Icono";
+import RenderizadorMatematico from "./RenderizadorMatematico";
 
 const BASE_SEGUNDOS = 1.1;
 
@@ -55,7 +56,9 @@ export default function SimuladorVariable({ variable }) {
         <Icono nombre="speed" size={22} />
       </span>
       <div className="flex-1 min-w-0">
-        <span className="text-label-sm font-mono text-on-surface-variant">{variable.etiqueta}</span>
+        <span className="text-label-sm font-mono text-on-surface-variant">
+          <RenderizadorMatematico texto={variable.etiqueta} />
+        </span>
         <div className="flex items-center gap-2">
           <span className="text-label-sm text-outline flex-shrink-0">
             {variable.valorMin}

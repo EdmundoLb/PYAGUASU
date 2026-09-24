@@ -1,3 +1,5 @@
+import RenderizadorMatematico from "./RenderizadorMatematico";
+
 // Ciclamos entre los 3 tintes "fixed" ya definidos en el theme — nada de
 // paleta nueva, solo evitamos que sea gris plano (era el elemento más visto
 // de toda la app y el único 100% neutro).
@@ -21,7 +23,7 @@ export default function ChipsRespuesta({ opciones, onElegir, disabled }) {
           aria-label={`Responder "${texto}"`}
           className={`min-h-[44px] px-4 rounded-full text-body-sm font-medium shadow-elevation-1 active:scale-[0.98] hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:hover:translate-y-0 ${TINTES[i % TINTES.length]}`}
         >
-          {texto}
+          <RenderizadorMatematico texto={texto} />
         </button>
       ))}
     </div>

@@ -1,11 +1,12 @@
-# Kyhyje'ỹ IA — webapp
+# Py'aguasu IA — webapp
 
 Tutor de Física con IA generativa en castellano y jopara,
 para el Hackathon Kyhyje'ỹ IA. Next.js (App Router) + Tailwind v4, con una
 capa de IA desacoplada que hoy usa Gemini y que puede pasar a Claude
 cambiando una variable de entorno.
 
-El nombre del producto es **Kyhyje'ỹ IA** (el mismo nombre del hackathon);
+El nombre del producto es **Py'aguasu IA** (*py'aguasu*: "valiente" en
+guaraní, en la línea del lema del hackathon, *kyhyje'ỹ* = "sin miedo");
 el tutor de IA se presenta dentro del chat como **"Profe Física"**
 (personaje/mascota, no el nombre de la app — mismo patrón que "Duo" en
 Duolingo). El vocabulario jopara/guaraní que usa el tutor todavía tiene que
@@ -33,14 +34,24 @@ la rúbrica del hackathon (enseñar/corregir, no traducir ni resolver de una).
 
 4. Abrir [http://localhost:3000](http://localhost:3000). El primer uso pasa
    por: elegir rol (alumno/docente) → elegir perfil → elegir idioma
-   (jopara/castellano) → test rápido de 3 preguntas de estilo de aprendizaje
-   → recién ahí la pantalla para escribir el problema.
+   (jopara/castellano/guaraní) → test rápido de 3 preguntas de estilo de
+   aprendizaje → recién ahí la pantalla para escribir el problema. Las
+   siguientes veces, el perfil, el idioma y el test se recuerdan en el
+   navegador y se entra directo a la pantalla del problema.
+
+5. Correr las pruebas automáticas (vitest, no llaman a ninguna IA real):
+
+   ```bash
+   npm test
+   ```
 
 ## Flujo de onboarding (antes de la primera pregunta de física)
 
-1. **`PantallaIdioma`**: elige entre "jopara" (mezcla con castellano) o
-   "castellano" (español simple, sin mezclar guaraní) — bloquea el resto de
-   la app hasta elegir. Se guarda en `appState.userLanguage`.
+1. **`PantallaIdioma`**: elige entre "jopara" (mezcla con castellano,
+   **recomendado**: es el requisito indefectible de la guía del hackathon),
+   "castellano" (español simple, la alternativa que pide la guía) o
+   "guaraní" (guaraní completo) — bloquea el resto de la app hasta elegir.
+   Se guarda en `estado.userLanguage`.
 2. **`PantallaQuizDiagnostico`**: 3 preguntas situacionales (`src/lib/quiz/diagnostico.js`,
    `PREGUNTAS_DIAGNOSTICO`) basadas en VAK + Felder-Silverman. Cada opción
    suma un punto a `visualScore` / `auditoryScore` / `kinestheticScore`; al
@@ -55,8 +66,9 @@ la rúbrica del hackathon (enseñar/corregir, no traducir ni resolver de una).
    está en el prompt, no puede filtrarse a la respuesta. Si se edita ese
    archivo, mantener esa restricción.
 4. "Resolver otro problema" reinicia solo el problema, no el idioma ni el
-   resultado del test (se piden una sola vez por sesión de la app, no por
-   ejercicio).
+   resultado del test. Idioma y test se recuerdan por perfil en
+   `localStorage` (`src/lib/identidad/preferencias.js`): se piden una sola
+   vez por perfil y dispositivo. "Cambiar" idioma no repite el test.
 
 ## Cómo pasar de Gemini a Claude
 
@@ -77,7 +89,7 @@ src/
     page.js             -> fase idioma/quiz/inicio/conversando + pantalla de chat con el tutor
     api/tutor/route.js  -> endpoint que avanza UN turno de la conversación
   components/
-    PantallaIdioma.js          -> paso 1 del onboarding: elegir jopara/castellano
+    PantallaIdioma.js          -> paso 1 del onboarding: elegir jopara/castellano/guaraní
     PantallaQuizDiagnostico.js -> paso 2 del onboarding: test VAK/Felder-Silverman
     BurbujaChat.js              -> el último mensaje del tutor se resalta como
                                     "tarjeta de lección" (activa=true), coloreada
@@ -97,8 +109,9 @@ src/
 
 El cliente (`page.js`) mantiene el `historial` completo de la conversación
 en memoria (`{ autor: 'estudiante' | 'tutor', texto }`) y lo reenvía entero
-en cada request — el servidor es *stateless*, no hay base de datos ni
-sesión. `POST /api/tutor` recibe:
+en cada request — el tutor es *stateless*. (El progreso, XP y clases viven
+en un store en memoria del servidor, `src/lib/store/`, que se pierde al
+reiniciarlo: es un mock para la demo.) `POST /api/tutor` recibe:
 
 - Primer turno: `{ esInicial: true, enunciado, idioma, learningLevel, historial: [] }`
   — la IA identifica tema/datos/incógnita y plantea SOLO la primera pregunta
@@ -107,9 +120,12 @@ sesión. `POST /api/tutor` recibe:
   — la IA evalúa el intento del estudiante para el paso actual y responde
   con `correcta`, `mensaje` (feedback), `pista` (si se equivocó) o
   `formula` (si ese paso ya se cerró), hasta llegar a `completado: true`
-  con `resultadoFinal` y `analogiaCotidiana`.
-- `idioma` es `'jopara'` o `'castellano'` (`route.js` cae a `'jopara'` si viene
-  cualquier otro valor). `learningLevel` es `'visual' | 'auditor' | 'kinestesico'`
+  con `resultadoFinal` y `analogiaCotidiana`. Cada turno trae además
+  `fueraDeTema`, `riesgo` (muestra contactos de ayuda) y `esIntento`
+  (solo los intentos reales cuentan como error para el XP: un "estoy
+  nervioso" o un "no sé" no castigan).
+- `idioma` es `'jopara'`, `'castellano'` o `'guarani'` (`route.js` cae a
+  `'jopara'` si viene cualquier otro valor). `learningLevel` es `'visual' | 'auditor' | 'kinestesico'`
   o `''` si el test todavía no se completó.
 
 ## Pendiente crítico (ver informe del proyecto)

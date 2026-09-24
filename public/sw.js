@@ -10,7 +10,7 @@
 // cargar JS que ya no existe y la app deja de reaccionar a clics sin ni
 // siquiera tirar un error visible. Solo los assets de `_next/static/*` son
 // seguros para cache-first: su nombre de archivo cambia con el contenido.
-const CACHE = "pyaguasu-shell-v2";
+const CACHE = "pyaguasu-shell-v3"; // v3: descarta cachés viejos que pudieron quedar con JS de `next dev`
 
 self.addEventListener("install", () => {
   self.skipWaiting();

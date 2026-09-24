@@ -1,31 +1,32 @@
 import { InlineMath } from "react-katex";
 
-// Separa segmentos "$...$" (fórmulas) del resto del texto plano. El tutor
-// de IA escribe fórmulas cortas en una sola línea envueltas en $...$ (ver
-// regla 6b en lib/ai/prompt.js) — nunca bloques $$...$$, porque esto vive
-// dentro de una burbuja de chat angosta.
-const PATRON_FORMULA = /(\$[^$\n]+\$)/g;
+import { dividirEnTrozos } from "@/lib/ui/formulas";
 
-export default function RenderizadorMatematico({ texto }) {
+// `longitudVisible` (opcional): para el efecto de "escribiendo" — muestra
+// solo los primeros N caracteres del texto, pero cada fórmula aparece
+// completa y ya renderizada cuando la escritura la alcanza, nunca como
+// LaTeX crudo a medio escribir ("$\frac{1}{").
+export default function RenderizadorMatematico({ texto, longitudVisible }) {
   if (!texto) return null;
 
-  const partes = texto.split(PATRON_FORMULA);
-
-  return (
-    <>
-      {partes.map((parte, i) => {
-        if (parte.startsWith("$") && parte.endsWith("$") && parte.length > 2) {
-          const formula = parte.slice(1, -1);
-          return (
-            <InlineMath
-              key={i}
-              math={formula}
-              renderError={() => <span className="font-mono">{parte}</span>}
-            />
-          );
-        }
-        return <span key={i}>{parte}</span>;
-      })}
-    </>
-  );
+  let restante = longitudVisible ?? Infinity;
+  const elementos = [];
+  for (const [i, trozo] of dividirEnTrozos(texto).entries()) {
+    if (restante <= 0) break;
+    if (trozo.formula) {
+      if (restante < trozo.largo) break;
+      elementos.push(
+        <InlineMath
+          key={i}
+          math={trozo.valor}
+          renderError={() => <span className="font-mono">{trozo.original}</span>}
+        />
+      );
+    } else {
+      elementos.push(<span key={i}>{trozo.valor.slice(0, restante)}</span>);
+    }
+    restante -= trozo.largo;
+  }
+  return <>{elementos}</>;
 }
+

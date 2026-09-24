@@ -2,6 +2,8 @@
 // entrega la resolución completa de una: cada llamada avanza (o no) un solo
 // micro-paso, según si la respuesta del estudiante en ese paso fue correcta.
 
+import { CAMPOS_ALCANCE_SCHEMA } from './prompt';
+
 // Íconos de Material Symbols permitidos en "elementosEscena" (ver más abajo).
 // Whitelist cerrada a propósito: así la IA nunca puede "inventar" una
 // ligatura que no exista y termine mostrándose como texto roto en pantalla.
@@ -66,6 +68,15 @@ export const TURNO_JSON_SCHEMA = {
       description:
         'Lo que le decís al estudiante en este turno: la pregunta guía del paso actual (si es turno inicial o avanzás de paso), o la retroalimentación sobre su intento (si estás evaluando una respuesta). Tono cálido, nunca punitivo.',
     },
+    esIntento: {
+      type: 'boolean',
+      description:
+        'En todo turno que no sea el primero: true SOLO si el mensaje del estudiante fue un intento real de responder la pregunta guía (acierte o no). false si fue "no sé", un pedido de ayuda, una pregunta, un desvío, algo emocional o una señal de riesgo. Solo los intentos cuentan como error en su progreso.',
+    },
+    // Clasificación de alcance (ver sección ALCANCE del prompt). Sin estos
+    // campos en el schema, Gemini nunca los devolvía aunque el prompt los
+    // pidiera: la salida estructurada solo incluye propiedades declaradas.
+    ...CAMPOS_ALCANCE_SCHEMA,
     pista: {
       type: 'string',
       description: 'Solo si correcta=false: una pista concreta que ayude sin resolver el paso por el estudiante.',
@@ -83,13 +94,16 @@ export const TURNO_JSON_SCHEMA = {
     formula: {
       type: 'string',
       description:
-        'Fórmula o cálculo YA CONFIRMADO de un paso que se acaba de cerrar (porque el estudiante acertó o pidió ayuda directa). Vacío si en este turno todavía no corresponde revelar ninguna fórmula. Envolvé la fórmula completa en $...$ (LaTeX simple, una sola línea, ej. "$v = \\frac{d}{t} = \\frac{100}{8} = 12.5\\text{ m/s}$").',
+        'Fórmula o cálculo YA CONFIRMADO de un paso que se acaba de cerrar (porque el estudiante acertó o pidió ayuda directa). Vacío si en este turno todavía no corresponde revelar ninguna fórmula. Envolvé la fórmula completa en $...$ (LaTeX simple, una sola línea, ej. "$v = \\frac{d}{t} = \\frac{100\\text{ m}}{8\\text{ s}} = 12.5\\text{ m/s}$"). Cada dato reemplazado lleva su unidad, no solo el resultado.',
     },
     opcionesRespuesta: {
       type: 'array',
       description:
         'OPCIONAL: 2 a 4 respuestas cortas sugeridas como atajo (chips), para que el estudiante pueda tocar en vez de escribir. Son solo sugerencias de texto libre, no se evalúan por sí mismas — al tocar una se envía como si el estudiante la hubiera escrito. Usalo con moderación, no en todos los turnos. Array vacío si no aplica.',
-      items: { type: 'string' },
+      items: {
+        type: 'string',
+        description: 'Si incluye una fórmula o variable, envolvela en $...$ (ej. "$a = 4\\text{ m/s}^2$").',
+      },
     },
     requiereOpcion: {
       type: 'boolean',
@@ -103,7 +117,10 @@ export const TURNO_JSON_SCHEMA = {
       items: {
         type: 'object',
         properties: {
-          texto: { type: 'string' },
+          texto: {
+            type: 'string',
+            description: 'Si la opción es o contiene una fórmula, envolvela en $...$ (ej. "$v = \\frac{d}{t}$"). Nunca LaTeX sin dólares.',
+          },
           correcta: { type: 'boolean' },
           errorComun: { type: 'boolean' },
         },
@@ -160,8 +177,12 @@ export const TURNO_JSON_SCHEMA = {
       description: 'Solo presente si completado=true.',
       properties: {
         valor: { type: 'string', description: 'Envolvelo en $...$ si es un valor/expresión (ej. "$12.5$").' },
-        unidad: { type: 'string' },
+        unidad: {
+          type: 'string',
+          description: 'Unidad del resultado (ej. "m/s", "kg·m/s", "N"). Obligatoria en Física: cadena vacía SOLO si la magnitud es adimensional (ej. un coeficiente de fricción).',
+        },
       },
+      required: ['valor', 'unidad'],
     },
     analogiaCotidiana: {
       type: 'string',
@@ -184,6 +205,18 @@ export const TURNO_JSON_SCHEMA = {
       },
       required: ['expresion', 'resultado'],
     },
+    verificacionRespuesta: {
+      type: 'object',
+      description:
+        'En todo turno que evalúa una respuesta NUMÉRICA del estudiante (no en el primer turno ni en pasos conceptuales): la cuenta cuyo resultado es la respuesta CORRECTA del paso que el estudiante acaba de responder. El servidor la calcula y la compara con lo que escribió el estudiante, para detectar si lo evaluaste mal.',
+      properties: {
+        expresion: {
+          type: 'string',
+          description: 'Solo números y operadores + - * / ^ ( ), sin unidades ni LaTeX. Ej. "10 + (-30)" o "5*2".',
+        },
+      },
+      required: ['expresion'],
+    },
     enunciadoGenerado: {
       type: 'string',
       description:
@@ -198,6 +231,8 @@ export const TURNO_JSON_SCHEMA = {
     'totalPasosEstimados',
     'completado',
     'analogiaCotidiana',
+    'fueraDeTema',
+    'riesgo',
   ],
 };
 

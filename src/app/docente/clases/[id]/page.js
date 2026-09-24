@@ -24,7 +24,8 @@ export default function DetalleClasePage({ params }) {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!perfil || perfil.rol !== "docente") {
+    if (perfil === undefined) return; // todavía no se leyó localStorage
+    if (perfil === null || perfil.rol !== "docente") {
       router.replace("/");
     }
   }, [perfil, router]);

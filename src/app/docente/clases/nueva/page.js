@@ -19,7 +19,8 @@ export default function NuevaClasePage() {
   const perfil = useSyncExternalStore(suscribirsePerfilActivo, leerPerfilActivo, perfilActivoServidor);
 
   useEffect(() => {
-    if (!perfil || perfil.rol !== "docente") {
+    if (perfil === undefined) return; // todavía no se leyó localStorage
+    if (perfil === null || perfil.rol !== "docente") {
       router.replace("/");
     }
   }, [perfil, router]);

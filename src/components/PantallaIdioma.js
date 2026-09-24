@@ -8,6 +8,18 @@ const OPCIONES = [
     icono: "forum",
     acentoBorde: "border-primary",
     acentoIcono: "bg-primary text-on-primary",
+    recomendado: true,
+  },
+  // Castellano como alternativa: la guía del hackathon pide jopara como
+  // idioma esencial y castellano como opción, y el 26% de los estudiantes
+  // dice confundirse con los idiomas cuando le explican.
+  {
+    valor: "castellano",
+    titulo: "Castellano",
+    descripcion: "Español simple y directo, sin mezclar con guaraní.",
+    icono: "chat",
+    acentoBorde: "border-secondary",
+    acentoIcono: "bg-secondary text-on-secondary",
   },
   {
     valor: "guarani",
@@ -53,7 +65,14 @@ export default function PantallaIdioma({ onSeleccionar }) {
               <Icono nombre={opcion.icono} size={22} />
             </span>
             <span className="flex flex-col gap-0.5 min-w-0">
-              <span className="text-title-md font-semibold">{opcion.titulo}</span>
+              <span className="text-title-md font-semibold flex items-center gap-2 flex-wrap">
+                {opcion.titulo}
+                {opcion.recomendado && (
+                  <span className="px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed text-label-sm font-mono font-semibold">
+                    Recomendado
+                  </span>
+                )}
+              </span>
               <span className="text-body-sm text-on-surface-variant leading-snug">{opcion.descripcion}</span>
             </span>
           </button>

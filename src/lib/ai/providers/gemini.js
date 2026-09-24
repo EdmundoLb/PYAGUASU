@@ -7,6 +7,7 @@ import {
   construirPrefijoIdioma,
 } from '../prompt';
 import { conReintentos } from '../reintentar';
+import { repararEscapesInvalidosEnJson } from '../../latex/escapes';
 
 // 'gemini-flash-latest' devolvía 503 (alta demanda) al probarlo; confirmé a
 // mano que 'gemini-3.6-flash' responde bien con esta key. Si ESE también
@@ -44,7 +45,17 @@ async function pedirTurno(ai, modelo, { contents, materia, learningLevel }) {
     throw new Error(`Gemini (${modelo}) no devolvió contenido de texto.`);
   }
 
-  return JSON.parse(texto);
+  try {
+    return JSON.parse(texto);
+  } catch (error) {
+    // LaTeX con barra simple ("\cdot", "\sqrt") es un escape inválido en
+    // JSON: en vez de perder el turno entero, se repara y se reintenta.
+    try {
+      return JSON.parse(repararEscapesInvalidosEnJson(texto));
+    } catch {
+      throw error;
+    }
+  }
 }
 
 export async function avanzarTurnoConGemini({ historial, idioma, materia, esInicial, enunciado, mensaje, pedirAyuda, learningLevel }) {

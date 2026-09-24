@@ -22,18 +22,62 @@ import RenderizadorMatematico from "@/components/RenderizadorMatematico";
 import TecladoMatematico from "@/components/TecladoMatematico";
 import { PREGUNTAS_DIAGNOSTICO, calcularEstiloPredominante } from "@/lib/quiz/diagnostico";
 import { reproducirSonidoCorrecto } from "@/lib/sonido";
-import { guardarPerfilActivo, leerPerfilActivo } from "@/lib/identidad/perfilActivo";
+import { guardarPerfilActivo, leerPerfilActivo, limpiarPerfilActivo } from "@/lib/identidad/perfilActivo";
+import { guardarPreferencias, leerPreferencias } from "@/lib/identidad/preferencias";
+
+// Líneas de ayuda de Paraguay que se muestran si el tutor detecta una señal
+// de riesgo (campo `riesgo` del turno). ⚠️ Confirmar con la organización o
+// el equipo docente antes de la demo que siguen vigentes.
+const CONTACTOS_AYUDA = [
+  { numero: "147", nombre: "Fono Ayuda — niñez y adolescencia (gratuito)" },
+  { numero: "911", nombre: "Emergencias" },
+];
+
+// Si el alumno ya eligió idioma e hizo el test con este perfil, se retoma
+// directo en la pantalla de inicio en vez de repetir el onboarding.
+function estadoConPerfil(s, perfil) {
+  const prefs = leerPreferencias(perfil.id);
+  if (!prefs) {
+    // Onboarding desde cero: nada del test de otro perfil puede arrastrarse.
+    return {
+      ...s,
+      rolElegido: "alumno",
+      perfilActivo: perfil,
+      fase: "idioma",
+      userLanguage: "",
+      quizPasoActual: 0,
+      quizCompleted: false,
+      visualScore: 0,
+      auditoryScore: 0,
+      kinestheticScore: 0,
+      learningLevel: "",
+    };
+  }
+  return {
+    ...s,
+    rolElegido: "alumno",
+    perfilActivo: perfil,
+    userLanguage: prefs.userLanguage,
+    learningLevel: prefs.learningLevel,
+    quizCompleted: true,
+    fase: "inicio",
+  };
+}
 
 const EJEMPLO =
   "Un auto de 1200 kg viaja a 20 m/s sobre una pista horizontal sin fricción y choca de frente contra otro auto de 800 kg que se encuentra en reposo. Después del impacto, ambos quedan enganchados. ¿Cuál es la velocidad final del conjunto?";
 
+// Lo que se ve en el chat (y recibe la IA en el historial) cuando el alumno
+// toca "Mostrame este paso".
+const TEXTO_PEDIR_AYUDA = "Mostrame este paso, por favor.";
+
 const ESTADO_INICIAL = {
-  fase: "rol", // rol | perfil | idioma | quiz | inicio | cargando | conversando | error
+  fase: "rol", // retomando | rol | perfil | idioma | quiz | inicio | cargando | conversando | error
   rolElegido: "", // 'alumno' | 'docente' — elegido en PantallaRol
   perfilActivo: null, // perfil mock elegido en PantallaPerfil (sin login real)
   sesionTutorId: "", // id de la SesionTutor mock ligada a la conversación actual
   erroresSesion: 0, // total de intentos incorrectos en el problema actual (para XP)
-  userLanguage: "", // 'jopara' | 'guarani' — elegido en PantallaIdioma, bloquea el resto de la app
+  userLanguage: "", // 'jopara' | 'castellano' | 'guarani' — elegido en PantallaIdioma, bloquea el resto de la app
   quizPasoActual: 0,
   quizCompleted: false,
   visualScore: 0,
@@ -53,6 +97,7 @@ const ESTADO_INICIAL = {
   pasosCerrados: [], // [{ paso, formula }]
   ultimaPista: "",
   ultimaCorrecta: null,
+  ultimaFueAyuda: false, // el último turno fue "Mostrame este paso" (tarjeta neutra, no "Casi")
   ultimaEsErrorFrecuente: false,
   ultimaNormalizacion: "",
   proveedor: "",
@@ -67,6 +112,9 @@ const ESTADO_INICIAL = {
   opciones: [], // opciones del quiz cuando requiereOpcion=true
   racha: 0, // aciertos seguidos en este problema (se corta con un error)
   resultadoXp: null, // { xpGanada, nivelNuevo, subioDeNivel, insigniasNuevas } al completar
+  // --- alcance (campos fueraDeTema / riesgo del turno) ---
+  desviosSeguidos: 0, // turnos seguidos fuera de tema; a partir de 3 se muestra un banner amable
+  mostrarAyudaRiesgo: false, // tarjeta con contactos de ayuda, hasta que el alumno la cierre
 };
 
 export default function Home() {
@@ -101,6 +149,12 @@ export default function Home() {
   // Si ya había un perfil elegido en esta máquina (localStorage), se retoma
   // en vez de mostrar el selector de rol de nuevo. Un docente va directo a
   // su panel; un alumno retoma el flujo de onboarding de siempre.
+  //
+  // El store del server es solo en memoria: si se reinició (o, en
+  // serverless, arrancó una instancia nueva), el perfil guardado acá ya no
+  // existe allá y todo lo que dependa de él fallaría con "Perfil inválido".
+  // Por eso se confirma contra el server antes de retomarlo; si no existe,
+  // se olvida y se vuelve al selector de rol.
   useEffect(() => {
     const perfilGuardado = leerPerfilActivo();
     if (!perfilGuardado) return;
@@ -108,12 +162,31 @@ export default function Home() {
       router.push("/docente");
       return;
     }
-    setEstado((s) => ({
-      ...s,
-      fase: "idioma",
-      rolElegido: "alumno",
-      perfilActivo: perfilGuardado,
-    }));
+    // Mientras se confirma se muestra "Cargando tu perfil..." en vez del
+    // selector de rol: si no, el alumno podía empezar a elegir otro perfil
+    // y la respuesta tardía (en `next dev` la primera compilación de la
+    // ruta tarda segundos) lo sacaba de ahí a la fuerza.
+    setEstado((s) => ({ ...s, fase: "retomando" }));
+    let cancelado = false;
+    fetch(`/api/progreso/${perfilGuardado.id}`)
+      .then((res) => {
+        if (res.status === 404) return null;
+        return res.ok ? res.json().then((data) => data.perfil) : perfilGuardado;
+      })
+      // Sin conexión con el server no se puede confirmar: se retoma igual.
+      .catch(() => perfilGuardado)
+      .then((perfilVigente) => {
+        if (cancelado) return;
+        if (!perfilVigente) {
+          limpiarPerfilActivo();
+          setEstado((s) => (s.fase === "retomando" ? { ...s, fase: "rol" } : s));
+          return;
+        }
+        setEstado((s) => (s.fase === "retomando" ? estadoConPerfil(s, perfilVigente) : s));
+      });
+    return () => {
+      cancelado = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -126,6 +199,17 @@ export default function Home() {
   useEffect(() => {
     if (estado.perfilActivo) guardarPerfilActivo(estado.perfilActivo);
   }, [estado.perfilActivo]);
+
+  // Recuerda idioma + estilo de aprendizaje de este perfil (ver
+  // lib/identidad/preferencias.js) una vez completado el onboarding.
+  useEffect(() => {
+    if (estado.perfilActivo && estado.quizCompleted && estado.userLanguage) {
+      guardarPreferencias(estado.perfilActivo.id, {
+        userLanguage: estado.userLanguage,
+        learningLevel: estado.learningLevel,
+      });
+    }
+  }, [estado.perfilActivo, estado.quizCompleted, estado.userLanguage, estado.learningLevel]);
 
   // Anima TutorPensando por etapas mientras se espera la respuesta del tutor.
   useEffect(() => {
@@ -144,11 +228,20 @@ export default function Home() {
   }, [estado.ultimaCorrecta]);
 
   async function llamarTutor(payload) {
-    const res = await fetch("/api/tutor", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+    // Sin conexión, fetch tira un TypeError genérico ("Failed to fetch"):
+    // se reemplaza por un mensaje que el alumno entienda.
+    const mensajeSinConexion = "Estás sin conexión a internet. Revisá tu señal y volvé a intentar.";
+    if (typeof navigator !== "undefined" && navigator.onLine === false) throw new Error(mensajeSinConexion);
+    let res;
+    try {
+      res = await fetch("/api/tutor", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+    } catch {
+      throw new Error(mensajeSinConexion);
+    }
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
     return data;
@@ -192,11 +285,21 @@ export default function Home() {
       router.push("/docente");
       return;
     }
-    setEstado((s) => ({ ...s, perfilActivo: perfil, fase: "idioma" }));
+    setEstado((s) => estadoConPerfil(s, perfil));
   }
 
+  // Olvida el perfil retomado y vuelve al selector de rol. Sin esto, la
+  // única salida era Progreso → "Cerrar sesión", que no se ve durante el
+  // onboarding.
+  function cambiarPerfil() {
+    limpiarPerfilActivo();
+    setEstado(ESTADO_INICIAL);
+  }
+
+  // Si el test ya se hizo (ej. "Cambiar" idioma desde la pantalla de
+  // inicio), no se repite: solo cambia el idioma.
   function seleccionarIdioma(userLanguage) {
-    setEstado((s) => ({ ...s, userLanguage, fase: "quiz" }));
+    setEstado((s) => ({ ...s, userLanguage, fase: s.quizCompleted ? "inicio" : "quiz" }));
   }
 
   // Test de diagnóstico de estilo de aprendizaje: cada opción suma un punto
@@ -232,6 +335,17 @@ export default function Home() {
   async function comenzarProblema({ enunciadoPropio, temaSeleccionado, dificultadSeleccionada }) {
     setEstado((s) => ({ ...s, fase: "cargando", error: "" }));
 
+    // La sesión de XP es secundaria: si falla (ej. el server se reinició y
+    // ya no conoce este perfil), el alumno igual tiene que poder resolver
+    // el problema — solo se queda sin sumar XP en este intento.
+    const promesaSesion = iniciarSesionMock({
+      alumnoId: estado.perfilActivo?.id,
+      enunciado: enunciadoPropio || `Practicar: ${temaSeleccionado}`,
+    }).catch((err) => {
+      console.error("[gamificación] No se pudo iniciar la sesión de XP:", err);
+      return null;
+    });
+
     try {
       const [turno, sesion] = await Promise.all([
         llamarTutor({
@@ -243,10 +357,7 @@ export default function Home() {
           learningLevel: estado.learningLevel,
           historial: [],
         }),
-        iniciarSesionMock({
-          alumnoId: estado.perfilActivo?.id,
-          enunciado: enunciadoPropio || `Practicar: ${temaSeleccionado}`,
-        }),
+        promesaSesion,
       ]);
 
       const enunciadoMostrado = enunciadoPropio || turno.enunciadoGenerado || `Practicar: ${temaSeleccionado}`;
@@ -255,7 +366,7 @@ export default function Home() {
         ...s,
         fase: "conversando",
         enunciado: enunciadoMostrado,
-        sesionTutorId: sesion.id,
+        sesionTutorId: sesion?.id || "",
         erroresSesion: 0,
         resultadoXp: null,
         historial: [
@@ -283,6 +394,8 @@ export default function Home() {
         opcionEstado: {},
         pistaActual: null,
         racha: 0,
+        desviosSeguidos: turno.fueraDeTema ? 1 : 0,
+        mostrarAyudaRiesgo: Boolean(turno.riesgo),
       }));
     } catch (err) {
       setEstado((s) => ({ ...s, fase: "error", error: err.message }));
@@ -314,9 +427,14 @@ export default function Home() {
       ...s,
       fase: "cargando",
       error: "",
-      historial: pedirAyuda ? s.historial : [...s.historial, { autor: "estudiante", texto: mensaje }],
+      // El pedido de ayuda también queda como burbuja del alumno: así se ve
+      // en el chat por qué el tutor muestra el paso, y en los turnos
+      // siguientes la IA recibe ese contexto (antes veía dos mensajes
+      // seguidos del tutor, sin el pedido en el medio).
+      historial: [...s.historial, { autor: "estudiante", texto: pedirAyuda ? TEXTO_PEDIR_AYUDA : mensaje }],
       ultimaPista: "",
       ultimaCorrecta: null,
+      ultimaFueAyuda: false,
       ultimaEsErrorFrecuente: false,
       ultimaNormalizacion: "",
     }));
@@ -336,8 +454,14 @@ export default function Home() {
       // en la llamada a completarSesionMock de abajo, con el mismo criterio
       // que ya usa el resto del archivo para leer estado "de antes" (ver
       // historialParaEnviar más arriba).
-      const erroresTotales = estado.erroresSesion + (turno.correcta === false ? 1 : 0);
-      const rachaTrasTurno = turno.correcta === false ? 0 : turno.correcta === true ? estado.racha + 1 : estado.racha;
+      //
+      // Solo un intento real equivocado cuenta como error (y corta la
+      // racha): decir "estoy nervioso", "no sé", hacer una pregunta o
+      // desviarse NO castiga el XP — la app se llama "sin miedo". Pedir
+      // ayuda directa sí cuenta, porque el paso se reveló sin resolverlo.
+      const cuentaComoError = turno.correcta === false && (pedirAyuda || turno.esIntento !== false);
+      const erroresTotales = estado.erroresSesion + (cuentaComoError ? 1 : 0);
+      const rachaTrasTurno = cuentaComoError ? 0 : turno.correcta === true ? estado.racha + 1 : estado.racha;
 
       setEstado((s) => {
         const nuevoHistorial = [
@@ -364,18 +488,24 @@ export default function Home() {
           resultadoFinal: turno.resultadoFinal || s.resultadoFinal,
           analogiaCotidiana: turno.analogiaCotidiana || s.analogiaCotidiana,
           pasosCerrados,
-          ultimaPista: turno.correcta === false ? turno.pista || "" : "",
-          ultimaCorrecta: turno.correcta ?? null,
-          ultimaEsErrorFrecuente: turno.correcta === false && Boolean(turno.esErrorFrecuente),
-          ultimaNormalizacion: turno.correcta === false ? turno.normalizacion || "" : "",
+          ultimaPista: turno.correcta === false && !pedirAyuda ? turno.pista || "" : "",
+          // Un turno que no fue intento (emoción, pregunta, desvío, pedido de
+          // ayuda) queda neutro: no se pinta como respuesta incorrecta.
+          ultimaCorrecta:
+            turno.correcta === false && (pedirAyuda || !cuentaComoError) ? null : turno.correcta ?? null,
+          ultimaFueAyuda: Boolean(pedirAyuda),
+          ultimaEsErrorFrecuente: turno.correcta === false && !pedirAyuda && Boolean(turno.esErrorFrecuente),
+          ultimaNormalizacion: turno.correcta === false && !pedirAyuda ? turno.normalizacion || "" : "",
           proveedor: turno.proveedor,
           opcionesRespuesta: turno.opcionesRespuesta || [],
           requiereOpcion: Boolean(turno.requiereOpcion),
           opciones: turno.opciones || [],
           opcionEstado: {},
-          pistaActual: turno.correcta === false ? turno.pista || null : null,
+          pistaActual: turno.correcta === false && !pedirAyuda ? turno.pista || null : null,
           racha: rachaTrasTurno,
           erroresSesion: erroresTotales,
+          desviosSeguidos: turno.fueraDeTema ? s.desviosSeguidos + 1 : 0,
+          mostrarAyudaRiesgo: s.mostrarAyudaRiesgo || Boolean(turno.riesgo),
         };
       });
 
@@ -448,7 +578,7 @@ export default function Home() {
     setInputRespuesta("");
   }
 
-  const enConversacion = !["rol", "perfil", "idioma", "quiz", "inicio"].includes(estado.fase);
+  const enConversacion = !["retomando", "rol", "perfil", "idioma", "quiz", "inicio"].includes(estado.fase);
   // El nav inferior solo se muestra fuera del "modo foco" de resolver un
   // problema (ahí ya hay una barra fija de input al pie — dos barras fijas
   // se pisarían) y nunca durante el onboarding.
@@ -485,7 +615,16 @@ export default function Home() {
             />
           )}
 
-          {estado.fase === "idioma" && <PantallaIdioma onSeleccionar={seleccionarIdioma} />}
+          {estado.fase === "retomando" && (
+            <p className="text-body-sm text-on-surface-variant p-4">Cargando tu perfil...</p>
+          )}
+
+          {estado.fase === "idioma" && (
+            <div className="flex flex-col gap-4">
+              <AvisoPerfil perfil={estado.perfilActivo} onCambiar={cambiarPerfil} />
+              <PantallaIdioma onSeleccionar={seleccionarIdioma} />
+            </div>
+          )}
 
           {estado.fase === "quiz" && (
             <PantallaQuizDiagnostico
@@ -496,14 +635,17 @@ export default function Home() {
           )}
 
           {estado.fase === "inicio" && (
-            <PantallaInicio
-              inputEnunciado={inputEnunciado}
-              setInputEnunciado={setInputEnunciado}
-              idioma={estado.userLanguage}
-              onCambiarIdioma={() => setEstado((s) => ({ ...s, fase: "idioma" }))}
-              onIniciar={iniciar}
-              onIniciarConTema={iniciarConTema}
-            />
+            <div className="flex flex-col gap-4">
+              <AvisoPerfil perfil={estado.perfilActivo} onCambiar={cambiarPerfil} />
+              <PantallaInicio
+                inputEnunciado={inputEnunciado}
+                setInputEnunciado={setInputEnunciado}
+                idioma={estado.userLanguage}
+                onCambiarIdioma={() => setEstado((s) => ({ ...s, fase: "idioma" }))}
+                onIniciar={iniciar}
+                onIniciarConTema={iniciarConTema}
+              />
+            </div>
           )}
 
           {enConversacion && (
@@ -518,6 +660,7 @@ export default function Home() {
               onReiniciar={reiniciar}
               onAbrirSolucion={() => setEstado((s) => ({ ...s, mostrarSolucion: true }))}
               onCerrarSolucion={() => setEstado((s) => ({ ...s, mostrarSolucion: false }))}
+              onCerrarAyudaRiesgo={() => setEstado((s) => ({ ...s, mostrarAyudaRiesgo: false }))}
               finalChatRef={finalChatRef}
             />
           )}
@@ -528,7 +671,31 @@ export default function Home() {
   );
 }
 
-const ETIQUETA_IDIOMA = { jopara: "Jopara", guarani: "Guaraní" };
+// "Entraste como X · Cambiar perfil": como el perfil se retoma solo desde
+// localStorage, sin esto la única salida era Progreso → "Cerrar sesión".
+function AvisoPerfil({ perfil, onCambiar }) {
+  if (!perfil) return null;
+  return (
+    <div className="flex items-center justify-between gap-2 p-3 rounded-2xl bg-surface-container shadow-elevation-1">
+      <span className="flex items-center gap-2 min-w-0 text-body-sm text-on-surface-variant">
+        <span className="text-xl flex-shrink-0">{perfil.avatarEmoji}</span>
+        <span className="truncate">
+          Entraste como <strong className="text-on-surface">{perfil.nombre}</strong>
+        </span>
+      </span>
+      <button
+        type="button"
+        onClick={onCambiar}
+        className="min-h-[44px] inline-flex items-center gap-1 text-body-sm text-secondary underline underline-offset-2 flex-shrink-0 active:scale-[0.98] transition-all duration-200"
+      >
+        <Icono nombre="switch_account" size={16} />
+        Cambiar perfil
+      </button>
+    </div>
+  );
+}
+
+const ETIQUETA_IDIOMA = { jopara: "Jopara", castellano: "Castellano", guarani: "Guaraní" };
 
 function PantallaInicio({ inputEnunciado, setInputEnunciado, idioma, onCambiarIdioma, onIniciar, onIniciarConTema }) {
   const [modo, setModo] = useState("propio"); // "propio" | "tema"
@@ -733,6 +900,7 @@ function ConversacionTutor({
   onReiniciar,
   onAbrirSolucion,
   onCerrarSolucion,
+  onCerrarAyudaRiesgo,
   finalChatRef,
 }) {
   const { fase, tema, datos, incognita, pasoActual, totalPasosEstimados, completado } = estado;
@@ -740,7 +908,13 @@ function ConversacionTutor({
   const modoQuiz = !completado && estado.requiereOpcion && estado.opciones.length > 0;
   const ultimoMensajeEsTutor = estado.historial[estado.historial.length - 1]?.autor === "tutor";
   const estadoTurnoActivo =
-    estado.ultimaCorrecta === true ? "correcta" : estado.ultimaCorrecta === false ? "incorrecta" : "nueva";
+    estado.ultimaFueAyuda
+      ? "ayuda"
+      : estado.ultimaCorrecta === true
+        ? "correcta"
+        : estado.ultimaCorrecta === false
+          ? "incorrecta"
+          : "nueva";
   const [mostrarTeclado, setMostrarTeclado] = useState(false);
 
   function insertarFormula(latexConDolares) {
@@ -813,8 +987,46 @@ function ConversacionTutor({
           <div className="mensaje-nuevo flex items-start gap-2 p-3 rounded-xl bg-tertiary-fixed text-on-tertiary-fixed text-body-sm shadow-elevation-1">
             <Icono nombre="groups" size={18} className="flex-shrink-0 mt-0.5" />
             <p>
-              <strong>No sos el único/a:</strong> {estado.ultimaNormalizacion}
+              <strong>No sos el único/a:</strong> <RenderizadorMatematico texto={estado.ultimaNormalizacion} />
             </p>
+          </div>
+        )}
+
+        {/* Señal de riesgo: el tutor ya responde con calidez en su mensaje;
+            esto suma contactos concretos, sin bloquear el chat. */}
+        {estado.mostrarAyudaRiesgo && (
+          <div role="alert" className="mensaje-nuevo flex flex-col gap-2 p-4 rounded-2xl bg-secondary-fixed text-on-secondary-fixed text-body-sm shadow-elevation-2">
+            <div className="flex items-start gap-2">
+              <Icono nombre="favorite" size={20} className="flex-shrink-0 mt-0.5" />
+              <p>
+                <strong>No estás solo/a.</strong> Si estás pasando por algo difícil, hablalo hoy con un adulto de confianza:
+                tu familia, un profe o el orientador/a del colegio. También podés llamar gratis:
+              </p>
+            </div>
+            <ul className="flex flex-col gap-1 pl-7">
+              {CONTACTOS_AYUDA.map((c) => (
+                <li key={c.numero}>
+                  <a href={`tel:${c.numero}`} className="font-mono font-bold underline underline-offset-2">
+                    {c.numero}
+                  </a>{" "}
+                  · {c.nombre}
+                </li>
+              ))}
+            </ul>
+            <button
+              type="button"
+              onClick={onCerrarAyudaRiesgo}
+              className="self-end min-h-[44px] px-3 rounded-full text-body-sm font-semibold hover:bg-black/5 active:scale-[0.98] transition-all duration-200"
+            >
+              Cerrar
+            </button>
+          </div>
+        )}
+
+        {!cargando && !completado && estado.desviosSeguidos >= 3 && (
+          <div className="mensaje-nuevo flex items-center gap-2 p-3 rounded-xl bg-primary-fixed text-on-primary-fixed text-body-sm shadow-elevation-1">
+            <Icono nombre="sports_score" size={18} className="flex-shrink-0" />
+            <p>¿Volvemos al problema? 💪 Ya vas por el paso {pasoActual}, ¡te falta poco!</p>
           </div>
         )}
         <div ref={finalChatRef} />
@@ -879,15 +1091,29 @@ function ConversacionTutor({
       )}
 
       {fase === "error" && (
-        <div className="rounded-2xl bg-error-container text-on-error-container p-4 text-body-sm flex items-start gap-2 shadow-elevation-1">
-          <Icono nombre="error" size={20} className="flex-shrink-0 mt-0.5" />
-          <p>
-            <strong>No se pudo avanzar:</strong> {estado.error}
-          </p>
+        <div className="rounded-2xl bg-error-container text-on-error-container p-4 text-body-sm flex flex-col gap-3 shadow-elevation-1">
+          <div className="flex items-start gap-2">
+            <Icono nombre="error" size={20} className="flex-shrink-0 mt-0.5" />
+            <p>
+              <strong>No se pudo avanzar:</strong> {estado.error}
+            </p>
+          </div>
+          {/* Salida siempre disponible: sin esto, si fallaba el primer
+              turno el alumno quedaba en un chat vacío sin forma de volver. */}
+          <button
+            type="button"
+            onClick={onReiniciar}
+            className="self-start min-h-[44px] inline-flex items-center gap-1.5 px-3.5 rounded-full bg-surface-container-lowest text-on-surface font-semibold shadow-elevation-1 active:scale-[0.98] transition-all duration-200"
+          >
+            <Icono nombre="arrow_back" size={18} />
+            Volver a empezar
+          </button>
         </div>
       )}
 
-      {!completado && (
+      {/* Sin historial (falló el primer turno) no hay un paso que responder:
+          solo queda el botón de volver de arriba. */}
+      {!completado && estado.historial.length > 0 && (
         <div className="fixed bottom-0 inset-x-0 z-10 bg-surface/95 backdrop-blur-xl border-t border-surface-container-high pb-[env(safe-area-inset-bottom,0px)]">
           <div className="max-w-[680px] mx-auto px-4 py-3 flex flex-col gap-2">
             {mostrarTeclado && !modoQuiz && (

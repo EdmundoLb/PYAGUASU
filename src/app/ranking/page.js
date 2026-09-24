@@ -19,14 +19,15 @@ export default function RankingPage() {
   // (localStorage no existe en el server) sin necesitar un efecto que llame
   // setState al montar — mismo patrón que el toggle de sonido en Encabezado.
   const perfil = useSyncExternalStore(suscribirsePerfilActivo, leerPerfilActivo, perfilActivoServidor);
-  const cargando = perfil === null;
+  const cargando = perfil === undefined; // todavía no se leyó localStorage
   const [ranking, setRanking] = useState(null);
   const [codigo, setCodigo] = useState("");
   const [uniendose, setUniendose] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!perfil) {
+    if (perfil === undefined) return;
+    if (perfil === null) {
       router.replace("/");
       return;
     }

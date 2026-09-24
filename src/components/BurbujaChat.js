@@ -30,6 +30,14 @@ const ACENTO_POR_ESTADO = {
     etiqueta: "text-secondary",
     texto: "Casi — seguí probando",
   },
+  // "Mostrame este paso": pedir ayuda no es un error, así que no se pinta
+  // como "Casi".
+  ayuda: {
+    borde: "border-primary",
+    avatar: "bg-primary-container text-on-primary",
+    etiqueta: "text-primary",
+    texto: "Así se resuelve este paso",
+  },
 };
 
 export default function BurbujaChat({
@@ -66,7 +74,9 @@ export default function BurbujaChat({
         </div>
         <DiagramaEscena elementos={elementosEscena} />
         <p className="text-body-lg leading-relaxed text-on-surface pl-10 -mt-1">
-          {completo ? <RenderizadorMatematico texto={textoRevelado} /> : textoRevelado}
+          {/* Durante la escritura las fórmulas aparecen completas y ya
+              renderizadas; antes se veía el LaTeX crudo ("$v$") hasta el final. */}
+          <RenderizadorMatematico texto={texto} longitudVisible={completo ? undefined : textoRevelado.length} />
         </p>
         <SimuladorVariable variable={variableExplorable} />
       </div>

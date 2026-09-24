@@ -1,4 +1,5 @@
 import Icono from "./Icono";
+import RenderizadorMatematico from "./RenderizadorMatematico";
 
 const ESTILOS_POR_ESTADO = {
   idle: "bg-surface-container-lowest text-on-surface border-transparent",
@@ -45,7 +46,9 @@ export default function OpcionQuiz({ opcion, letra, estado = "idle", onResponder
         >
           {letra}
         </span>
-        <span className="flex-1">{opcion.texto}</span>
+        <span className="flex-1">
+          <RenderizadorMatematico texto={opcion.texto} />
+        </span>
         {estado === "correcta" && <Icono nombre="check_circle" size={20} className="flex-shrink-0" />}
         {estado === "incorrecta" && <Icono nombre="cancel" size={20} className="flex-shrink-0" />}
       </button>

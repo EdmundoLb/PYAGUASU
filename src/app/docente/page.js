@@ -22,7 +22,8 @@ export default function DocentePage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!perfil) {
+    if (perfil === undefined) return; // todavía no se leyó localStorage
+    if (perfil === null) {
       router.replace("/");
       return;
     }

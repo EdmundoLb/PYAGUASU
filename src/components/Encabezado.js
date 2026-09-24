@@ -31,7 +31,7 @@ export default function Encabezado({ conectado, perfilActivo, claseActiva }) {
           </div>
           <div className="flex flex-col min-w-0">
             <span className="font-bold text-title-md leading-none tracking-tight truncate">
-              {"Kyhyje'ỹ IA"}
+              {"Py'aguasu IA"}
             </span>
             <div className="flex items-center gap-1 mt-1">
               <span

@@ -16,14 +16,14 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata = {
-  title: "Kyhyje'ỹ IA",
+  title: "Py'aguasu IA",
   description:
     "Tutor de Física con IA generativa en guaraní y jopara, que te guía paso a paso en vez de resolver todo por vos.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Kyhyje'ỹ IA",
+    title: "Py'aguasu IA",
   },
   icons: {
     icon: [{ url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }],

@@ -1,4 +1,5 @@
 import Icono from "./Icono";
+import RenderizadorMatematico from "./RenderizadorMatematico";
 
 const DIRECCIONES_VALIDAS = ["izquierda", "derecha", "arriba", "abajo", "ninguna"];
 
@@ -30,7 +31,7 @@ export default function DiagramaEscena({ elementos = [] }) {
               <Icono nombre={el.icono} size={28} />
             </span>
             <span className="font-mono text-label-sm text-on-surface-variant text-center max-w-[72px]">
-              {el.etiqueta}
+              <RenderizadorMatematico texto={el.etiqueta} />
             </span>
           </div>
         );

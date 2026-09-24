@@ -18,19 +18,38 @@ export function guardarPerfilActivo(perfil) {
   listeners.forEach((fn) => fn());
 }
 
+// useSyncExternalStore exige que getSnapshot devuelva el MISMO objeto
+// mientras el store no cambió: si se hiciera JSON.parse en cada llamada,
+// React vería un "cambio" en cada render y entraría en loop infinito
+// ("Maximum update depth exceeded"). Por eso se cachea el objeto parseado
+// usando el string crudo como clave.
+let ultimoCrudo = null;
+let ultimoPerfil = null;
+
 export function leerPerfilActivo() {
   if (typeof window === 'undefined') return null;
+  let crudo;
   try {
-    const crudo = window.localStorage.getItem(CLAVE);
-    return crudo ? JSON.parse(crudo) : null;
+    crudo = window.localStorage.getItem(CLAVE);
   } catch {
     return null;
   }
+  if (crudo === ultimoCrudo) return ultimoPerfil;
+  ultimoCrudo = crudo;
+  try {
+    ultimoPerfil = crudo ? JSON.parse(crudo) : null;
+  } catch {
+    ultimoPerfil = null;
+  }
+  return ultimoPerfil;
 }
 
-// Snapshot estable para el render en el servidor (ahí no hay localStorage).
+// Snapshot para el render en el servidor y la hidratación (ahí todavía no
+// se leyó localStorage). Es `undefined` a propósito, distinto de `null`
+// ("no hay perfil"): las páginas solo redirigen con `null`, así no echan
+// al usuario en el primer render antes de haber leído su perfil.
 export function perfilActivoServidor() {
-  return null;
+  return undefined;
 }
 
 export function limpiarPerfilActivo() {

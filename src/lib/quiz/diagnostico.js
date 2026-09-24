@@ -31,6 +31,7 @@ export const PREGUNTAS_DIAGNOSTICO = [
     texto: {
       jopara: "Néike, cuando aprendés un tema nuevo de física, ¿qué te ayuda iporãve a entenderlo?",
       guarani: "Reikuaa porã haguã peteĩ mba'e pyahu física-pe, mba'épa ndéve iporãve?",
+      castellano: "Cuando aprendés un tema nuevo de física, ¿qué te ayuda más a entenderlo?",
     },
     opciones: [
       {
@@ -38,6 +39,7 @@ export const PREGUNTAS_DIAGNOSTICO = [
         texto: {
           jopara: "Ver un gráfico, diagrama térã animación que muestre qué pasa",
           guarani: "Ehecha peteĩ ta'anga térã animación, oechauka haguã mba'épa ojehu",
+          castellano: "Ver un gráfico, diagrama o animación que muestre qué pasa",
         },
       },
       {
@@ -45,6 +47,7 @@ export const PREGUNTAS_DIAGNOSTICO = [
         texto: {
           jopara: "Que me lo expliquen peteĩteĩ, hablado térã en un texto bien detallado",
           guarani: "Oñemombe'u chéve peteĩteĩ, ñe'ẽme térã kuatiañe'ẽ detállepe",
+          castellano: "Que me lo expliquen paso a paso, hablado o en un texto bien detallado",
         },
       },
       {
@@ -52,6 +55,7 @@ export const PREGUNTAS_DIAGNOSTICO = [
         texto: {
           jopara: "Probarlo che voi en un simulador, moviendo variables",
           guarani: "Ajapo che voi peteĩ simulador-pe, amyi variable-kuéra",
+          castellano: "Probarlo yo mismo/a en un simulador, moviendo variables",
         },
       },
     ],
@@ -61,6 +65,7 @@ export const PREGUNTAS_DIAGNOSTICO = [
     texto: {
       jopara: "Para resolver peteĩ problema de física, ¿qué herramienta preferís usar?",
       guarani: "Eresolve haguã peteĩ física mba'e apo, mba'e herramienta piko reipotave?",
+      castellano: "Para resolver un problema de física, ¿qué herramienta preferís usar?",
     },
     opciones: [
       {
@@ -68,6 +73,7 @@ export const PREGUNTAS_DIAGNOSTICO = [
         texto: {
           jopara: "Un dibujo térã diagrama del problema, con flechas ha datos marcados",
           guarani: "Peteĩ ta'anga térã diagrama upe mba'e apo-gui, flecha ha dato-ndive",
+          castellano: "Un dibujo o diagrama del problema, con flechas y datos marcados",
         },
       },
       {
@@ -75,6 +81,7 @@ export const PREGUNTAS_DIAGNOSTICO = [
         texto: {
           jopara: "Una explicación escrita térã narrada del razonamiento, peteĩteĩ",
           guarani: "Peteĩ explicación ojehaíva térã oje'éva, peteĩteĩ",
+          castellano: "Una explicación escrita o narrada del razonamiento, paso por paso",
         },
       },
       {
@@ -82,6 +89,7 @@ export const PREGUNTAS_DIAGNOSTICO = [
         texto: {
           jopara: "Un simulador donde ikatu mover variables ha ver qué cambia",
           guarani: "Peteĩ simulador amyi haguã variable ha ahecha mba'épa ojekuaa",
+          castellano: "Un simulador donde puedo mover variables y ver qué cambia",
         },
       },
     ],
@@ -91,6 +99,7 @@ export const PREGUNTAS_DIAGNOSTICO = [
     texto: {
       jopara: "Cuando te equivocás en un ejercicio, ¿qué te ayuda iporãve a entender mamópa te trabaste?",
       guarani: "Rejavy ramo peteĩ ejercicio-pe, mba'épa ndéve iporãve reikuaa haguã mamópa rejavy?",
+      castellano: "Cuando te equivocás en un ejercicio, ¿qué te ayuda a entender dónde te trabaste?",
     },
     opciones: [
       {
@@ -98,6 +107,7 @@ export const PREGUNTAS_DIAGNOSTICO = [
         texto: {
           jopara: "Ver el error marcado en un gráfico térã diagrama",
           guarani: "Ehecha upe error peteĩ ta'anga-pe marcádo",
+          castellano: "Ver el error marcado en un gráfico o diagrama",
         },
       },
       {
@@ -105,6 +115,7 @@ export const PREGUNTAS_DIAGNOSTICO = [
         texto: {
           jopara: "Que me expliquen con palabras mamópa me confundí",
           guarani: "Oñemombe'u chéve ñe'ẽme mamópa aikuaaseve",
+          castellano: "Que me expliquen con palabras dónde me confundí",
         },
       },
       {
@@ -112,6 +123,7 @@ export const PREGUNTAS_DIAGNOSTICO = [
         texto: {
           jopara: "Volver a intentarlo cambiando algo ha ver qué resultado da",
           guarani: "Ajapo jey amboje'ýi peteĩ mba'e ha ahecha mba'épa osẽ",
+          castellano: "Volver a intentarlo cambiando algo y ver qué resultado da",
         },
       },
     ],

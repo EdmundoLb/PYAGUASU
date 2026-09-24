@@ -10,24 +10,40 @@ const TOLERANCIA_RELATIVA = 0.02; // mismo margen que el prompt ya acepta para r
 const TOLERANCIA_MINIMA = 0.01; // piso absoluto para resultados cercanos a cero
 
 /**
+ * Evalúa una cuenta de calculadora escrita por el modelo.
+ * @returns {number | null} null si no es una cuenta válida y segura.
+ */
+export function evaluarCuenta(expresion) {
+  if (typeof expresion !== 'string' || !expresion.trim()) return null;
+
+  // La expresión viene del modelo, que el estudiante puede influenciar con
+  // su mensaje: se limita a una cuenta de calculadora (números, notación
+  // científica y + - * / ^ ( )), sin funciones ni matrices de mathjs, que
+  // permitirían expresiones capaces de bloquear el servidor.
+  if (expresion.length > 200 || !/^[\d\s.,+\-*/^()eE]+$/.test(expresion)) return null;
+
+  let valor;
+  try {
+    valor = evaluate(expresion);
+  } catch {
+    return null;
+  }
+  return typeof valor === 'number' && Number.isFinite(valor) ? valor : null;
+}
+
+/**
  * @param {{ expresion?: string, resultado?: number }} verificacion
  * @returns {{ verificable: false } | { verificable: true, ok: boolean, valorCalculado: number }}
  */
 export function verificarCalculo(verificacion) {
   const { expresion, resultado } = verificacion || {};
 
-  if (typeof expresion !== 'string' || !expresion.trim() || typeof resultado !== 'number' || Number.isNaN(resultado)) {
+  if (typeof resultado !== 'number' || Number.isNaN(resultado)) {
     return { verificable: false };
   }
 
-  let valorCalculado;
-  try {
-    valorCalculado = evaluate(expresion);
-  } catch {
-    return { verificable: false };
-  }
-
-  if (typeof valorCalculado !== 'number' || Number.isNaN(valorCalculado) || !Number.isFinite(valorCalculado)) {
+  const valorCalculado = evaluarCuenta(expresion);
+  if (valorCalculado === null) {
     return { verificable: false };
   }
 

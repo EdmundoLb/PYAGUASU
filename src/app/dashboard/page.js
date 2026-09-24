@@ -8,7 +8,7 @@ import TarjetaXp from "@/components/TarjetaXp";
 import TarjetaInsignia from "@/components/TarjetaInsignia";
 import NavegacionInferior from "@/components/NavegacionInferior";
 import BotonCerrarSesion from "@/components/BotonCerrarSesion";
-import { leerPerfilActivo } from "@/lib/identidad/perfilActivo";
+import { leerPerfilActivo, limpiarPerfilActivo } from "@/lib/identidad/perfilActivo";
 import { CATALOGO_INSIGNIAS } from "@/lib/gamificacion/insignias";
 
 export default function DashboardPage() {
@@ -31,8 +31,18 @@ export default function DashboardPage() {
     }
 
     fetch(`/api/progreso/${perfil.id}`)
-      .then((res) => res.json())
+      .then((res) => {
+        // El store del server es en memoria: tras un reinicio este perfil ya
+        // no existe allá. Se olvida y se vuelve a elegir perfil.
+        if (res.status === 404) {
+          limpiarPerfilActivo();
+          router.replace("/");
+          return null;
+        }
+        return res.json();
+      })
       .then((data) => {
+        if (!data) return;
         if (data.error) throw new Error(data.error);
         setProgreso(data);
         if (data.perfil.claseId) {

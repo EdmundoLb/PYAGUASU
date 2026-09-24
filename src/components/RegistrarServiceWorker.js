@@ -14,9 +14,33 @@ import { useEffect } from "react";
 // "controller" es el patrón estándar para que la corrección de sw.js se
 // propague sola en el próximo reload, sin que cada persona tenga que
 // limpiar Application Storage a mano.
+//
+// ⚠️ Solo en producción: sw.js cachea `_next/static/*` con cache-first
+// porque en un build esos nombres llevan hash del contenido. En `next dev`
+// NO: Turbopack mantiene el mismo nombre (ej. `src_xxx._.js`) aunque el
+// código cambie, así que el SW seguía sirviendo JS viejo mezclado con el
+// runtime nuevo ("Router action dispatched before initialization", cambios
+// que no aparecen). En dev se desinstala cualquier SW que haya quedado y
+// se borra su caché.
+function desinstalarEnDesarrollo() {
+  navigator.serviceWorker.getRegistrations().then(async (registros) => {
+    if (registros.length === 0) return;
+    await Promise.all(registros.map((r) => r.unregister()));
+    const claves = await caches.keys();
+    await Promise.all(claves.map((c) => caches.delete(c)));
+    // La página actual todavía la controla el SW viejo: una recarga y ya
+    // queda libre (no se repite, porque ya no hay registros).
+    window.location.reload();
+  });
+}
+
 export default function RegistrarServiceWorker() {
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
+    if (process.env.NODE_ENV !== "production") {
+      desinstalarEnDesarrollo();
+      return;
+    }
 
     let yaRecargo = false;
     function alCambiarController() {
