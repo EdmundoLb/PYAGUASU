@@ -9,6 +9,15 @@
 // son un borrador básico escrito sin ser hablante nativo. Es tarea P0 del
 // equipo (rol: lingüista) revisar y corregir cada pregunta y opción antes de
 // usar esto en la demo del hackathon.
+//
+// Fix puntual (2026-09-23): el texto "jopara" de acá era 100% castellano —
+// cero mezcla con guaraní, contradiciendo su propia definición ("castellano
+// mezclado con guaraní", ver PantallaIdioma.js). Se agregó una mezcla
+// liviana reusando SOLO palabras que ya están en la columna "guarani" de
+// este mismo archivo (térã, ha, peteĩ, peteĩteĩ, che voi, iporãve, mamópa,
+// ikatu) más "néike" del vocabulario ya vetado en prompt.js — ninguna
+// palabra nueva sin verificar. Sigue pendiente la revisión de gramática y
+// naturalidad por un hablante nativo.
 
 export const CANAL = {
   VISUAL: "visual",
@@ -20,28 +29,28 @@ export const PREGUNTAS_DIAGNOSTICO = [
   {
     id: "concepto_nuevo",
     texto: {
-      jopara: "Cuando aprendés un tema nuevo de física, ¿qué te ayuda más a entenderlo?",
+      jopara: "Néike, cuando aprendés un tema nuevo de física, ¿qué te ayuda iporãve a entenderlo?",
       guarani: "Reikuaa porã haguã peteĩ mba'e pyahu física-pe, mba'épa ndéve iporãve?",
     },
     opciones: [
       {
         canal: CANAL.VISUAL,
         texto: {
-          jopara: "Ver un gráfico, diagrama o animación que muestre qué pasa",
+          jopara: "Ver un gráfico, diagrama térã animación que muestre qué pasa",
           guarani: "Ehecha peteĩ ta'anga térã animación, oechauka haguã mba'épa ojehu",
         },
       },
       {
         canal: CANAL.AUDITIVO,
         texto: {
-          jopara: "Que me lo expliquen paso a paso, hablado o en un texto bien detallado",
+          jopara: "Que me lo expliquen peteĩteĩ, hablado térã en un texto bien detallado",
           guarani: "Oñemombe'u chéve peteĩteĩ, ñe'ẽme térã kuatiañe'ẽ detállepe",
         },
       },
       {
         canal: CANAL.KINESTESICO,
         texto: {
-          jopara: "Probarlo yo mismo/a en un simulador, moviendo variables",
+          jopara: "Probarlo che voi en un simulador, moviendo variables",
           guarani: "Ajapo che voi peteĩ simulador-pe, amyi variable-kuéra",
         },
       },
@@ -50,28 +59,28 @@ export const PREGUNTAS_DIAGNOSTICO = [
   {
     id: "herramienta_resolucion",
     texto: {
-      jopara: "Para resolver un problema de física, ¿qué herramienta preferís usar?",
+      jopara: "Para resolver peteĩ problema de física, ¿qué herramienta preferís usar?",
       guarani: "Eresolve haguã peteĩ física mba'e apo, mba'e herramienta piko reipotave?",
     },
     opciones: [
       {
         canal: CANAL.VISUAL,
         texto: {
-          jopara: "Un dibujo o diagrama del problema, con flechas y datos marcados",
+          jopara: "Un dibujo térã diagrama del problema, con flechas ha datos marcados",
           guarani: "Peteĩ ta'anga térã diagrama upe mba'e apo-gui, flecha ha dato-ndive",
         },
       },
       {
         canal: CANAL.AUDITIVO,
         texto: {
-          jopara: "Una explicación escrita o narrada del razonamiento, paso por paso",
+          jopara: "Una explicación escrita térã narrada del razonamiento, peteĩteĩ",
           guarani: "Peteĩ explicación ojehaíva térã oje'éva, peteĩteĩ",
         },
       },
       {
         canal: CANAL.KINESTESICO,
         texto: {
-          jopara: "Un simulador donde puedo mover variables y ver qué cambia",
+          jopara: "Un simulador donde ikatu mover variables ha ver qué cambia",
           guarani: "Peteĩ simulador amyi haguã variable ha ahecha mba'épa ojekuaa",
         },
       },
@@ -80,28 +89,28 @@ export const PREGUNTAS_DIAGNOSTICO = [
   {
     id: "ayuda_error",
     texto: {
-      jopara: "Cuando te equivocás en un ejercicio, ¿qué te ayuda a entender dónde te trabaste?",
+      jopara: "Cuando te equivocás en un ejercicio, ¿qué te ayuda iporãve a entender mamópa te trabaste?",
       guarani: "Rejavy ramo peteĩ ejercicio-pe, mba'épa ndéve iporãve reikuaa haguã mamópa rejavy?",
     },
     opciones: [
       {
         canal: CANAL.VISUAL,
         texto: {
-          jopara: "Ver el error marcado en un gráfico o diagrama",
+          jopara: "Ver el error marcado en un gráfico térã diagrama",
           guarani: "Ehecha upe error peteĩ ta'anga-pe marcádo",
         },
       },
       {
         canal: CANAL.AUDITIVO,
         texto: {
-          jopara: "Que me expliquen con palabras dónde me confundí",
+          jopara: "Que me expliquen con palabras mamópa me confundí",
           guarani: "Oñemombe'u chéve ñe'ẽme mamópa aikuaaseve",
         },
       },
       {
         canal: CANAL.KINESTESICO,
         texto: {
-          jopara: "Volver a intentarlo cambiando algo y ver qué resultado da",
+          jopara: "Volver a intentarlo cambiando algo ha ver qué resultado da",
           guarani: "Ajapo jey amboje'ýi peteĩ mba'e ha ahecha mba'épa osẽ",
         },
       },
@@ -133,11 +142,11 @@ export function calcularEstiloPredominante({ visualScore = 0, auditoryScore = 0,
 export function construirContextoAprendizaje(learningLevel) {
   const formatos = {
     visual:
-      'en cada paso, además del texto, dibujá la situación con un diagrama hecho con caracteres ASCII (flechas →↑↓, círculos, cajas) usando los datos y variables REALES de este problema (nunca un ejemplo inventado), y describí posiciones/direcciones en términos espaciales concretos ("a la izquierda", "hacia arriba").',
+      'en cada paso, además del texto breve, completá "elementosEscena" con los objetos reales de este problema (nunca inventados): uno por cada dato relevante que el estudiante ya tiene en este paso, con una etiqueta corta usando el valor real (ej. "1200 kg, 20 m/s") y una dirección acorde al movimiento real de ese objeto en el problema. No es un texto para escribir aparte — es en vez del dibujo ASCII que se usaba antes. No uses ese campo para mostrar el resultado final antes de que corresponda revelarlo.',
     auditor:
       'contá el razonamiento de este problema como una narración hablada, en oraciones cortas y bien encadenadas ("primero... eso significa que... por eso..."), sin depender de diagramas ni de listas.',
     kinestesico:
-      'en vez de solo preguntar un dato, invitá a probar algo concreto con los números reales de este problema (ej. "¿qué pasaría con el resultado si m₂ fuera 0 en vez de 800 kg?"), nunca con una frase genérica tipo "cambiá un valor cualquiera". La pregunta tiene que seguir haciendo avanzar el razonamiento, nunca pedir que repita datos que ya tiene a la vista.',
+      'en vez de solo preguntar un dato, invitá a probar algo concreto con los números reales de este problema (ej. "¿qué pasaría con el resultado si m₂ fuera 0 en vez de 800 kg?"), nunca con una frase genérica tipo "cambiá un valor cualquiera". La pregunta tiene que seguir haciendo avanzar el razonamiento, nunca pedir que repita datos que ya tiene a la vista. Además, completá "variableExplorable" con ESA MISMA variable que mencionaste en la pregunta (nunca la incógnita del paso), para que el estudiante pueda moverla él mismo en vez de solo imaginarla — con su rango real y si al subirla el resultado de este paso sube (directa) o baja (inversa). No reveles ahí ningún número de resultado, solo la variable de entrada y la tendencia.',
   };
   const formato = formatos[learningLevel];
   if (!formato) return "";

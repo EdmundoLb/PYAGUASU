@@ -1,7 +1,25 @@
+"use client";
+
+import { useSyncExternalStore } from "react";
 import Image from "next/image";
 import Icono from "./Icono";
+import {
+  sonidoActivado,
+  sonidoActivadoServidor,
+  establecerSonidoActivado,
+  suscribirseSonido,
+} from "@/lib/sonido";
 
 export default function Encabezado({ conectado }) {
+  // La preferencia vive en localStorage (solo existe en el cliente);
+  // useSyncExternalStore evita el desajuste de hidratación server/cliente
+  // sin necesitar un efecto que llame setState al montar.
+  const sonido = useSyncExternalStore(suscribirseSonido, sonidoActivado, sonidoActivadoServidor);
+
+  function alternarSonido() {
+    establecerSonidoActivado(!sonido);
+  }
+
   return (
     <header className="sticky top-0 z-10 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
       <div className="h-1 bg-gradient-to-r from-primary via-secondary-container to-tertiary" />
@@ -26,10 +44,21 @@ export default function Encabezado({ conectado }) {
             </div>
           </div>
         </div>
-        <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed text-label-sm font-semibold flex-shrink-0">
-          <Icono nombre="function" size={14} />
-          Física · Nivel medio
-        </span>
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          <button
+            type="button"
+            onClick={alternarSonido}
+            aria-label={sonido ? "Silenciar sonidos" : "Activar sonidos"}
+            aria-pressed={sonido}
+            className="min-h-[40px] min-w-[40px] rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high active:scale-[0.98] transition-all duration-200"
+          >
+            <Icono nombre={sonido ? "volume_up" : "volume_off"} size={20} />
+          </button>
+          <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed text-label-sm font-semibold flex-shrink-0">
+            <Icono nombre="function" size={14} />
+            Física · Nivel medio
+          </span>
+        </div>
       </div>
     </header>
   );

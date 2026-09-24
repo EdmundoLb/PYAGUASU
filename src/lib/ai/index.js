@@ -1,5 +1,39 @@
 import { avanzarTurnoConGemini } from './providers/gemini';
 import { avanzarTurnoConClaude } from './providers/claude';
+import { ICONOS_ESCENA_PERMITIDOS } from './schema';
+
+// Defensa en profundidad: aunque el schema ya restringe "icono" a un enum,
+// un proveedor podría no cumplirlo al 100% — un ícono desconocido se
+// renderiza como texto literal roto, así que filtramos antes de mandarlo
+// al frontend.
+function sanearElementosEscena(elementos) {
+  if (!Array.isArray(elementos)) return [];
+  return elementos
+    .filter((el) => el && ICONOS_ESCENA_PERMITIDOS.includes(el.icono) && el.etiqueta)
+    .slice(0, 5);
+}
+
+const TENDENCIAS_VALIDAS = ['directa', 'inversa'];
+
+// Misma defensa en profundidad que sanearElementosEscena: un rango roto
+// (min >= max, o el valor actual afuera del rango) haría que el slider del
+// frontend no tenga sentido — mejor no mostrar nada a mostrar algo inválido.
+function sanearVariableExplorable(variable) {
+  if (!variable || typeof variable !== 'object') return null;
+  const { etiqueta, valorActual, valorMin, valorMax, tendencia } = variable;
+  if (!etiqueta || !TENDENCIAS_VALIDAS.includes(tendencia)) return null;
+  if (
+    typeof valorActual !== 'number' ||
+    typeof valorMin !== 'number' ||
+    typeof valorMax !== 'number' ||
+    valorMin >= valorMax ||
+    valorActual < valorMin ||
+    valorActual > valorMax
+  ) {
+    return null;
+  }
+  return variable;
+}
 
 // AI_PROVIDER en .env.local decide qué modelo se usa, sin tocar código.
 function elegirProveedor() {
@@ -51,6 +85,8 @@ export async function avanzarTurno({
     opcionesRespuesta: Array.isArray(turno.opcionesRespuesta) ? turno.opcionesRespuesta : [],
     requiereOpcion: Boolean(turno.requiereOpcion),
     opciones: Array.isArray(turno.opciones) ? turno.opciones : [],
+    elementosEscena: sanearElementosEscena(turno.elementosEscena),
+    variableExplorable: sanearVariableExplorable(turno.variableExplorable),
     proveedor,
   };
 }

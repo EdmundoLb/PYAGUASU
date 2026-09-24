@@ -12,7 +12,10 @@ export default function IndicadorProgreso({ pasoActual, totalPasos, racha = 0 })
         </span>
         <div className="flex items-center gap-1.5">
           {racha >= 2 && (
-            <span className="mensaje-nuevo racha-viva flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-secondary-container to-secondary text-on-secondary font-mono text-label-sm font-bold">
+            <span
+              key={racha}
+              className="celebrar racha-viva flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-secondary-container to-secondary text-on-secondary font-mono text-label-sm font-bold"
+            >
               <Icono nombre="local_fire_department" size={13} />
               {racha}
             </span>

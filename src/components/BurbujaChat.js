@@ -1,34 +1,41 @@
 import Icono from "./Icono";
+import DiagramaEscena from "./DiagramaEscena";
+import SimuladorVariable from "./SimuladorVariable";
+import MascotaProfe from "./MascotaProfe";
 
 // "nueva" | "correcta" | "incorrecta": estado del último intento del
 // estudiante, para que la tarjeta del paso EN CURSO cambie de color/etiqueta
 // como refuerzo inmediato (estilo lección corta) — nunca cambia el texto,
-// solo el marco alrededor.
+// solo el marco alrededor (y la expresión de la mascota).
 const ACENTO_POR_ESTADO = {
   nueva: {
     borde: "border-primary",
     avatar: "bg-primary text-on-primary",
     etiqueta: "text-primary",
-    icono: "school",
     texto: "Tu turno",
   },
   correcta: {
     borde: "border-tertiary",
     avatar: "bg-tertiary text-on-tertiary",
     etiqueta: "text-tertiary",
-    icono: "check_circle",
     texto: "¡Correcto!",
   },
   incorrecta: {
     borde: "border-secondary",
     avatar: "bg-secondary text-on-secondary",
     etiqueta: "text-secondary",
-    icono: "lightbulb",
     texto: "Casi — seguí probando",
   },
 };
 
-export default function BurbujaChat({ autor, texto, activa = false, estadoTurno = "nueva" }) {
+export default function BurbujaChat({
+  autor,
+  texto,
+  activa = false,
+  estadoTurno = "nueva",
+  elementosEscena = [],
+  variableExplorable = null,
+}) {
   const esTutor = autor === "tutor";
 
   // El paso EN CURSO (el último mensaje del tutor, mientras no se respondió
@@ -43,13 +50,15 @@ export default function BurbujaChat({ autor, texto, activa = false, estadoTurno 
       >
         <div className="flex items-center gap-2">
           <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 shadow-elevation-1 ${acento.avatar}`}>
-            <Icono nombre={acento.icono} size={18} />
+            <MascotaProfe estado={estadoTurno} size={18} />
           </div>
           <span className={`font-mono text-label-sm uppercase tracking-wider font-bold ${acento.etiqueta}`}>
             {acento.texto}
           </span>
         </div>
+        <DiagramaEscena elementos={elementosEscena} />
         <p className="text-body-lg leading-relaxed text-on-surface pl-10 -mt-1">{texto}</p>
+        <SimuladorVariable variable={variableExplorable} />
       </div>
     );
   }
@@ -58,7 +67,7 @@ export default function BurbujaChat({ autor, texto, activa = false, estadoTurno 
     <div className={`mensaje-nuevo flex items-end gap-2 opacity-70 ${esTutor ? "justify-start" : "justify-end"}`}>
       {esTutor && (
         <div className="w-7 h-7 rounded-full bg-primary-container text-on-primary flex items-center justify-center flex-shrink-0 shadow-elevation-1">
-          <Icono nombre="school" size={16} />
+          <MascotaProfe estado="nueva" size={16} />
         </div>
       )}
       <div

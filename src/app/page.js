@@ -14,6 +14,7 @@ import ModalSolucion from "@/components/ModalSolucion";
 import PantallaIdioma from "@/components/PantallaIdioma";
 import PantallaQuizDiagnostico from "@/components/PantallaQuizDiagnostico";
 import { PREGUNTAS_DIAGNOSTICO, calcularEstiloPredominante } from "@/lib/quiz/diagnostico";
+import { reproducirSonidoCorrecto } from "@/lib/sonido";
 
 const EJEMPLO =
   "Un auto de 1200 kg viaja a 20 m/s sobre una pista horizontal sin fricción y choca de frente contra otro auto de 800 kg que se encuentra en reposo. Después del impacto, ambos quedan enganchados. ¿Cuál es la velocidad final del conjunto?";
@@ -28,7 +29,7 @@ const ESTADO_INICIAL = {
   kinestheticScore: 0,
   learningLevel: "", // 'visual' | 'auditor' | 'kinestesico', calculado al cerrar el test
   enunciado: "",
-  historial: [], // [{ autor: 'estudiante' | 'tutor', texto }]
+  historial: [], // [{ autor: 'estudiante' | 'tutor', texto, elementosEscena?, variableExplorable? }]
   tema: "",
   datos: [],
   incognita: "",
@@ -74,6 +75,12 @@ export default function Home() {
     }, 800);
     return () => clearInterval(id);
   }, [estado.fase]);
+
+  // Efecto aparte (no adentro del updater de setState, que debe quedar
+  // puro): suena un "ding" cada vez que un paso nuevo se marca correcto.
+  useEffect(() => {
+    if (estado.ultimaCorrecta === true) reproducirSonidoCorrecto();
+  }, [estado.ultimaCorrecta]);
 
   async function llamarTutor(payload) {
     const res = await fetch("/api/tutor", {
@@ -136,7 +143,12 @@ export default function Home() {
         enunciado: inputEnunciado,
         historial: [
           { autor: "estudiante", texto: inputEnunciado },
-          { autor: "tutor", texto: turno.mensaje },
+          {
+            autor: "tutor",
+            texto: turno.mensaje,
+            elementosEscena: turno.elementosEscena || [],
+            variableExplorable: turno.variableExplorable || null,
+          },
         ],
         tema: turno.tema,
         datos: turno.datos || [],
@@ -194,7 +206,15 @@ export default function Home() {
       });
 
       setEstado((s) => {
-        const nuevoHistorial = [...s.historial, { autor: "tutor", texto: turno.mensaje }];
+        const nuevoHistorial = [
+          ...s.historial,
+          {
+            autor: "tutor",
+            texto: turno.mensaje,
+            elementosEscena: turno.elementosEscena || [],
+            variableExplorable: turno.variableExplorable || null,
+          },
+        ];
 
         const pasosCerrados = turno.formula
           ? [...s.pasosCerrados, { paso: s.pasoActual, formula: turno.formula }]
@@ -478,6 +498,8 @@ function ConversacionTutor({
               texto={turno.texto}
               activa={activa}
               estadoTurno={activa ? estadoTurnoActivo : undefined}
+              elementosEscena={turno.elementosEscena}
+              variableExplorable={turno.variableExplorable}
             />
           );
         })}
@@ -528,12 +550,12 @@ function ConversacionTutor({
 
       {completado && estado.resultadoFinal && (
         <div className="celebrar flex flex-col gap-3">
-          <div className="p-4 rounded-2xl bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-between gap-3 shadow-elevation-2">
+          <div className="p-5 rounded-2xl bg-tertiary-fixed text-on-tertiary-fixed flex flex-col items-center gap-1 text-center shadow-elevation-3">
             <span className="flex items-center gap-2 font-semibold text-body-sm uppercase tracking-wide">
               <Icono nombre="check_circle" size={22} className="text-tertiary" />
               Resuelto
             </span>
-            <span className="font-mono font-bold text-title-lg">
+            <span className="font-mono font-bold text-display-lg leading-tight">
               {estado.resultadoFinal.valor} {estado.resultadoFinal.unidad || ""}
             </span>
           </div>
