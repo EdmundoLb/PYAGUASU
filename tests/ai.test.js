@@ -262,6 +262,37 @@ describe('avanzarTurno (proveedor simulado)', () => {
     expect(turno.mensaje).toBe('original');
   });
 
+  it('"podes escribirme la formula" se manda como [AYUDA_DIRECTA] y vuelve marcado', async () => {
+    avanzarTurnoConGemini.mockResolvedValue({ ...turnoBase, correcta: false, mensaje: "Ani ojepy'apy! La fórmula es $p = m \\cdot v$." });
+    const turno = await avanzarTurno({ esInicial: false, mensaje: 'podes escribirme la formula' });
+    expect(avanzarTurnoConGemini.mock.calls[0][0].pedirAyuda).toBe(true);
+    expect(turno).toMatchObject({ pedidoDeAyuda: true, esIntento: false });
+    expect(turno.mensaje).toMatch(/^Ani ejepy'apy!/);
+  });
+
+  it('"-20" sin unidad aceptado como correcto: se pide reevaluar y no avanza', async () => {
+    avanzarTurnoConGemini
+      .mockResolvedValueOnce({ ...turnoBase, correcta: true, mensaje: '¡Correcto! Ahora la masa total...', verificacionRespuesta: { expresion: '10 + (-30)', unidad: 'kg·m/s' } })
+      .mockResolvedValueOnce({ ...turnoBase, correcta: false, esIntento: false, mensaje: '¡El número está perfecto! ¿-20 qué?' });
+    const turno = await avanzarTurno({ esInicial: false, mensaje: '-20' });
+    expect(turno).toMatchObject({ correcta: false, esIntento: false, mensaje: '¡El número está perfecto! ¿-20 qué?' });
+    expect(avanzarTurnoConGemini.mock.calls[1][0].mensaje).toMatch(/^\[SISTEMA_INTERNO\].*"-20" SIN unidad.*kg·m\/s/);
+  });
+
+  it('primer turno de un choque: devuelve escenaChoque (de la IA, validada contra el enunciado)', async () => {
+    const enunciado = 'Un bloque de 5kg a 2m/seg choca de frente con otro de 3kg que viene a su encuentro a 10m/seg. Quedan adheridos.';
+    avanzarTurnoConGemini.mockResolvedValue({ ...turnoBase, escenaChoque: { m1: 5, v1: 2, m2: 3, v2: -10, tipo: 'inelastico' } });
+    expect((await avanzarTurno({ esInicial: true, enunciado })).escenaChoque).toEqual({ m1: 5, v1: 2, m2: 3, v2: -10, tipo: 'inelastico' });
+
+    // Si la IA inventa un dato, se descarta y se usa el lector del enunciado.
+    avanzarTurnoConGemini.mockResolvedValue({ ...turnoBase, escenaChoque: { m1: 50, v1: 2, m2: 3, v2: -10, tipo: 'elastico' } });
+    expect((await avanzarTurno({ esInicial: true, enunciado })).escenaChoque).toEqual({ m1: 5, v1: 2, m2: 3, v2: -10, tipo: 'inelastico' });
+
+    // Turnos siguientes: no se recalcula (el cliente guarda la del primer turno).
+    avanzarTurnoConGemini.mockResolvedValue({ ...turnoBase, correcta: true });
+    expect((await avanzarTurno({ esInicial: false, mensaje: '10 kg·m/s' })).escenaChoque).toBeNull();
+  });
+
   it('filtra las marcas internas de todos los textos visibles', async () => {
     avanzarTurnoConGemini.mockResolvedValue({
       ...turnoBase,

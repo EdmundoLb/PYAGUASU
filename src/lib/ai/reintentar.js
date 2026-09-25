@@ -5,7 +5,7 @@
 
 const CODIGOS_TRANSITORIOS = [429, 503, 529];
 
-function obtenerCodigoHttp(error) {
+export function obtenerCodigoHttp(error) {
   if (typeof error?.status === 'number') return error.status;
   const match = /"code"\s*:\s*(\d+)/.exec(error?.message || '');
   return match ? Number(match[1]) : null;

@@ -20,6 +20,9 @@ import TarjetaXpGanada from "@/components/TarjetaXpGanada";
 import NavegacionInferior from "@/components/NavegacionInferior";
 import RenderizadorMatematico from "@/components/RenderizadorMatematico";
 import TecladoMatematico from "@/components/TecladoMatematico";
+import PanelConceptos from "@/components/PanelConceptos";
+import { buscarConcepto } from "@/lib/conceptos";
+import { extraerEscenaDeEnunciado } from "@/lib/fisica/escenaChoque";
 import { PREGUNTAS_DIAGNOSTICO, calcularEstiloPredominante } from "@/lib/quiz/diagnostico";
 import { reproducirSonidoCorrecto } from "@/lib/sonido";
 import { guardarPerfilActivo, leerPerfilActivo, limpiarPerfilActivo } from "@/lib/identidad/perfilActivo";
@@ -33,10 +36,13 @@ const CONTACTOS_AYUDA = [
   { numero: "911", nombre: "Emergencias" },
 ];
 
-// Si el alumno ya eligió idioma e hizo el test con este perfil, se retoma
-// directo en la pantalla de inicio en vez de repetir el onboarding.
-function estadoConPerfil(s, perfil) {
-  const prefs = leerPreferencias(perfil.id);
+// Al ELEGIR un perfil (forzarOnboarding) siempre se hace idioma → test de
+// estilo de aprendizaje → ejercicio: el test es lo que adapta cómo explica
+// el tutor, y el equipo quiere que se haga al entrar. Solo al RETOMAR (un
+// refresh de página con el perfil ya abierto) se usan el idioma y el test
+// recordados, para no repetirlos en medio de una sesión.
+function estadoConPerfil(s, perfil, { forzarOnboarding = false } = {}) {
+  const prefs = forzarOnboarding ? null : leerPreferencias(perfil.id);
   if (!prefs) {
     // Onboarding desde cero: nada del test de otro perfil puede arrastrarse.
     return {
@@ -115,6 +121,8 @@ const ESTADO_INICIAL = {
   // --- alcance (campos fueraDeTema / riesgo del turno) ---
   desviosSeguidos: 0, // turnos seguidos fuera de tema; a partir de 3 se muestra un banner amable
   mostrarAyudaRiesgo: false, // tarjeta con contactos de ayuda, hasta que el alumno la cierre
+  ultimoPedido: null, // { tipo: "inicio" | "turno", args } — para "Reintentar" sin perder el problema
+  escenaChoque: null, // { m1, v1, m2, v2, tipo } del ejercicio, para el simulador del panel "Conceptos"
 };
 
 export default function Home() {
@@ -285,7 +293,7 @@ export default function Home() {
       router.push("/docente");
       return;
     }
-    setEstado((s) => estadoConPerfil(s, perfil));
+    setEstado((s) => estadoConPerfil(s, perfil, { forzarOnboarding: true }));
   }
 
   // Olvida el perfil retomado y vuelve al selector de rol. Sin esto, la
@@ -333,7 +341,12 @@ export default function Home() {
   // `turno.enunciadoGenerado` para mostrarlo como si el estudiante lo hubiera
   // escrito.
   async function comenzarProblema({ enunciadoPropio, temaSeleccionado, dificultadSeleccionada }) {
-    setEstado((s) => ({ ...s, fase: "cargando", error: "" }));
+    setEstado((s) => ({
+      ...s,
+      fase: "cargando",
+      error: "",
+      ultimoPedido: { tipo: "inicio", args: { enunciadoPropio, temaSeleccionado, dificultadSeleccionada } },
+    }));
 
     // La sesión de XP es secundaria: si falla (ej. el server se reinició y
     // ya no conoce este perfil), el alumno igual tiene que poder resolver
@@ -395,6 +408,7 @@ export default function Home() {
         pistaActual: null,
         racha: 0,
         desviosSeguidos: turno.fueraDeTema ? 1 : 0,
+        escenaChoque: turno.escenaChoque || null,
         mostrarAyudaRiesgo: Boolean(turno.riesgo),
       }));
     } catch (err) {
@@ -427,6 +441,7 @@ export default function Home() {
       ...s,
       fase: "cargando",
       error: "",
+      ultimoPedido: { tipo: "turno", args: { mensaje, pedirAyuda } },
       // El pedido de ayuda también queda como burbuja del alumno: así se ve
       // en el chat por qué el tutor muestra el paso, y en los turnos
       // siguientes la IA recibe ese contexto (antes veía dos mensajes
@@ -459,7 +474,10 @@ export default function Home() {
       // racha): decir "estoy nervioso", "no sé", hacer una pregunta o
       // desviarse NO castiga el XP — la app se llama "sin miedo". Pedir
       // ayuda directa sí cuenta, porque el paso se reveló sin resolverlo.
-      const cuentaComoError = turno.correcta === false && (pedirAyuda || turno.esIntento !== false);
+      // Pedido de ayuda: el botón "Mostrar este paso" o escrito a mano
+      // ("podés escribirme la fórmula", lo detecta el servidor).
+      const fueAyuda = pedirAyuda || Boolean(turno.pedidoDeAyuda);
+      const cuentaComoError = turno.correcta === false && (fueAyuda || turno.esIntento !== false);
       const erroresTotales = estado.erroresSesion + (cuentaComoError ? 1 : 0);
       const rachaTrasTurno = cuentaComoError ? 0 : turno.correcta === true ? estado.racha + 1 : estado.racha;
 
@@ -488,20 +506,20 @@ export default function Home() {
           resultadoFinal: turno.resultadoFinal || s.resultadoFinal,
           analogiaCotidiana: turno.analogiaCotidiana || s.analogiaCotidiana,
           pasosCerrados,
-          ultimaPista: turno.correcta === false && !pedirAyuda ? turno.pista || "" : "",
+          ultimaPista: turno.correcta === false && !fueAyuda ? turno.pista || "" : "",
           // Un turno que no fue intento (emoción, pregunta, desvío, pedido de
           // ayuda) queda neutro: no se pinta como respuesta incorrecta.
           ultimaCorrecta:
-            turno.correcta === false && (pedirAyuda || !cuentaComoError) ? null : turno.correcta ?? null,
-          ultimaFueAyuda: Boolean(pedirAyuda),
-          ultimaEsErrorFrecuente: turno.correcta === false && !pedirAyuda && Boolean(turno.esErrorFrecuente),
-          ultimaNormalizacion: turno.correcta === false && !pedirAyuda ? turno.normalizacion || "" : "",
+            turno.correcta === false && (fueAyuda || !cuentaComoError) ? null : turno.correcta ?? null,
+          ultimaFueAyuda: fueAyuda,
+          ultimaEsErrorFrecuente: turno.correcta === false && !fueAyuda && Boolean(turno.esErrorFrecuente),
+          ultimaNormalizacion: turno.correcta === false && !fueAyuda ? turno.normalizacion || "" : "",
           proveedor: turno.proveedor,
           opcionesRespuesta: turno.opcionesRespuesta || [],
           requiereOpcion: Boolean(turno.requiereOpcion),
           opciones: turno.opciones || [],
           opcionEstado: {},
-          pistaActual: turno.correcta === false && !pedirAyuda ? turno.pista || null : null,
+          pistaActual: turno.correcta === false && !fueAyuda ? turno.pista || null : null,
           racha: rachaTrasTurno,
           erroresSesion: erroresTotales,
           desviosSeguidos: turno.fueraDeTema ? s.desviosSeguidos + 1 : 0,
@@ -530,7 +548,9 @@ export default function Home() {
           .catch((err) => console.error("[gamificación] No se pudo registrar el XP:", err));
       }
     } catch (err) {
-      setEstado((s) => ({ ...s, fase: "error", error: err.message }));
+      // Se saca la burbuja optimista del alumno: "Reintentar" la vuelve a
+      // agregar, así no queda duplicada.
+      setEstado((s) => ({ ...s, fase: "error", error: err.message, historial: s.historial.slice(0, -1) }));
     }
   }
 
@@ -561,6 +581,15 @@ export default function Home() {
   // "Resolver otro problema" vuelve a la pantalla de enunciado, pero
   // conserva el idioma y el resultado del test de estilo de aprendizaje —
   // esos no se vuelven a pedir en cada problema, solo al abrir la app.
+  // Repite el último pedido que falló (ej. Gemini saturado) sin perder lo
+  // que ya se resolvió del problema.
+  function reintentar() {
+    const pedido = estado.ultimoPedido;
+    if (!pedido) return;
+    if (pedido.tipo === "inicio") comenzarProblema(pedido.args);
+    else enviarTurno(pedido.args);
+  }
+
   function reiniciar() {
     setEstado((s) => ({
       ...ESTADO_INICIAL,
@@ -589,7 +618,7 @@ export default function Home() {
 
   return (
     <>
-      <Encabezado conectado={estado.fase !== "error"} perfilActivo={estado.perfilActivo} claseActiva={claseActiva} />
+      <Encabezado perfilActivo={estado.perfilActivo} claseActiva={claseActiva} />
       <main
         className={`flex-1 w-full max-w-[680px] mx-auto px-4 pt-6 flex flex-col gap-5 ${
           mostrarNav
@@ -658,6 +687,7 @@ export default function Home() {
               onElegirOpcion={elegirOpcion}
               onPedirAyuda={pedirAyudaDirecta}
               onReiniciar={reiniciar}
+              onReintentar={reintentar}
               onAbrirSolucion={() => setEstado((s) => ({ ...s, mostrarSolucion: true }))}
               onCerrarSolucion={() => setEstado((s) => ({ ...s, mostrarSolucion: false }))}
               onCerrarAyudaRiesgo={() => setEstado((s) => ({ ...s, mostrarAyudaRiesgo: false }))}
@@ -898,6 +928,7 @@ function ConversacionTutor({
   onElegirOpcion,
   onPedirAyuda,
   onReiniciar,
+  onReintentar,
   onAbrirSolucion,
   onCerrarSolucion,
   onCerrarAyudaRiesgo,
@@ -916,6 +947,13 @@ function ConversacionTutor({
           ? "incorrecta"
           : "nueva";
   const [mostrarTeclado, setMostrarTeclado] = useState(false);
+  // Material de conceptos del tema (lib/conceptos): solo si hay uno cargado
+  // para el tema o el enunciado de este ejercicio.
+  const concepto = buscarConcepto({ tema, enunciado: estado.enunciado });
+  // Datos del choque de ESTE ejercicio (de la IA en el primer turno, o leídos
+  // del enunciado si el ejercicio empezó antes de que existiera el campo).
+  const escenaChoque = estado.escenaChoque || extraerEscenaDeEnunciado(estado.enunciado);
+  const [mostrarConceptos, setMostrarConceptos] = useState(false);
 
   function insertarFormula(latexConDolares) {
     setInputRespuesta((prev) => (prev ? `${prev} ${latexConDolares}` : latexConDolares));
@@ -931,7 +969,27 @@ function ConversacionTutor({
               {tema}
             </span>
           )}
+          {concepto && (
+            <button
+              type="button"
+              onClick={() => setMostrarConceptos(true)}
+              className="concepto-disponible min-h-[40px] px-3.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-label-md font-semibold shadow-elevation-1 flex items-center gap-1.5 active:scale-[0.98] transition-all duration-200"
+            >
+              <Icono nombre="auto_stories" size={18} />
+              Conceptos
+            </button>
+          )}
         </div>
+
+        {mostrarConceptos && concepto && (
+          <PanelConceptos
+            concepto={concepto}
+            escena={escenaChoque}
+            enunciado={estado.enunciado}
+            ejercicioTerminado={completado}
+            onCerrar={() => setMostrarConceptos(false)}
+          />
+        )}
 
         <IndicadorProgreso pasoActual={pasoActual} totalPasos={totalPasosEstimados} racha={estado.racha} />
 
@@ -1098,16 +1156,29 @@ function ConversacionTutor({
               <strong>No se pudo avanzar:</strong> {estado.error}
             </p>
           </div>
-          {/* Salida siempre disponible: sin esto, si fallaba el primer
-              turno el alumno quedaba en un chat vacío sin forma de volver. */}
-          <button
-            type="button"
-            onClick={onReiniciar}
-            className="self-start min-h-[44px] inline-flex items-center gap-1.5 px-3.5 rounded-full bg-surface-container-lowest text-on-surface font-semibold shadow-elevation-1 active:scale-[0.98] transition-all duration-200"
-          >
-            <Icono nombre="arrow_back" size={18} />
-            Volver a empezar
-          </button>
+          <div className="flex flex-wrap gap-2">
+            {/* Reintentar repite el último pedido sin perder el problema;
+                "Volver a empezar" es la salida siempre disponible (sin ella,
+                si fallaba el primer turno el alumno quedaba en un chat vacío). */}
+            {estado.ultimoPedido && (
+              <button
+                type="button"
+                onClick={onReintentar}
+                className="boton-degradado min-h-[44px] inline-flex items-center gap-1.5 px-4 rounded-full font-semibold shadow-elevation-1 active:scale-[0.98] transition-all duration-200"
+              >
+                <Icono nombre="refresh" size={18} />
+                Reintentar
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={onReiniciar}
+              className="min-h-[44px] inline-flex items-center gap-1.5 px-3.5 rounded-full bg-surface-container-lowest text-on-surface font-semibold shadow-elevation-1 active:scale-[0.98] transition-all duration-200"
+            >
+              <Icono nombre="arrow_back" size={18} />
+              Volver a empezar
+            </button>
+          </div>
         </div>
       )}
 

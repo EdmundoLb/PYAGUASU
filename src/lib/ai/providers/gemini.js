@@ -6,16 +6,37 @@ import {
   construirMensajeEstudiante,
   construirPrefijoIdioma,
 } from '../prompt';
-import { conReintentos } from '../reintentar';
+import { conReintentos, obtenerCodigoHttp } from '../reintentar';
 import { repararEscapesInvalidosEnJson } from '../../latex/escapes';
 
-// 'gemini-flash-latest' devolvía 503 (alta demanda) al probarlo; confirmé a
-// mano que 'gemini-3.6-flash' responde bien con esta key. Si ESE también
-// está sobrecargado (pasó en pruebas reales), caemos a un modelo más chico
-// que respondió al instante, para no perder la demo por un pico de tráfico
-// del lado de Google. Ambos se pueden sobreescribir en .env.local.
+// En los picos de demanda Google responde 503 ("high demand") por modelo,
+// y en el tier gratuito pasa seguido: el 25/09 se probaron uno por uno y
+// estaban todos saturados a la vez. Por eso hay una CADENA de respaldos
+// (no uno solo): si un modelo está saturado se pasa al siguiente, dentro de
+// un tiempo máximo para no dejar al alumno esperando de más.
+//
+// .env.local: GEMINI_MODEL (principal) y GEMINI_MODEL_FALLBACK (lista
+// separada por comas). gemini-2.5-* ya no está habilitado para keys nuevas.
 const MODELO_GEMINI = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
-const MODELO_GEMINI_RESPALDO = process.env.GEMINI_MODEL_FALLBACK || 'gemini-flash-lite-latest';
+const MODELOS_RESPALDO = (
+  process.env.GEMINI_MODEL_FALLBACK ||
+  'gemini-3.8-flash,gemini-3.7-flash,gemini-3.5-flash,gemini-flash-lite-latest,gemini-3.5-flash-lite'
+)
+  .split(',')
+  .map((m) => m.trim())
+  .filter((m) => m && m !== MODELO_GEMINI);
+
+// Tiempo máximo recorriendo la cadena (algunos 503 tardan hasta ~6 s en
+// volver). Pasado este tiempo se devuelve el error y el alumno puede tocar
+// "Reintentar".
+const TIEMPO_MAXIMO_MS = 25000;
+
+// 503/429/529: modelo saturado o con límite momentáneo. 404: modelo no
+// habilitado para esta key. En ambos casos conviene probar el siguiente;
+// cualquier otro error (key inválida, pedido mal formado) se corta ahí.
+function convieneProbarOtroModelo(error) {
+  return [404, 429, 503, 529].includes(obtenerCodigoHttp(error));
+}
 
 function construirContents({ historial, mensajeNuevo }) {
   const contents = historial.map((turno) => ({
@@ -26,8 +47,9 @@ function construirContents({ historial, mensajeNuevo }) {
   return contents;
 }
 
-async function pedirTurno(ai, modelo, { contents, materia, learningLevel }) {
-  const respuesta = await conReintentos(() =>
+async function pedirTurno(ai, modelo, { contents, materia, learningLevel }, intentos) {
+  const respuesta = await conReintentos(
+    () =>
     ai.models.generateContent({
       model: modelo,
       contents,
@@ -37,7 +59,8 @@ async function pedirTurno(ai, modelo, { contents, materia, learningLevel }) {
         responseSchema: TURNO_JSON_SCHEMA,
         temperature: 0.4,
       },
-    })
+    }),
+    { intentos }
   );
 
   const texto = respuesta.text;
@@ -59,8 +82,11 @@ async function pedirTurno(ai, modelo, { contents, materia, learningLevel }) {
 }
 
 export async function avanzarTurnoConGemini({ historial, idioma, materia, esInicial, enunciado, mensaje, pedirAyuda, learningLevel }) {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
+  // GEMINI_API_KEY acepta varias keys separadas por coma: la cuota del tier
+  // gratuito es por key, así que la segunda sirve de respaldo si la primera
+  // se queda sin cuota o sin respuesta.
+  const apiKeys = (process.env.GEMINI_API_KEY || '').split(',').map((k) => k.trim()).filter(Boolean);
+  if (apiKeys.length === 0) {
     throw new Error('Falta GEMINI_API_KEY en .env.local');
   }
 
@@ -70,18 +96,24 @@ export async function avanzarTurnoConGemini({ historial, idioma, materia, esInic
   const mensajeNuevo = `${mensajeBase}\n\n${construirPrefijoIdioma({ idioma })}`;
 
   const contents = construirContents({ historial, mensajeNuevo });
-  const ai = new GoogleGenAI({ apiKey });
 
-  try {
-    return await pedirTurno(ai, MODELO_GEMINI, { contents, materia, learningLevel });
-  } catch (errorPrincipal) {
-    if (!MODELO_GEMINI_RESPALDO || MODELO_GEMINI_RESPALDO === MODELO_GEMINI) {
-      throw errorPrincipal;
-    }
-    try {
-      return await pedirTurno(ai, MODELO_GEMINI_RESPALDO, { contents, materia, learningLevel });
-    } catch {
-      throw errorPrincipal;
+  const limite = Date.now() + TIEMPO_MAXIMO_MS;
+  const cadena = [MODELO_GEMINI, ...MODELOS_RESPALDO];
+  let primerError;
+  for (const [k, apiKey] of apiKeys.entries()) {
+    const ai = new GoogleGenAI({ apiKey });
+    for (const [i, modelo] of cadena.entries()) {
+      if ((k > 0 || i > 0) && Date.now() > limite) throw primerError;
+      try {
+        // El principal de la primera key se reintenta (los picos suelen
+        // durar segundos); el resto, una vez cada uno para recorrer rápido.
+        return await pedirTurno(ai, modelo, { contents, materia, learningLevel }, k === 0 && i === 0 ? 2 : 1);
+      } catch (error) {
+        primerError ??= error;
+        console.warn(`[gemini] key ${k + 1}, ${modelo} falló (${obtenerCodigoHttp(error) ?? error.message}); probando el siguiente...`);
+        if (!convieneProbarOtroModelo(error)) break; // ej. key inválida: pasar a la siguiente key
+      }
     }
   }
+  throw primerError;
 }

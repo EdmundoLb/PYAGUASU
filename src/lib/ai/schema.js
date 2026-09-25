@@ -214,8 +214,25 @@ export const TURNO_JSON_SCHEMA = {
           type: 'string',
           description: 'Solo números y operadores + - * / ^ ( ), sin unidades ni LaTeX. Ej. "10 + (-30)" o "5*2".',
         },
+        unidad: {
+          type: 'string',
+          description: 'Unidad de la respuesta correcta de ese paso, en texto plano (ej. "kg·m/s", "m/s", "N"). Cadena vacía si la magnitud no tiene unidad.',
+        },
       },
       required: ['expresion'],
+    },
+    escenaChoque: {
+      type: 'object',
+      description:
+        'SOLO en el primer turno y SOLO si el problema es un choque frontal entre dos cuerpos: sus datos, tal como están en el enunciado (no inventes ninguno). Velocidades con signo: positivo = sentido del primer cuerpo; si el segundo viene a su encuentro o en sentido contrario, su velocidad es negativa; en reposo = 0. En cualquier otro caso, omitilo.',
+      properties: {
+        m1: { type: 'number', description: 'Masa del primer cuerpo, en kg.' },
+        v1: { type: 'number', description: 'Velocidad del primer cuerpo, en m/s.' },
+        m2: { type: 'number', description: 'Masa del segundo cuerpo, en kg.' },
+        v2: { type: 'number', description: 'Velocidad del segundo cuerpo, en m/s, con signo.' },
+        tipo: { type: 'string', enum: ['inelastico', 'elastico'] },
+      },
+      required: ['m1', 'v1', 'm2', 'v2', 'tipo'],
     },
     enunciadoGenerado: {
       type: 'string',

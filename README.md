@@ -35,9 +35,10 @@ la rúbrica del hackathon (enseñar/corregir, no traducir ni resolver de una).
 4. Abrir [http://localhost:3000](http://localhost:3000). El primer uso pasa
    por: elegir rol (alumno/docente) → elegir perfil → elegir idioma
    (jopara/castellano/guaraní) → test rápido de 3 preguntas de estilo de
-   aprendizaje → recién ahí la pantalla para escribir el problema. Las
-   siguientes veces, el perfil, el idioma y el test se recuerdan en el
-   navegador y se entra directo a la pantalla del problema.
+   aprendizaje → recién ahí la pantalla para escribir el problema. Cada vez
+   que se elige un perfil se hace de nuevo el test (es lo que adapta cómo
+   explica el tutor); solo al recargar la página con el perfil ya abierto se
+   retoma directo en la pantalla del problema.
 
 5. Correr las pruebas automáticas (vitest, no llaman a ninguna IA real):
 
@@ -66,9 +67,27 @@ la rúbrica del hackathon (enseñar/corregir, no traducir ni resolver de una).
    está en el prompt, no puede filtrarse a la respuesta. Si se edita ese
    archivo, mantener esa restricción.
 4. "Resolver otro problema" reinicia solo el problema, no el idioma ni el
-   resultado del test. Idioma y test se recuerdan por perfil en
-   `localStorage` (`src/lib/identidad/preferencias.js`): se piden una sola
-   vez por perfil y dispositivo. "Cambiar" idioma no repite el test.
+   resultado del test. Al elegir un perfil siempre se hace idioma → test;
+   el resultado se guarda por perfil en `localStorage`
+   (`src/lib/identidad/preferencias.js`) solo para retomar tras recargar la
+   página. "Cambiar" idioma no repite el test.
+
+## Panel "Conceptos" (material del docente)
+
+En la pantalla del ejercicio aparece un botón **Conceptos** cuando el tema o
+el enunciado corresponden a un tema con material cargado (hoy: choques y
+cantidad de movimiento, desde `CONCEPTO.pdf`). Abre un panel con:
+
+- **Ver en acción**: simulador de choque animado (`SimuladorChoque.js`):
+  masas y velocidades ajustables, choque "quedan enganchados" o "rebotan",
+  onda de impacto y sonido, y barras que muestran que $p_f = p_i$.
+- **Conceptos**, **Fórmulas** (con unidades) y un **Ejemplo** resuelto con
+  números distintos del ejercicio de práctica (no regala la respuesta).
+
+El contenido vive en `src/lib/conceptos/` como datos: el profesor puede
+revisarlo ahí, y para sumar otro tema se agrega un archivo y se registra en
+`src/lib/conceptos/index.js`. La física del simulador está en
+`src/lib/fisica/choques.js` (con pruebas).
 
 ## Cómo pasar de Gemini a Claude
 

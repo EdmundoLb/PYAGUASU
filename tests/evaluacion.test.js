@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { esFalsoIncorrecto, quitarRespuestaDeSugerencias, valorCorrectoDelPaso } from '@/lib/ai/evaluacion';
+import { esFalsoIncorrecto, quitarRespuestaDeSugerencias, valorCorrectoDelPaso, faltaUnidadEnRespuesta, avanzoSinUnidad } from '@/lib/ai/evaluacion';
 
 // Caso reportado: "sumá 10 kg·m/s y -30 kg·m/s"; el estudiante respondió
 // "-20 kg·m/s" (correcto) y el tutor dijo "¡Casi!", ofreciendo "-20" como opción.
@@ -37,6 +37,38 @@ describe('esFalsoIncorrecto', () => {
     expect(esFalsoIncorrecto({ turno: { ...turnoReportado, correcta: true }, mensaje: '-20' })).toBe(false);
     expect(esFalsoIncorrecto({ turno: { ...turnoReportado, verificacionRespuesta: undefined }, mensaje: '-20' })).toBe(false);
     expect(esFalsoIncorrecto({ turno: { ...turnoReportado, verificacionRespuesta: { expresion: 'sum(1)' } }, mensaje: '-20' })).toBe(false);
+  });
+});
+
+describe('unidades', () => {
+  // Caso reportado: "-20" (sin unidad) y el tutor dijo "¡Correcto!" y avanzó.
+  const avanzo = {
+    correcta: true,
+    mensaje: 'Iporãiterei! ... mboýpa la masa total del sistema?',
+    verificacionRespuesta: { expresion: '10 + (-30)', unidad: 'kg·m/s' },
+  };
+
+  it('detecta respuestas sin unidad', () => {
+    for (const t of ['-20', '−20', 'p = -20', '-20.0', '10 + (-30) = -20']) expect(faltaUnidadEnRespuesta(t), t).toBe(true);
+    for (const t of ['-20 kg·m/s', '-20 kg * m/s', '-20 kgm/seg', '-20 (kg m/s)', 'no sé']) expect(faltaUnidadEnRespuesta(t), t).toBe(false);
+  });
+
+  it('caso reportado: avanzó con "-20" sin unidad → hay que corregir', () => {
+    expect(avanzoSinUnidad({ turno: avanzo, mensaje: '-20' })).toBe(true);
+  });
+
+  it('no aplica si puso unidad, si el número es otro, si el paso no tiene unidad o si no avanzó', () => {
+    expect(avanzoSinUnidad({ turno: avanzo, mensaje: '-20 kg·m/s' })).toBe(false);
+    expect(avanzoSinUnidad({ turno: avanzo, mensaje: '40' })).toBe(false);
+    expect(avanzoSinUnidad({ turno: { ...avanzo, verificacionRespuesta: { expresion: '2+2', unidad: '' } }, mensaje: '4' })).toBe(false);
+    expect(avanzoSinUnidad({ turno: { ...avanzo, correcta: false }, mensaje: '-20' })).toBe(false);
+    expect(avanzoSinUnidad({ turno: avanzo, mensaje: '-20', pedirAyuda: true })).toBe(false);
+  });
+
+  it('pedir la unidad (correcta=false) no se confunde con un falso "incorrecto"', () => {
+    const pideUnidad = { correcta: false, esIntento: true, verificacionRespuesta: { expresion: '10 + (-30)', unidad: 'kg·m/s' } };
+    expect(esFalsoIncorrecto({ turno: pideUnidad, mensaje: '-20' })).toBe(false);
+    expect(esFalsoIncorrecto({ turno: pideUnidad, mensaje: '-20 kg·m/s' })).toBe(true);
   });
 });
 

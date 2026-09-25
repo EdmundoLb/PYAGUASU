@@ -26,12 +26,47 @@ export function valorCorrectoDelPaso(turno) {
 }
 
 /**
+ * true si el mensaje termina en un número sin unidad después ("-20",
+ * "p = -20"). "-20 kg·m/s", "-20 kgm/seg" o "-20 (kg m/s)" sí la tienen.
+ */
+export function faltaUnidadEnRespuesta(mensaje) {
+  if (typeof mensaje !== 'string') return false;
+  const texto = mensaje.replace(/[−–]/g, '-');
+  const numeros = [...texto.matchAll(/-?\d+(?:[.,]\d+)?/g)];
+  if (numeros.length === 0) return false;
+  const ultimo = numeros[numeros.length - 1];
+  const despues = texto.slice(ultimo.index + ultimo[0].length);
+  return !/[A-Za-zµ°Ω]/.test(despues);
+}
+
+/**
+ * Caso real: "sumá 10 kg·m/s y -30 kg·m/s" → el estudiante escribió "-20"
+ * y el tutor dijo "¡Correcto!" y pasó al paso siguiente. En Física la
+ * unidad es parte de la respuesta: el paso no se da por resuelto. Es true
+ * si el modelo avanzó (correcta=true) con un número correcto pero sin
+ * unidad, en un paso que la tiene.
+ */
+export function avanzoSinUnidad({ turno, mensaje = '', pedirAyuda = false }) {
+  if (pedirAyuda || turno?.correcta !== true) return false;
+  const unidad = turno?.verificacionRespuesta?.unidad?.trim();
+  if (!unidad || !faltaUnidadEnRespuesta(mensaje)) return false;
+  // Si la cuenta es verificable, el número tiene que ser el correcto (si no,
+  // el problema es otro y no corresponde hablar de la unidad).
+  const correcto = valorCorrectoDelPaso(turno);
+  if (correcto === null) return true;
+  const numeros = extraerNumeros(mensaje);
+  return numeros.length > 0 && coincide(numeros[numeros.length - 1], correcto);
+}
+
+/**
  * true si el modelo marcó como incorrecta una respuesta numérica que en
  * realidad coincide con el valor correcto del paso. Se mira el ÚLTIMO número
  * del mensaje (en "10 + (-30) = -20" la respuesta es -20).
  */
 export function esFalsoIncorrecto({ turno, mensaje = '', pedirAyuda = false }) {
   if (pedirAyuda || turno?.correcta !== false || turno?.esIntento === false) return false;
+  // Número correcto sin unidad: que el modelo no avance es lo que corresponde.
+  if (turno?.verificacionRespuesta?.unidad?.trim() && faltaUnidadEnRespuesta(mensaje)) return false;
   const correcto = valorCorrectoDelPaso(turno);
   if (correcto === null) return false;
   const numeros = extraerNumeros(mensaje);

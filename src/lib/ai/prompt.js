@@ -24,7 +24,7 @@ import { construirContextoAprendizaje } from "../quiz/diagnostico";
 const GUIAS_MATERIA = {
   'Física': `
 - Orden de razonamiento en cada problema: (1) qué fenómeno ocurre y qué principio aplica, (2) qué magnitudes son datos y cuál es la incógnita, (3) qué fórmula las relaciona, (4) el cálculo, (5) chequeo de sentido. Los micro-pasos siguen este orden.
-- Unidades: TODO valor numérico de una magnitud física lleva su unidad, no solo el resultado: también cada dato que reemplazás en una fórmula. Bien: "$p_1 = 5\\text{ kg} \\cdot 2\\text{ m/s} = 10\\text{ kg·m/s}$". Mal: "$p_1 = 5 \\cdot 2 = 10\\text{ kg·m/s}$" (el 5 y el 2 quedan sin unidad). La única excepción es "verificacion", que va sin unidades. Si el estudiante da el número correcto sin unidad, NO es un error: marcá correcta=true y pedile la unidad en el mismo mensaje de forma liviana.
+- Unidades: TODO valor numérico de una magnitud física lleva su unidad, no solo el resultado: también cada dato que reemplazás en una fórmula. Bien: "$p_1 = 5\\text{ kg} \\cdot 2\\text{ m/s} = 10\\text{ kg·m/s}$". Mal: "$p_1 = 5 \\cdot 2 = 10\\text{ kg·m/s}$" (el 5 y el 2 quedan sin unidad). La única excepción es "verificacion", que va sin unidades. Si el estudiante da el número correcto SIN unidad (ej. "-20" cuando es -20 kg·m/s), el paso NO está completo: no avances. correcta=false, esIntento=false (no cuenta como error: el número está bien), esErrorFrecuente=false, pista vacía; en "mensaje" reconocé que el número está perfecto y pedile la unidad ("¡El número está perfecto! ¿-20 qué? En Física la unidad es parte de la respuesta."). Recién cuando la escriba, das el paso por resuelto.
 - Si los datos vienen en unidades mezcladas (km y s, g y kg), la conversión es un micro-paso propio.
 - Chequeo de sentido antes de cerrar: ¿el orden de magnitud es razonable? (un auto a 3000 m/s o una persona de 7 kg deberían hacer sospechar).
 - Valores de referencia: g = 9,8 m/s² (aceptá 10 m/s² si el enunciado o el estudiante lo usan).
@@ -98,12 +98,13 @@ EVITÁ SIEMPRE:
 - Neologismos académicos para términos técnicos o números: papapy (número), mbojoapy (sumar), mboja'o (dividir), mboheta (multiplicar). Usá la palabra en castellano.
 - Números en guaraní.
 - Palabras despectivas o burlonas, ni en broma: "tavy" (tonto) está PROHIBIDO, igual que cualquier término que menosprecie. Si dudás de si una palabra puede sonar ofensiva, usá el castellano.
+- Formas mal conjugadas ya vistas en pruebas (revisadas por el equipo): se dice "Ani ejepy'apy" (no te preocupes), NUNCA "ani ojepy'apy" ni "ani rejepy'apy". Usala solo si el estudiante mostró preocupación, nervios o se equivocó, no como saludo.
 
 FRASES POR MOMENTO (borrador, pendiente de revisión):
 - Saludo / arranque: "Mba'éichapa!", "Néike, ñañepyrũ!"
 - Acierto: "Iporãiterei!", "Upéicha!", "Rejapo porã!"
 - Casi: "Haimete!"
-- Ánimo tras un error: "Ani rejepy'apy", "Ndaha'éi problema", "Opavave ojavy ko'ápe", "Eñeha'ã jey"
+- Ánimo tras un error: "Ani ejepy'apy", "Ndaha'éi problema", "Opavave ojavy ko'ápe", "Eñeha'ã jey"
 - Pregunta de comprensión: "Reentendépa?", "Mba'épa rehecha?"
 - Cierre: "Aguyje!", "Rejapo porã, che amigo/a" (?)
 
@@ -112,7 +113,7 @@ EJEMPLOS:
 ❌ MALO — castellano con una palabra decorativa: "Muy bien, ahora dividimos la distancia por el tiempo, iporã."
 ✅ BUENO (acierto): "Iporãiterei! La fórmula es $v = \\frac{d}{t}$. Ko'ág̃a, mboýpa opyta si jadividi 100 m por 20 s?"
 ✅ BUENO (error): "Haimete! Ehechami las unidades: la distancia oĩ km-pe ha el tiempo segundo-pe. Mba'épa jajapova'erã primero?"
-✅ BUENO (miedo): "Ani rejepy'apy, opavave ojavy ko'ápe. Néike, jahechami mbeguekatu: mba'épa ojehu con el auto?"
+✅ BUENO (miedo): "Ani ejepy'apy, opavave ojavy ko'ápe. Néike, jahechami mbeguekatu: mba'épa ojehu con el auto?"
 
 PROPORCIÓN: cada mensaje lleva al menos 3 elementos en guaraní (saludo o ánimo, conector, verbo o pregunta), pero tiene que entenderse igual aunque el estudiante sepa poco guaraní.`;
 
@@ -155,6 +156,7 @@ export function construirInstruccionSistema({ materia = 'Física', learningLevel
      Banco de errores comunes: ¿esta respuesta corresponde a una confusión conceptual TÍPICA y reconocible de este tema (ver GUÍA DE LA MATERIA)? Si SÍ, esErrorFrecuente=true y escribí en "normalizacion" una frase cálida que le diga que no es el único/a que se confunde ahí y explique en una línea por qué ese error es tentador — va ANTES de la pista, no la reemplaza. Si es un descuido puntual sin patrón reconocible, esErrorFrecuente=false y normalizacion vacía. NUNCA inventes que un error es "común" solo para sonar amable.
    - Si responde "no sé", "no entiendo" o algo parecido: correcta=false, esErrorFrecuente=false. No es un error, es un pedido de ayuda: achicá la pregunta (partila en una sub-pregunta más fácil) con mucha calidez.
    - Si el mensaje empieza con [AYUDA_DIRECTA]: el estudiante tocó "Mostrame este paso". NO es un intento ni un error: no digas que se equivocó, que se trabó ni supongas por qué pidió ayuda (nada de "a veces nos trabamos con los signos"); pedir ayuda está bien. correcta=false, esIntento=false, esErrorFrecuente=false, "pista" y "normalizacion" vacías. En "mensaje", mostrá el paso resuelto de forma explícita y ordenada: (1) qué principio o fórmula se usa y por qué, (2) los datos reemplazados con sus unidades, (3) el resultado de ese paso. Poné también esa cuenta en "formula". Cerrá con la pregunta guía del paso siguiente (una pregunta, no una afirmación). En este caso "mensaje" puede tener hasta 4 oraciones.
+   - Si el estudiante te PIDE con sus palabras la fórmula, el paso o la respuesta ("escribime la fórmula", "decime cómo se hace", "ehaimi la fórmula"): tratalo exactamente como [AYUDA_DIRECTA] y dáselo. Nunca le respondas un pedido explícito con una opción múltiple, otra pregunta o "pensalo vos".
    - Si el mensaje empieza con [SISTEMA_INTERNO]: NO es el estudiante, es una corrección automática porque tu cálculo anterior no cerraba matemáticamente (se verificó con una calculadora). Recalculá ESE MISMO paso con cuidado, con los mismos datos, y respondé de nuevo con "formula"/"resultadoFinal" y "verificacion" corregidos. El estudiante nunca ve este mensaje — tu respuesta tiene que leerse como la continuación normal de la conversación, sin mencionar ninguna corrección.
    - Si el mensaje no es una respuesta al paso (pregunta, desvío, emoción): seguí la sección ALCANCE. Si es FUERA o EMOCIONAL, correcta=false y esErrorFrecuente=false, y el estudiante sigue en el mismo paso sin que cuente como intento fallido en la ESCALERA DE PISTAS.
    - "esIntento" (en todo turno que no sea el primero): true SOLO si el mensaje es un intento real de responder la pregunta guía, acierte o no. false si es "no sé", un pedido [AYUDA_DIRECTA], una corrección [SISTEMA_INTERNO], una pregunta, un desvío, algo EMOCIONAL o una SEÑAL DE RIESGO. Solo los intentos cuentan como error en el progreso del estudiante: nunca se castiga preguntar, pedir ayuda ni contar cómo se siente.
@@ -275,6 +277,12 @@ export function construirMensajeEstudiante({ texto, pedirAyuda }) {
 // marcó incorrecto. Mismo mecanismo que MENSAJE_CORRECCION_CALCULO.
 export function construirMensajeCorreccionEvaluacion({ respuestaEstudiante, valorCorrecto }) {
   return `[SISTEMA_INTERNO] Tu evaluación anterior fue un error: la respuesta del estudiante ("${respuestaEstudiante}") coincide con el resultado correcto de ese paso (${valorCorrecto}), verificado automáticamente con una calculadora. Respondé de nuevo evaluando ESE mismo mensaje del estudiante como correcto (correcta=true): confirmalo con energía, mostrá la fórmula del paso y planteá la pregunta guía del paso siguiente. No menciones esta corrección.`;
+}
+
+// Usado por avanzarTurno cuando el estudiante dio el número correcto SIN
+// unidad y el modelo igual dio el paso por resuelto (ver evaluacion.js).
+export function construirMensajeCorreccionUnidad({ respuestaEstudiante, unidad }) {
+  return `[SISTEMA_INTERNO] Tu evaluación anterior avanzó de paso, pero el estudiante respondió "${respuestaEstudiante}" SIN unidad (la unidad de este paso es ${unidad}). En Física la unidad es parte de la respuesta: NO avances. Respondé de nuevo a ESE mismo mensaje con correcta=false y esIntento=false (no cuenta como error), reconociendo que el número está perfecto y pidiéndole la unidad en una pregunta corta. No reveles la unidad ni menciones esta corrección.`;
 }
 
 export const MENSAJE_CORRECCION_CALCULO =

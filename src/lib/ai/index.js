@@ -4,11 +4,15 @@ import { ICONOS_ESCENA_PERMITIDOS } from './schema';
 import { verificarCalculo } from './verificacion';
 import { repararEscapesEnObjeto } from '../latex/escapes';
 import { esCierrePrematuro, anularCierre } from './cierre';
-import { esFalsoIncorrecto, valorCorrectoDelPaso, quitarRespuestaDeSugerencias } from './evaluacion';
+import { corregirVocabulario } from './vocabulario';
+import { esPedidoDeAyudaExplicito } from './pedidos';
+import { sanearEscena, extraerEscenaDeEnunciado } from '../fisica/escenaChoque';
+import { esFalsoIncorrecto, valorCorrectoDelPaso, quitarRespuestaDeSugerencias, avanzoSinUnidad } from './evaluacion';
 import {
   construirMensajeInicial,
   construirMensajeEstudiante,
   construirMensajeCorreccionEvaluacion,
+  construirMensajeCorreccionUnidad,
   MENSAJE_CORRECCION_CALCULO,
 } from './prompt';
 
@@ -51,8 +55,10 @@ function sanearVariableExplorable(variable) {
 // "ejerure chéve [GENERAR_PROBLEMA]". Se filtran de todo texto visible.
 const PATRON_MARCA_INTERNA = /\s*\[(?:GENERAR_PROBLEMA|AYUDA_DIRECTA|SISTEMA_INTERNO)\]/g;
 
+// Además de las marcas, aplica las correcciones de vocabulario jopara
+// (ver vocabulario.js) a cada texto visible.
 function limpiarMarcas(texto) {
-  return typeof texto === 'string' ? texto.replace(PATRON_MARCA_INTERNA, '').trim() : texto;
+  return typeof texto === 'string' ? corregirVocabulario(texto.replace(PATRON_MARCA_INTERNA, '').trim()) : texto;
 }
 
 const CAMPOS_TEXTO_VISIBLE = ['mensaje', 'pista', 'normalizacion', 'analogiaCotidiana', 'enunciadoGenerado', 'formula'];
@@ -107,8 +113,31 @@ export async function avanzarTurno({
     throw new Error('Falta la respuesta del estudiante.');
   }
 
+  // "Podés escribirme la fórmula" escrito a mano = tocar "Mostrame este
+  // paso" (ver pedidos.js): el modelo recibe [AYUDA_DIRECTA] + el texto.
+  const pedidoDeAyuda = !esInicial && !pedirAyuda && esPedidoDeAyudaExplicito(mensaje);
+  if (pedidoDeAyuda) pedirAyuda = true;
+
   const proveedor = elegirProveedor();
-  const avanzarConProveedor = proveedor === 'claude' ? avanzarTurnoConClaude : avanzarTurnoConGemini;
+  const avanzarPrincipal = proveedor === 'claude' ? avanzarTurnoConClaude : avanzarTurnoConGemini;
+  // Respaldo entre proveedores: si el principal falla (ej. Gemini saturado
+  // con 503) y hay key del otro proveedor, se usa ese en vez de mostrarle
+  // un error al alumno.
+  const avanzarRespaldo =
+    proveedor === 'gemini' && process.env.ANTHROPIC_API_KEY
+      ? avanzarTurnoConClaude
+      : proveedor === 'claude' && process.env.GEMINI_API_KEY
+        ? avanzarTurnoConGemini
+        : null;
+  const avanzarConProveedor = async (args) => {
+    try {
+      return await avanzarPrincipal(args);
+    } catch (error) {
+      if (!avanzarRespaldo) throw error;
+      console.warn(`[ia] ${proveedor} falló (${error.message?.slice(0, 120)}); usando el otro proveedor.`);
+      return avanzarRespaldo(args);
+    }
+  };
   // Toda respuesta del modelo pasa por la reparación de LaTeX (ver
   // lib/latex/escapes.js), incluido el reintento de corrección de abajo.
   const avanzar = async (args) => repararEscapesEnObjeto(await avanzarConProveedor(args));
@@ -180,6 +209,24 @@ export async function avanzarTurno({
     }
   }
 
+  // Número correcto SIN unidad y el modelo igual avanzó de paso (ver
+  // evaluacion.js): se le pide que no avance y pida la unidad. Solo se usa
+  // la corrección si efectivamente no avanzó.
+  if (avanzoSinUnidad({ turno, mensaje, pedirAyuda })) {
+    const unidad = turno.verificacionRespuesta.unidad.trim();
+    console.warn(`[unidades] "${mensaje}" sin unidad (${unidad}) y el modelo avanzó igual. Reintentando...`);
+    const turnoCorregido = await pedirCorreccion(
+      turno,
+      construirMensajeCorreccionUnidad({ respuestaEstudiante: mensaje, unidad }),
+      'unidades'
+    );
+    if (turnoCorregido && turnoCorregido.correcta !== true && !turnoCorregido.completado) {
+      turno = { ...turnoCorregido, esIntento: false };
+    } else if (turnoCorregido) {
+      console.error('[unidades] El reintento volvió a avanzar sin unidad; se muestra el turno original.');
+    }
+  }
+
   // Si sigue en el mismo paso, las sugerencias no pueden regalar la respuesta.
   turno = quitarRespuestaDeSugerencias(turno);
 
@@ -193,6 +240,15 @@ export async function avanzarTurno({
     turno = anularCierre(turno);
   }
 
+  // Datos del choque para el simulador del panel "Conceptos" (solo primer
+  // turno): lo que dijo la IA, validado contra el enunciado, o si no, lo que
+  // se lee del enunciado directamente (ver lib/fisica/escenaChoque.js).
+  let escenaChoque = null;
+  if (esInicial) {
+    const textoEnunciado = turno.enunciadoGenerado || enunciado;
+    escenaChoque = sanearEscena(turno.escenaChoque, textoEnunciado) || extraerEscenaDeEnunciado(textoEnunciado);
+  }
+
   // Defaults explícitos para los campos de interactividad opcional: el
   // modelo puede omitirlos, y el frontend no debería tener que adivinar.
   turno = limpiarMarcasDelTurno(turno);
@@ -202,7 +258,10 @@ export async function avanzarTurno({
     fueraDeTema: Boolean(turno.fueraDeTema),
     riesgo: Boolean(turno.riesgo),
     // Si el modelo no lo informa, se asume intento (comportamiento previo).
-    esIntento: turno.esIntento !== false,
+    esIntento: pedidoDeAyuda ? false : turno.esIntento !== false,
+    // Para que el cliente lo trate igual que el botón "Mostrame este paso".
+    pedidoDeAyuda,
+    escenaChoque,
     opcionesRespuesta: Array.isArray(turno.opcionesRespuesta) ? turno.opcionesRespuesta : [],
     requiereOpcion: Boolean(turno.requiereOpcion),
     opciones: Array.isArray(turno.opciones) ? turno.opciones : [],

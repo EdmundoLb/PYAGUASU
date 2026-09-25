@@ -11,7 +11,20 @@ import {
 } from "@/lib/sonido";
 import TarjetaXp from "./TarjetaXp";
 
-export default function Encabezado({ conectado, perfilActivo, claseActiva }) {
+// Estado real de la conexión del dispositivo. Antes el encabezado decía
+// "Sin conexión" ante CUALQUIER error del tutor — por ejemplo cuando Gemini
+// está saturado (503) —, aunque el alumno tuviera internet: confundía.
+function suscribirseConexion(callback) {
+  window.addEventListener("online", callback);
+  window.addEventListener("offline", callback);
+  return () => {
+    window.removeEventListener("online", callback);
+    window.removeEventListener("offline", callback);
+  };
+}
+
+export default function Encabezado({ perfilActivo, claseActiva }) {
+  const conectado = useSyncExternalStore(suscribirseConexion, () => navigator.onLine, () => true);
   // La preferencia vive en localStorage (solo existe en el cliente);
   // useSyncExternalStore evita el desajuste de hidratación server/cliente
   // sin necesitar un efecto que llame setState al montar.

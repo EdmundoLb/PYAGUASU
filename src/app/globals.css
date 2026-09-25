@@ -441,3 +441,118 @@ body::before {
     animation-iteration-count: 1 !important;
   }
 }
+
+/* --- Simulador de choques (SimuladorChoque.js) ---------------------------
+   Onda expansiva + partículas en el punto de impacto, y el eslabón que
+   aparece cuando los bloques quedan enganchados. Todo en SVG + CSS, sin
+   librerías. */
+@keyframes ondaChoque {
+  from {
+    transform: scale(0.2);
+    opacity: 1;
+  }
+  to {
+    transform: scale(3.2);
+    opacity: 0;
+  }
+}
+
+.onda-choque {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ondaChoque 650ms cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+}
+
+.onda-choque--tarde {
+  animation-delay: 110ms;
+  opacity: 0;
+}
+
+@keyframes particulaChoque {
+  from {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translate(var(--dx), var(--dy)) scale(0.3);
+    opacity: 0;
+  }
+}
+
+.particula-choque {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: particulaChoque 700ms cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+}
+
+@keyframes engancheChoque {
+  0% {
+    transform: scale(0);
+  }
+  60% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.enganche-choque {
+  animation: engancheChoque 380ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .onda-choque,
+  .particula-choque {
+    animation: none;
+    opacity: 0;
+  }
+  .enganche-choque {
+    animation: none;
+  }
+}
+
+/* Botón "Conceptos": un brillo suave al aparecer, para que se descubra sin
+   distraer durante el ejercicio (una sola vez, no en loop). */
+@keyframes conceptoDisponible {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(253, 128, 65, 0);
+  }
+  40% {
+    box-shadow: 0 0 0 8px rgba(253, 128, 65, 0.25);
+  }
+}
+
+.concepto-disponible {
+  animation: conceptoDisponible 1.4s ease-out 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .concepto-disponible {
+    animation: none;
+  }
+}
+
+@keyframes destelloChoque {
+  0% {
+    transform: scale(0.3);
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+.destello-choque {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: destelloChoque 380ms ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .destello-choque {
+    animation: none;
+  }
+}

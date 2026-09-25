@@ -80,3 +80,44 @@ export function reproducirSonidoCorrecto() {
     // Si el navegador bloquea el audio, fallamos en silencio.
   }
 }
+
+// "Golpe" corto para el simulador de choques (SimuladorChoque.js): un tono
+// grave que cae rápido + un chasquido de ruido. Más seco si los cuerpos
+// quedan enganchados, con un pequeño "rebote" agudo si el choque es elástico.
+export function reproducirSonidoImpacto({ elastico = false, intensidad = 1 } = {}) {
+  if (!sonidoActivado()) return;
+  const ctx = obtenerContexto();
+  if (!ctx) return;
+
+  try {
+    if (ctx.state === "suspended") ctx.resume();
+    const ahora = ctx.currentTime;
+    const volumen = 0.12 + 0.2 * Math.min(1, Math.max(0, intensidad));
+
+    const oscilador = ctx.createOscillator();
+    const ganancia = ctx.createGain();
+    oscilador.type = "triangle";
+    oscilador.frequency.setValueAtTime(elastico ? 320 : 140, ahora);
+    oscilador.frequency.exponentialRampToValueAtTime(elastico ? 520 : 50, ahora + 0.18);
+    ganancia.gain.setValueAtTime(volumen, ahora);
+    ganancia.gain.exponentialRampToValueAtTime(0.001, ahora + 0.22);
+    oscilador.connect(ganancia);
+    ganancia.connect(ctx.destination);
+    oscilador.start(ahora);
+    oscilador.stop(ahora + 0.23);
+
+    const duracion = 0.06;
+    const buffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * duracion), ctx.sampleRate);
+    const datos = buffer.getChannelData(0);
+    for (let i = 0; i < datos.length; i++) datos[i] = (Math.random() * 2 - 1) * (1 - i / datos.length);
+    const ruido = ctx.createBufferSource();
+    const gananciaRuido = ctx.createGain();
+    ruido.buffer = buffer;
+    gananciaRuido.gain.value = volumen * 0.6;
+    ruido.connect(gananciaRuido);
+    gananciaRuido.connect(ctx.destination);
+    ruido.start(ahora);
+  } catch {
+    // Si el navegador bloquea el audio, fallamos en silencio.
+  }
+}
