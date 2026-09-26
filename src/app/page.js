@@ -622,10 +622,19 @@ export default function Home() {
   // ConversacionTutor sigue mostrándose (para poder reintentar sin perder el
   // problema), y dos barras fijas al pie se pisarían.
   const mostrarNav = estado.fase === "inicio" || estado.completado;
+  // Lo que el encabezado cuenta del Profe ("Pensando", "¡Bien ahí!"…).
+  const estadoTutor =
+    estado.fase === "cargando"
+      ? "pensando"
+      : enConversacion && estado.completado
+        ? "resuelto"
+        : enConversacion && estado.ultimaCorrecta === true
+          ? "celebrando"
+          : "listo";
 
   return (
     <>
-      <Encabezado perfilActivo={estado.perfilActivo} claseActiva={claseActiva} />
+      <Encabezado perfilActivo={estado.perfilActivo} claseActiva={claseActiva} estadoTutor={estadoTutor} />
       <main
         className={`flex-1 w-full ${estado.fase === "rol" ? "max-w-[1080px] sm:px-8" : "max-w-[680px]"} mx-auto px-4 pt-6 flex flex-col gap-5 ${
           mostrarNav

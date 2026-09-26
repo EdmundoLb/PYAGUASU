@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import LogoMarca from "./LogoMarca";
 import Icono from "./Icono";
 
 // Encabezado común de las pantallas secundarias (Progreso, Ranking, panel
@@ -19,7 +19,7 @@ export default function EncabezadoPagina({ volverA, etiquetaVolver = "Volver", t
             <Icono nombre="arrow_back" size={20} />
           </Link>
         ) : (
-          <Image src="/logo.svg" alt="" width={36} height={36} className="rounded-[10px] flex-shrink-0" />
+          <LogoMarca size={38} className="rounded-[12px] shadow-elevation-1 flex-shrink-0" />
         )}
         <span className="flex-1 min-w-0 font-bold text-title-lg tracking-tight truncate">{titulo}</span>
         {derecha && <div className="flex items-center gap-1.5 flex-shrink-0">{derecha}</div>}

@@ -1,19 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" fill="none">
-  <rect width="48" height="48" rx="14" fill="#253EA7"/>
-  <!-- Órbita física -->
-  <ellipse cx="24" cy="24" rx="18" ry="7" stroke="#B9C3FF" stroke-width="1.5" stroke-dasharray="3 3" transform="rotate(-20 24 24)"/>
-  <!-- Sol radiante estilo ñandutí, a la vez núcleo atómico -->
-  <g stroke-linecap="round">
-    <line x1="28" y1="24" x2="35" y2="24" stroke="#FFFFFF" stroke-width="2.5"/>
-    <line x1="24" y1="28" x2="24" y2="35" stroke="#FFFFFF" stroke-width="2.5"/>
-    <line x1="20" y1="24" x2="13" y2="24" stroke="#FFFFFF" stroke-width="2.5"/>
-    <line x1="24" y1="20" x2="24" y2="13" stroke="#FFFFFF" stroke-width="2.5"/>
-    <line x1="26.8" y1="26.8" x2="29.7" y2="29.7" stroke="#DDE1FF" stroke-width="2"/>
-    <line x1="21.2" y1="26.8" x2="18.3" y2="29.7" stroke="#DDE1FF" stroke-width="2"/>
-    <line x1="21.2" y1="21.2" x2="18.3" y2="18.3" stroke="#DDE1FF" stroke-width="2"/>
-    <line x1="26.8" y1="21.2" x2="29.7" y2="18.3" stroke="#DDE1FF" stroke-width="2"/>
-  </g>
-  <circle cx="24" cy="24" r="3.5" fill="#FD8041"/>
-  <!-- Electrón / chispa de comprensión -->
-  <circle cx="38" cy="15" r="3" fill="#77D7C8"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f1f3ff"/><stop offset="100%" stop-color="#c9d1ff"/></linearGradient>
+    <radialGradient id="cuerpo" cx="38%" cy="30%" r="75%"><stop offset="0%" stop-color="#4a63d6"/><stop offset="60%" stop-color="#253ea7"/><stop offset="100%" stop-color="#00248f"/></radialGradient>
+  </defs>
+  <rect width="48" height="48" rx="13" fill="url(#fondo)"/>
+  
+    <ellipse cx="24" cy="28" rx="20" ry="6.5" fill="none" stroke="#1f9c8b" stroke-width="2" transform="rotate(-16 24 28)"/>
+    <line x1="24" y1="14" x2="24" y2="8.5" stroke="#253ea7" stroke-width="2.4" stroke-linecap="round"/>
+    <circle cx="24" cy="7" r="3" fill="#fd8041"/>
+    <circle cx="24" cy="27" r="13.5" fill="url(#cuerpo)"/>
+    <ellipse cx="19" cy="19.5" rx="5" ry="2.6" fill="#fff" opacity="0.18" transform="rotate(-20 19 19.5)"/>
+    <ellipse cx="19" cy="26" rx="3.4" ry="3.9" fill="#fff"/>
+    <ellipse cx="29" cy="26" rx="3.4" ry="3.9" fill="#fff"/>
+    
+    <circle cx="19.4" cy="26.5" r="1.9" fill="#0b1440"/>
+    <circle cx="29.4" cy="26.5" r="1.9" fill="#0b1440"/>
+    <circle cx="20.099999999999998" cy="25.7" r="0.65" fill="#fff"/>
+    <circle cx="30.099999999999998" cy="25.7" r="0.65" fill="#fff"/>
+    <path d="M20.6 31.3 Q24 34.3 27.4 31.3" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/>
+    <path d="M44 28 A20 6.5 0 0 1 4 28" fill="none" stroke="#1f9c8b" stroke-width="2" stroke-linecap="round" transform="rotate(-16 24 28)"/>
+    <circle cx="43.2" cy="22.5" r="2.4" fill="#77d7c8" stroke="#1f9c8b" stroke-width="1"/>
 </svg>

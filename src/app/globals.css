@@ -305,7 +305,37 @@ body {
   animation: orbitar 9s linear infinite;
 }
 
+/* Encabezado "vivo": el punto de presencia del Profe late suave, y una
+   barra fina recorre el borde inferior mientras el tutor piensa. */
+@keyframes pulsoPresencia {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-tertiary) 55%, transparent);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-tertiary) 0%, transparent);
+  }
+}
+.pulso-presencia {
+  animation: pulsoPresencia 2.2s ease-out infinite;
+}
+@keyframes barraPensando {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+.barra-pensando {
+  animation: barraPensando 1.3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .pulso-presencia,
+  .barra-pensando {
+    animation: none;
+  }
   .escalonado > *,
   .flotar,
   .parpadear,
