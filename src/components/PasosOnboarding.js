@@ -29,8 +29,10 @@ export default function PasosOnboarding({ actual }) {
             >
               {hecho ? <Icono nombre="check" size={14} /> : i + 1}
             </span>
+            {/* En celular solo se lee el paso actual; los otros quedan como
+                número, así ningún nombre se corta a la mitad. */}
             <span
-              className={`text-label-md truncate ${activo ? "text-on-surface font-semibold" : "text-on-surface-variant"}`}
+              className={`text-label-md truncate ${activo ? "text-on-surface font-semibold" : "hidden sm:inline text-on-surface-variant"}`}
             >
               {paso.etiqueta}
             </span>
