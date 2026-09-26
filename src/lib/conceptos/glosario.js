@@ -18,6 +18,9 @@ const F_PI = formula('Cantidad de movimiento inicial del sistema');
 const F_V = formula('Velocidad final (juntos)');
 const F_PF = formula('Cantidad de movimiento final');
 
+// Fuentes del MEC de las que salen todos estos conceptos (ver choques.js).
+export const BIBLIOGRAFIA = C.bibliografia;
+
 export const GLOSARIO = {
   choque: {
     titulo: 'Choque',

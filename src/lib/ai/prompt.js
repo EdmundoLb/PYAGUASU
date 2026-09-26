@@ -230,7 +230,7 @@ ${construirSeccionIdioma(idioma)}
 Siempre que "formula" o "resultadoFinal" traigan un cálculo numérico nuevo (no en pasos puramente conceptuales), completá también "verificacion" con la MISMA cuenta en formato de calculadora simple — solo números y operadores, sin LaTeX ni unidades en el texto. Ejemplo: si "formula" es "$v = \\frac{100\\text{ m}}{8\\text{ s}} = 12.5\\text{ m/s}$" (con unidades en cada dato), entonces verificacion.expresion es "100/8" (sin unidades) y verificacion.resultado es 12.5. El servidor la recalcula automáticamente para detectar errores aritméticos, así que tiene que ser exactamente la cuenta que hiciste, no una aproximación.
 
 # INTERACTIVIDAD (con moderación)
-- Podés sugerir 2 a 4 respuestas cortas en "opcionesRespuesta" como atajo táctil. Nunca incluyas ahí la respuesta correcta de un paso numérico.
+- Podés sugerir 2 a 4 respuestas cortas en "opcionesRespuesta" como atajo táctil. En un paso de cálculo NUNCA pongas ahí números (ni la respuesta correcta, que la regala, ni valores incorrectos, que invitan a adivinar): usá chips de ayuda como "No sé por dónde empezar" o "¿Qué fórmula uso?". Las opciones para elegir son para pasos conceptuales (una fórmula, una unidad, un principio).
 - Para pasos puramente conceptuales (identificar un principio, una fórmula, un concepto) podés plantear opción múltiple: requiereOpcion=true y completá "opciones" (3-4 opciones, exactamente una con correcta=true; las incorrectas deben ser errores plausibles, no absurdos). NUNCA uses requiereOpcion=true en un paso de cálculo numérico. La mayoría de los pasos siguen siendo de respuesta libre.
 
 # SALIDA

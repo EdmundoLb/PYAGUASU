@@ -123,26 +123,37 @@ export function reveloResultado({ turno, mensaje = '', historial = [], pedirAyud
   return [turno.mensaje, turno.pista].some(aparece);
 }
 
+// Un chip que es SOLO un número (con o sin unidad): "10 kg·m/s", "$2.5$",
+// "-20", "24000 kg m/s". Los que tienen fórmulas, unidades sueltas o texto
+// ("kg·m/s", "$v = d/t$", "No sé") no cuentan.
+const CHIP_NUMERICO = /^\s*\$?\s*[-−]?\s*\d+(?:[.,]\d+)?\s*(?:\\text\{[^}]*\}|[a-zA-Z·*/^²³.\s])*\$?\s*$/;
+
+export function esChipNumerico(texto) {
+  return typeof texto === 'string' && CHIP_NUMERICO.test(texto);
+}
+
 /**
- * Si el estudiante sigue en el mismo paso (correcta=false), las sugerencias
- * no pueden regalarle la respuesta de ese paso: se sacan los chips que la
- * contienen, y un opción múltiple con la respuesta numérica se convierte en
- * respuesta libre (el prompt ya prohíbe opción múltiple en pasos de cálculo).
+ * Las sugerencias para tocar nunca son respuestas numéricas. Caso real: la IA
+ * ofreció "10", "7" y "2.5 kg·m/s"; se sacaba solo la correcta y quedaban dos
+ * opciones INCORRECTAS para tocar — una trampa. En un cálculo el alumno tiene
+ * que hacer la cuenta: ni la correcta (la regala) ni incorrectas (invitan a
+ * adivinar). Quedan los chips de ayuda, fórmulas o unidades.
+ *
+ * Además, si el estudiante sigue en el mismo paso, una opción múltiple con la
+ * respuesta numérica se convierte en respuesta libre (el prompt ya prohíbe
+ * opción múltiple en pasos de cálculo).
  */
 export function quitarRespuestaDeSugerencias(turno) {
-  if (turno?.correcta !== false) return turno;
-  const correcto = valorCorrectoDelPaso(turno);
-  if (correcto === null) return turno;
-  const contieneRespuesta = (texto) => extraerNumeros(texto).some((n) => coincide(n, correcto));
-
+  if (!turno) return turno;
   const resultado = { ...turno };
   if (Array.isArray(turno.opcionesRespuesta)) {
-    const restantes = turno.opcionesRespuesta.filter((t) => !contieneRespuesta(t));
-    // Dejar solo distractores numéricos tampoco ayuda: si se sacó alguno y
-    // quedan menos de 2, no se muestran chips.
-    resultado.opcionesRespuesta =
-      restantes.length < turno.opcionesRespuesta.length && restantes.length < 2 ? [] : restantes;
+    resultado.opcionesRespuesta = turno.opcionesRespuesta.filter((t) => !esChipNumerico(t));
   }
+
+  if (turno.correcta !== false) return resultado;
+  const correcto = valorCorrectoDelPaso(turno);
+  if (correcto === null) return resultado;
+  const contieneRespuesta = (texto) => extraerNumeros(texto).some((n) => coincide(n, correcto));
   if (turno.requiereOpcion && Array.isArray(turno.opciones) && turno.opciones.some((o) => contieneRespuesta(o?.texto))) {
     resultado.requiereOpcion = false;
     resultado.opciones = [];

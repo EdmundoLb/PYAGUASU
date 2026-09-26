@@ -17,6 +17,18 @@ describe('buscarConcepto', () => {
   });
 });
 
+describe('bibliografía del MEC', () => {
+  // Arma la cita como la muestra FuentesBibliograficas.js (APA).
+  const cita = (f) => `${f.autor}. (${f.anio}). ${f.titulo}.${f.resto ? ` ${f.resto}` : ''}${f.detalle ? `\n${f.detalle}` : ''}`;
+
+  it('las referencias quedan tal cual las pasó el equipo', () => {
+    expect(CONCEPTO_CHOQUES.bibliografia.map(cita)).toEqual([
+      'Ministerio de Educación y Ciencias (MEC). (2022). Propuesta curricular 2022. Tercer ciclo de la Educación Escolar Básica y la Educación Media. Asunción, Paraguay: MEC.',
+      'Ministerio de Educación y Ciencias. (2017). Física: Texto para el estudiante. 2.º curso.\nContenido utilizado: Choque inelástico, desde p. 139.',
+    ]);
+  });
+});
+
 describe('contenido de choques', () => {
   it('el ejemplo resuelto coincide con la física (p₁, p₂, pᵢ, v\', p_f)', () => {
     const { datos, pasos } = CONCEPTO_CHOQUES.ejemplo;

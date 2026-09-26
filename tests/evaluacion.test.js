@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { esFalsoIncorrecto, quitarRespuestaDeSugerencias, valorCorrectoDelPaso, faltaUnidadEnRespuesta, avanzoSinUnidad, reveloResultado, estaPidiendoUnidad, opcionesDeUnidad } from '@/lib/ai/evaluacion';
+import { esFalsoIncorrecto, quitarRespuestaDeSugerencias, valorCorrectoDelPaso, faltaUnidadEnRespuesta, avanzoSinUnidad, reveloResultado, estaPidiendoUnidad, opcionesDeUnidad, esChipNumerico } from '@/lib/ai/evaluacion';
 
 // Caso reportado: "sumá 10 kg·m/s y -30 kg·m/s"; el estudiante respondió
 // "-20 kg·m/s" (correcto) y el tutor dijo "¡Casi!", ofreciendo "-20" como opción.
@@ -104,10 +104,21 @@ describe('reveloResultado (escalera de pistas)', () => {
 });
 
 describe('quitarRespuestaDeSugerencias', () => {
-  it('caso reportado: saca el chip con la respuesta; si quedan menos de 2, no muestra chips', () => {
-    expect(quitarRespuestaDeSugerencias(turnoReportado).opcionesRespuesta).toEqual(['$40\\text{ kg·m/s}$', '$-40\\text{ kg·m/s}$']);
-    const conDos = { ...turnoReportado, opcionesRespuesta: ['$-20$', '$40$'] };
-    expect(quitarRespuestaDeSugerencias(conDos).opcionesRespuesta).toEqual([]);
+  it('caso reportado: nunca quedan solo opciones incorrectas para tocar (se sacan todas las numéricas)', () => {
+    // Antes se sacaba solo la correcta (10) y quedaban "7" y "2.5": una trampa.
+    const turno = { ...turnoReportado, verificacionRespuesta: { expresion: '5*2' }, opcionesRespuesta: ['10 kg·m/s', '7 kg·m/s', '2.5 kg·m/s'] };
+    expect(quitarRespuestaDeSugerencias(turno).opcionesRespuesta).toEqual([]);
+    expect(quitarRespuestaDeSugerencias(turnoReportado).opcionesRespuesta).toEqual([]);
+  });
+
+  it('se mantienen los chips de ayuda, fórmulas y unidades', () => {
+    const turno = { ...turnoReportado, opcionesRespuesta: ['No sé por dónde empezar', '¿Qué fórmula uso?', '$p = m \\cdot v$', 'kg·m/s', '-20', '$2.5$'] };
+    expect(quitarRespuestaDeSugerencias(turno).opcionesRespuesta).toEqual(['No sé por dónde empezar', '¿Qué fórmula uso?', '$p = m \\cdot v$', 'kg·m/s']);
+  });
+
+  it('esChipNumerico reconoce números con o sin unidad y no confunde fórmulas', () => {
+    for (const t of ['10', '−20', '2,5', '10 kg·m/s', '$2.5\\text{ kg·m/s}$', '24000 kg m/s', '9.8 m/s²']) expect(esChipNumerico(t), t).toBe(true);
+    for (const t of ['kg·m/s', '$v = \\frac{d}{t}$', '$E_c = \\frac{1}{2} m v^2$', 'No sé', 'Paso 2 otra vez']) expect(esChipNumerico(t), t).toBe(false);
   });
 
   it('opción múltiple con la respuesta numérica pasa a respuesta libre', () => {
@@ -115,9 +126,12 @@ describe('quitarRespuestaDeSugerencias', () => {
     expect(quitarRespuestaDeSugerencias(quiz)).toMatchObject({ requiereOpcion: false, opciones: [] });
   });
 
-  it('si el estudiante acertó (avanza de paso), no toca las sugerencias', () => {
-    const avanza = { ...turnoReportado, correcta: true };
-    expect(quitarRespuestaDeSugerencias(avanza)).toBe(avanza);
+  it('también al avanzar de paso: sin números para tocar, pero se mantiene la opción múltiple conceptual', () => {
+    const avanza = { ...turnoReportado, correcta: true, opcionesRespuesta: ['8 kg', 'No sé'], requiereOpcion: true, opciones: [{ texto: '$v = \\frac{d}{t}$', correcta: true }, { texto: '$p = m v$' }] };
+    const r = quitarRespuestaDeSugerencias(avanza);
+    expect(r.opcionesRespuesta).toEqual(['No sé']);
+    expect(r).toMatchObject({ requiereOpcion: true });
+    expect(r.opciones).toHaveLength(2);
   });
 });
 

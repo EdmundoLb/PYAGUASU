@@ -16,6 +16,24 @@ export const CONCEPTO_CHOQUES = {
   // coinciden con esto.
   patron: /choque|chocan|colisi[oó]n|cantidad de movimiento|momento lineal|impulso|enganchad/i,
 
+  // Fuentes de las que el equipo tomó los conceptos (se muestran debajo de
+  // cada concepto, en letra chica). Formato APA; `titulo` va en cursiva.
+  bibliografia: [
+    {
+      autor: 'Ministerio de Educación y Ciencias (MEC)',
+      anio: '2022',
+      titulo: 'Propuesta curricular 2022. Tercer ciclo de la Educación Escolar Básica y la Educación Media',
+      resto: 'Asunción, Paraguay: MEC.',
+    },
+    {
+      autor: 'Ministerio de Educación y Ciencias',
+      anio: '2017',
+      titulo: 'Física: Texto para el estudiante. 2.º curso',
+      resto: '',
+      detalle: 'Contenido utilizado: Choque inelástico, desde p. 139.',
+    },
+  ],
+
   introduccion: 'Un choque ocurre cuando dos cuerpos en movimiento entran en contacto.',
 
   tipos: [
