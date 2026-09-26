@@ -4,6 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Icono from "@/components/Icono";
 import Encabezado from "@/components/Encabezado";
+import Avatar from "@/components/Avatar";
+import MascotaHero from "@/components/MascotaHero";
+import { iconoDeTema } from "@/lib/ui/temas";
 import IndicadorProgreso from "@/components/IndicadorProgreso";
 import ChipDato from "@/components/ChipDato";
 import BurbujaChat from "@/components/BurbujaChat";
@@ -624,7 +627,7 @@ export default function Home() {
     <>
       <Encabezado perfilActivo={estado.perfilActivo} claseActiva={claseActiva} />
       <main
-        className={`flex-1 w-full max-w-[680px] mx-auto px-4 pt-6 flex flex-col gap-5 ${
+        className={`flex-1 w-full ${estado.fase === "rol" ? "max-w-[1080px] sm:px-8" : "max-w-[680px]"} mx-auto px-4 pt-6 flex flex-col gap-5 ${
           mostrarNav
             ? "pb-24"
             : enConversacion && !estado.completado
@@ -649,7 +652,10 @@ export default function Home() {
           )}
 
           {estado.fase === "retomando" && (
-            <p className="text-body-sm text-on-surface-variant p-4">Cargando tu perfil...</p>
+            <div className="flex flex-col items-center justify-center gap-3 py-20 text-center" role="status">
+              <MascotaHero estado="pensando" size={96} />
+              <p className="text-body-md text-on-surface-variant">Cargando tu perfil…</p>
+            </div>
           )}
 
           {estado.fase === "idioma" && (
@@ -668,17 +674,16 @@ export default function Home() {
           )}
 
           {estado.fase === "inicio" && (
-            <div className="flex flex-col gap-4">
-              <AvisoPerfil perfil={estado.perfilActivo} onCambiar={cambiarPerfil} />
-              <PantallaInicio
-                inputEnunciado={inputEnunciado}
+            <PantallaInicio
+              perfil={estado.perfilActivo}
+              onCambiarPerfil={cambiarPerfil}
+              inputEnunciado={inputEnunciado}
                 setInputEnunciado={setInputEnunciado}
                 idioma={estado.userLanguage}
                 onCambiarIdioma={() => setEstado((s) => ({ ...s, fase: "idioma" }))}
                 onIniciar={iniciar}
-                onIniciarConTema={iniciarConTema}
-              />
-            </div>
+              onIniciarConTema={iniciarConTema}
+            />
           )}
 
           {enConversacion && (
@@ -710,20 +715,20 @@ export default function Home() {
 function AvisoPerfil({ perfil, onCambiar }) {
   if (!perfil) return null;
   return (
-    <div className="flex items-center justify-between gap-2 p-3 rounded-2xl bg-surface-container shadow-elevation-1">
+    <div className="flex items-center justify-between gap-2 pl-1.5 pr-1 py-1 rounded-full bg-surface-container-lowest border border-surface-container-high shadow-elevation-1 self-start max-w-full">
       <span className="flex items-center gap-2 min-w-0 text-body-sm text-on-surface-variant">
-        <span className="text-xl flex-shrink-0">{perfil.avatarEmoji}</span>
+        <Avatar nombre={perfil.nombre} size={28} />
         <span className="truncate">
-          Entraste como <strong className="text-on-surface">{perfil.nombre}</strong>
+          <strong className="text-on-surface">{perfil.nombre}</strong>
         </span>
       </span>
       <button
         type="button"
         onClick={onCambiar}
-        className="min-h-[44px] inline-flex items-center gap-1 text-body-sm text-secondary underline underline-offset-2 flex-shrink-0 active:scale-[0.98] transition-all duration-200"
+        className="min-h-[36px] inline-flex items-center gap-1 px-3 rounded-full text-label-md font-semibold text-secondary hover:bg-secondary-fixed flex-shrink-0 active:scale-[0.98] transition-all duration-200"
       >
         <Icono nombre="switch_account" size={16} />
-        Cambiar perfil
+        Cambiar
       </button>
     </div>
   );
@@ -731,79 +736,95 @@ function AvisoPerfil({ perfil, onCambiar }) {
 
 const ETIQUETA_IDIOMA = { jopara: "Jopara", castellano: "Castellano", guarani: "Guaraní" };
 
-function PantallaInicio({ inputEnunciado, setInputEnunciado, idioma, onCambiarIdioma, onIniciar, onIniciarConTema }) {
+function saludoSegunHora() {
+  const hora = new Date().getHours();
+  if (hora < 12) return "¡Buen día";
+  if (hora < 19) return "¡Buenas tardes";
+  return "¡Buenas noches";
+}
+
+function PantallaInicio({ perfil, onCambiarPerfil, inputEnunciado, setInputEnunciado, idioma, onCambiarIdioma, onIniciar, onIniciarConTema }) {
   const [modo, setModo] = useState("propio"); // "propio" | "tema"
+  // Se calcula una sola vez al montar: el saludo depende de la hora local
+  // (esta pantalla solo se monta en el cliente, después del onboarding).
+  const [saludo] = useState(saludoSegunHora);
+  const primerNombre = perfil?.nombre?.split(" ")[0] || "";
 
   return (
-    <div className="flex flex-col gap-5">
-      <section className="flex flex-col gap-1.5 pt-1">
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-secondary-fixed text-on-secondary-fixed shadow-elevation-1">
-            <Icono nombre="waving_hand" size={18} />
-          </span>
-          <span className="font-mono text-label-md uppercase tracking-wider text-secondary font-semibold">
-            Tu tutor de confianza
-          </span>
+    <div className="escalonado flex flex-col gap-5">
+      {/* Saludo + perfil + idioma en una franja compacta: antes eran tres
+          bloques de texto que empujaban el formulario debajo del pliegue. */}
+      <section className="flex items-center gap-4">
+        <MascotaHero size={76} className="flex-shrink-0 -ml-1" />
+        <div className="flex flex-col gap-1 min-w-0">
+          <h1 className="text-[28px] sm:text-[32px] leading-[1.1] font-bold tracking-tight">
+            {saludo}
+            {primerNombre ? `, ${primerNombre}` : ""}!
+          </h1>
+          <p className="text-on-surface-variant text-body-md leading-snug">¿Qué problema de física resolvemos hoy?</p>
         </div>
-        <h1 className="text-headline-lg tracking-tight leading-tight">
-          ¡Hola! ¿Con qué problema de física nos divertimos hoy?
-        </h1>
-        <p className="text-on-surface-variant text-body-md leading-relaxed">
-          Escribí el ejercicio tal como viene en tu tarea. Te voy a preguntar de a un
-          paso — vos intentás, yo te digo si vas bien o te doy una pista.
-        </p>
       </section>
 
-      <div className="flex items-start gap-2.5 p-3.5 rounded-2xl bg-surface-container shadow-elevation-1">
-        <Icono nombre="route" size={20} className="text-primary flex-shrink-0 mt-0.5" />
-        <p className="text-body-sm text-on-surface-variant leading-relaxed">
-          <strong className="text-on-surface">Nunca te doy todo resuelto de una.</strong>{" "}
-          Vas a intentar cada paso vos mismo/a; si te trabás, hay un botón para pedir
-          ayuda en cualquier momento.
-        </p>
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <AvisoPerfil perfil={perfil} onCambiar={onCambiarPerfil} />
+        <button
+          type="button"
+          onClick={onCambiarIdioma}
+          className="min-h-[36px] inline-flex items-center gap-1.5 pl-3 pr-2 rounded-full bg-surface-container-lowest border border-surface-container-high shadow-elevation-1 text-label-md text-on-surface-variant hover:text-on-surface active:scale-[0.98] transition-all duration-200"
+          aria-label={`Idioma: ${ETIQUETA_IDIOMA[idioma] || idioma}. Cambiar idioma`}
+        >
+          <Icono nombre="translate" size={16} className="text-primary" />
+          <strong className="text-on-surface font-semibold">{ETIQUETA_IDIOMA[idioma] || idioma}</strong>
+          <Icono nombre="expand_more" size={16} />
+        </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 p-1 rounded-2xl bg-surface-container" role="tablist" aria-label="Cómo querés practicar">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={modo === "propio"}
-          onClick={() => setModo("propio")}
-          className={`min-h-[44px] rounded-xl text-body-sm font-semibold transition-all duration-200 flex items-center justify-center gap-1.5 ${
-            modo === "propio" ? "bg-surface-container-lowest shadow-elevation-1 text-primary" : "text-on-surface-variant"
+      <div className="relative grid grid-cols-2 p-1 rounded-full bg-surface-container" role="tablist" aria-label="Cómo querés practicar">
+        {/* Indicador que se desliza entre las dos pestañas */}
+        <span
+          aria-hidden="true"
+          className={`absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] rounded-full bg-primary-fixed shadow-elevation-1 transition-transform duration-300 ease-out ${
+            modo === "tema" ? "translate-x-full" : ""
           }`}
-        >
-          <Icono nombre="draw" size={16} />
-          Mi propio problema
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={modo === "tema"}
-          onClick={() => setModo("tema")}
-          className={`min-h-[44px] rounded-xl text-body-sm font-semibold transition-all duration-200 flex items-center justify-center gap-1.5 ${
-            modo === "tema" ? "bg-surface-container-lowest shadow-elevation-1 text-primary" : "text-on-surface-variant"
-          }`}
-        >
-          <Icono nombre="menu_book" size={16} />
-          Elegir un tema
-        </button>
+        />
+        {[
+          { valor: "propio", icono: "edit_note", texto: "Mi problema" },
+          { valor: "tema", icono: "auto_awesome", texto: "Elegir un tema" },
+        ].map((t) => (
+          <button
+            key={t.valor}
+            type="button"
+            role="tab"
+            aria-selected={modo === t.valor}
+            onClick={() => setModo(t.valor)}
+            className={`relative z-[1] min-h-[44px] rounded-full text-body-sm font-semibold transition-colors duration-200 flex items-center justify-center gap-1.5 ${
+              modo === t.valor ? "text-primary" : "text-on-surface-variant hover:text-on-surface"
+            }`}
+          >
+            <Icono nombre={t.icono} size={18} />
+            {t.texto}
+          </button>
+        ))}
       </div>
 
       {modo === "propio" ? (
-        <form onSubmit={onIniciar} className="flex flex-col gap-3 bg-surface-container-lowest rounded-2xl p-4 shadow-elevation-2">
+        <form
+          key="propio"
+          onSubmit={onIniciar}
+          className="mensaje-nuevo flex flex-col gap-3 bg-surface-container-lowest rounded-3xl p-4 sm:p-5 shadow-elevation-2 border border-surface-container-high"
+        >
           <div className="flex items-center justify-between gap-2">
-            <label htmlFor="enunciado" className="text-label-md font-mono text-on-surface-variant flex items-center gap-1.5">
-              <Icono nombre="draw" size={16} className="text-primary" />
-              Enunciado de tu problema
+            <label htmlFor="enunciado" className="text-title-md font-semibold text-on-surface">
+              Pegá o escribí el enunciado
             </label>
             <button
               type="button"
               aria-label="Cargar enunciado de ejemplo"
-              className="min-h-[44px] inline-flex items-center text-body-sm text-secondary underline underline-offset-2 flex-shrink-0 active:scale-[0.98] transition-all duration-200"
+              className="min-h-[36px] inline-flex items-center gap-1 px-3 rounded-full bg-secondary-fixed text-on-secondary-fixed text-label-md font-semibold flex-shrink-0 active:scale-[0.98] transition-all duration-200"
               onClick={() => setInputEnunciado(EJEMPLO)}
             >
-              Cargar ejemplo
+              <Icono nombre="lightbulb" size={15} />
+              Ver un ejemplo
             </button>
           </div>
           <textarea
@@ -811,40 +832,39 @@ function PantallaInicio({ inputEnunciado, setInputEnunciado, idioma, onCambiarId
             rows={4}
             value={inputEnunciado}
             onChange={(e) => setInputEnunciado(e.target.value)}
-            placeholder="Ejemplo: Un auto de 1200 kg viaja a 20 m/s y choca contra..."
-            className="w-full p-3 rounded-xl bg-surface-container-low text-on-surface placeholder:text-outline outline-none focus:bg-surface-container-high focus:ring-2 focus:ring-primary/30 transition-all resize-none text-body-md"
+            onKeyDown={(e) => {
+              // Ctrl/⌘ + Enter envía, para quien usa teclado.
+              if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) onIniciar(e);
+            }}
+            placeholder="Ej.: Un auto de 1200 kg viaja a 20 m/s y choca contra otro que está quieto…"
+            className="w-full p-4 rounded-2xl bg-surface-container-low border-2 border-transparent text-on-surface placeholder:text-outline outline-none focus:border-primary/40 focus:bg-surface-container-lowest transition-all resize-none text-body-lg leading-relaxed"
           />
-
-          <div className="flex items-center justify-between gap-2 px-1">
-            <span className="text-body-sm text-on-surface-variant">
-              Te voy a hablar en <strong className="text-on-surface">{ETIQUETA_IDIOMA[idioma] || idioma}</strong>
-            </span>
-            <button
-              type="button"
-              onClick={onCambiarIdioma}
-              className="min-h-[44px] inline-flex items-center text-body-sm text-secondary underline underline-offset-2 active:scale-[0.98] transition-all duration-200"
-            >
-              Cambiar
-            </button>
-          </div>
 
           <button
             type="submit"
             disabled={!inputEnunciado.trim()}
-            className="boton-degradado min-h-[52px] rounded-full text-title-md font-semibold shadow-elevation-2 disabled:opacity-50 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
+            className="boton-degradado min-h-[56px] rounded-full text-title-md font-semibold active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
           >
-            <Icono nombre="smart_toy" size={22} />
-            Empezar, guiame paso a paso
+            Empezar paso a paso
+            <Icono nombre="arrow_forward" size={22} />
           </button>
+          <p className="flex items-start gap-2 text-body-sm text-on-surface-variant leading-snug px-1">
+            <Icono nombre="psychology" size={18} className="text-tertiary flex-shrink-0" />
+            <span>
+              <strong className="text-on-surface">No te doy todo resuelto.</strong> Vas a intentar cada paso vos; si te
+              trabás, pedime ayuda cuando quieras.
+            </span>
+          </p>
         </form>
       ) : (
-        <SelectorTemaPractica onIniciarConTema={onIniciarConTema} />
+        <SelectorTemaPractica key="tema" onIniciarConTema={onIniciarConTema} />
       )}
     </div>
   );
 }
 
 const ETIQUETA_DIFICULTAD = { facil: "Fácil", medio: "Medio", dificil: "Difícil" };
+const ICONO_DIFICULTAD = { facil: "signal_cellular_1_bar", medio: "signal_cellular_3_bar", dificil: "signal_cellular_4_bar" };
 
 // Catálogo de temas para practicar sin necesidad de escribir un enunciado
 // propio ni pertenecer a ninguna clase — el tutor inventa un problema
@@ -863,61 +883,74 @@ function SelectorTemaPractica({ onIniciarConTema }) {
       .finally(() => setCargando(false));
   }, []);
 
-  if (cargando) {
-    return <p className="text-body-sm text-on-surface-variant p-4">Cargando temas...</p>;
-  }
-
   return (
-    <div className="flex flex-col gap-3 bg-surface-container-lowest rounded-2xl p-4 shadow-elevation-2">
-      <span className="text-label-md font-mono text-on-surface-variant flex items-center gap-1.5">
-        <Icono nombre="menu_book" size={16} className="text-primary" />
-        ¿Qué tema querés practicar?
-      </span>
-      <div className="flex flex-col gap-2">
-        {temas.map((tema) => (
-          <button
-            key={tema.id}
-            type="button"
-            onClick={() => setTemaElegido(tema)}
-            className={`min-h-[52px] px-3.5 rounded-xl border-2 text-left flex items-center justify-between gap-2 transition-all duration-200 ${
-              temaElegido?.id === tema.id
-                ? "border-primary bg-primary-fixed text-on-primary-fixed"
-                : "border-transparent bg-surface-container-low text-on-surface"
-            }`}
-          >
-            <span className="text-body-md font-semibold">{tema.titulo}</span>
-            {temaElegido?.id === tema.id && <Icono nombre="check_circle" size={18} />}
-          </button>
-        ))}
+    <div className="mensaje-nuevo flex flex-col gap-4 bg-surface-container-lowest rounded-3xl p-4 sm:p-5 shadow-elevation-2 border border-surface-container-high">
+      <span className="text-title-md font-semibold text-on-surface">Elegí un tema y te armo un problema</span>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5" role="radiogroup" aria-label="Tema">
+        {cargando &&
+          Array.from({ length: 5 }).map((_, i) => <span key={i} className="h-[92px] rounded-2xl esqueleto" aria-hidden="true" />)}
+        {temas.map((tema) => {
+          const elegido = temaElegido?.id === tema.id;
+          return (
+            <button
+              key={tema.id}
+              type="button"
+              role="radio"
+              aria-checked={elegido}
+              onClick={() => setTemaElegido(tema)}
+              className={`tarjeta-interactiva relative min-h-[92px] p-3 rounded-2xl border-2 text-left flex flex-col gap-2 ${
+                elegido
+                  ? "border-primary bg-primary-fixed text-on-primary-fixed shadow-elevation-2"
+                  : "border-surface-container-high bg-surface-container-low text-on-surface"
+              }`}
+            >
+              <span
+                className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+                  elegido ? "boton-degradado" : "bg-surface-container-lowest text-primary shadow-elevation-1"
+                }`}
+              >
+                <Icono nombre={iconoDeTema(tema.titulo)} size={20} />
+              </span>
+              <span className="text-body-sm font-semibold leading-tight">{tema.titulo}</span>
+              {elegido && <Icono nombre="check_circle" size={20} className="absolute top-2.5 right-2.5 text-primary" />}
+            </button>
+          );
+        })}
       </div>
 
       {temaElegido && (
-        <>
-          <span className="text-label-md font-mono text-on-surface-variant">Dificultad</span>
-          <div className="flex gap-2">
-            {Object.entries(ETIQUETA_DIFICULTAD).map(([valor, etiqueta]) => (
-              <button
-                key={valor}
-                type="button"
-                onClick={() => setDificultad(valor)}
-                className={`flex-1 min-h-[44px] rounded-xl text-body-sm font-semibold transition-all duration-200 ${
-                  dificultad === valor ? "bg-primary text-on-primary" : "bg-surface-container-low text-on-surface-variant"
-                }`}
-              >
-                {etiqueta}
-              </button>
-            ))}
+        <div className="mensaje-nuevo flex flex-col gap-3">
+          {temaElegido.descripcion && <p className="text-body-sm text-on-surface-variant">{temaElegido.descripcion}</p>}
+          <div className="flex flex-col gap-1.5">
+            <span className="text-label-md font-semibold text-on-surface-variant">Dificultad</span>
+            <div className="grid grid-cols-3 gap-1 p-1 rounded-full bg-surface-container" role="radiogroup" aria-label="Dificultad">
+              {Object.entries(ETIQUETA_DIFICULTAD).map(([valor, etiqueta]) => (
+                <button
+                  key={valor}
+                  type="button"
+                  role="radio"
+                  aria-checked={dificultad === valor}
+                  onClick={() => setDificultad(valor)}
+                  className={`min-h-[40px] rounded-full text-body-sm font-semibold transition-all duration-200 flex items-center justify-center gap-1 ${
+                    dificultad === valor ? "bg-primary-fixed text-primary shadow-elevation-1" : "text-on-surface-variant hover:text-on-surface"
+                  }`}
+                >
+                  <Icono nombre={ICONO_DIFICULTAD[valor]} size={16} />
+                  {etiqueta}
+                </button>
+              ))}
+            </div>
           </div>
 
           <button
             type="button"
             onClick={() => onIniciarConTema({ tema: temaElegido.titulo, dificultad })}
-            className="boton-degradado min-h-[52px] rounded-full text-title-md font-semibold shadow-elevation-2 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
+            className="boton-degradado min-h-[56px] rounded-full text-title-md font-semibold active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
           >
-            <Icono nombre="smart_toy" size={22} />
-            Armame un problema de este tema
+            <Icono nombre="auto_awesome" size={22} />
+            Armame un problema
           </button>
-        </>
+        </div>
       )}
     </div>
   );
@@ -967,9 +1000,24 @@ function ConversacionTutor({
     setMostrarTeclado(false);
   }
 
+  // Primer turno en camino: todavía no hay enunciado ni datos que mostrar.
+  // Antes se veía una tarjeta vacía (parecía roto); ahora el profe "piensa".
+  if (cargando && estado.historial.length === 0) {
+    return (
+      <section className="flex flex-col items-center gap-5 py-12 text-center" role="status">
+        <MascotaHero estado="pensando" size={112} />
+        <div className="flex flex-col gap-1">
+          <p className="text-title-lg font-semibold">Preparando tu problema…</p>
+          <p className="text-body-sm text-on-surface-variant">Leo el enunciado y lo parto en pasos cortos para vos.</p>
+        </div>
+        <TutorPensando etapa={estado.etapaPensando} />
+      </section>
+    );
+  }
+
   return (
     <section className="flex flex-col gap-4">
-      <div className="flex flex-col gap-3 bg-surface-container-lowest rounded-2xl p-4 shadow-elevation-1">
+      <div className="flex flex-col gap-3 bg-surface-container-lowest rounded-3xl p-4 sm:p-5 shadow-elevation-2 border border-surface-container-high">
         {/* Enunciado arriba (antes no se veía durante el ejercicio) y debajo
             los datos, la incógnita y el progreso. */}
         <TarjetaEnunciado
@@ -1026,7 +1074,7 @@ function ConversacionTutor({
         )}
 
         {incognita && (
-          <div className="p-3 rounded-xl bg-primary-fixed text-on-primary-fixed flex items-center justify-between gap-2">
+          <div className="p-3 rounded-2xl bg-primary-fixed text-on-primary-fixed flex items-center justify-between gap-2 border border-primary/15">
             <span className="flex items-center gap-1.5 font-semibold text-body-sm">
               <Icono nombre="search" size={18} />
               Incógnita
@@ -1122,7 +1170,7 @@ function ConversacionTutor({
         <button
           type="button"
           onClick={onAbrirSolucion}
-          className="min-h-[44px] rounded-2xl bg-surface-container-low shadow-elevation-1 px-4 flex items-center gap-2 text-body-sm font-semibold text-on-surface-variant active:scale-[0.98] transition-all duration-200"
+          className="tarjeta-interactiva min-h-[48px] rounded-2xl bg-surface-container-lowest border border-surface-container-high shadow-elevation-1 px-4 flex items-center gap-2 text-body-sm font-semibold text-on-surface"
         >
           <Icono nombre="functions" size={18} className="text-primary" />
           Ver fórmulas confirmadas ({estado.pasosCerrados.length})
@@ -1147,14 +1195,22 @@ function ConversacionTutor({
 
       {completado && estado.resultadoFinal && (
         <div className="celebrar flex flex-col gap-3">
-          <div className="p-5 rounded-2xl bg-tertiary-fixed text-on-tertiary-fixed flex flex-col items-center gap-1 text-center shadow-elevation-3">
-            <span className="flex items-center gap-2 font-semibold text-body-sm uppercase tracking-wide">
-              <Icono nombre="check_circle" size={22} className="text-tertiary" />
-              Resuelto
+          <div className="superficie-marca relative overflow-hidden rounded-3xl p-6 pt-5 flex flex-col items-center gap-2 text-center shadow-elevation-3">
+            <div className="cuadricula absolute inset-0 opacity-60 pointer-events-none" aria-hidden="true" />
+            <MascotaHero estado="celebrando" size={104} className="relative" />
+            <span className="relative inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 font-semibold text-label-md uppercase tracking-wider">
+              <Icono nombre="check_circle" size={16} />
+              ¡Lo resolviste!
             </span>
-            <span className="font-mono font-bold text-display-lg leading-tight">
+            <span className="relative font-mono font-bold text-[40px] leading-tight break-words max-w-full">
               <RenderizadorMatematico texto={estado.resultadoFinal.valor} /> {estado.resultadoFinal.unidad || ""}
             </span>
+            {estado.pasosCerrados.length > 0 && (
+              <span className="relative text-body-sm opacity-85">
+                {estado.pasosCerrados.length === 1 ? "1 paso confirmado" : `${estado.pasosCerrados.length} pasos confirmados`}
+                {estado.erroresSesion === 0 ? " · ¡sin errores!" : ""}
+              </span>
+            )}
           </div>
           {estado.analogiaCotidiana && (
             <div className="p-3.5 rounded-xl bg-secondary-fixed text-on-secondary-fixed text-body-sm leading-relaxed flex items-start gap-2 shadow-elevation-1">
@@ -1168,9 +1224,9 @@ function ConversacionTutor({
           <button
             type="button"
             onClick={onReiniciar}
-            className="boton-degradado min-h-[52px] rounded-full text-title-md font-semibold shadow-elevation-2 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
+            className="boton-degradado min-h-[56px] rounded-full text-title-md font-semibold active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
           >
-            <Icono nombre="refresh" size={20} />
+            <Icono nombre="add" size={22} />
             Resolver otro problema
           </button>
         </div>
@@ -1213,7 +1269,7 @@ function ConversacionTutor({
       {/* Sin historial (falló el primer turno) no hay un paso que responder:
           solo queda el botón de volver de arriba. */}
       {!completado && estado.historial.length > 0 && (
-        <div className="fixed bottom-0 inset-x-0 z-10 bg-surface/95 backdrop-blur-xl border-t border-surface-container-high pb-[env(safe-area-inset-bottom,0px)]">
+        <div className="fixed bottom-0 inset-x-0 z-10 bg-surface/90 backdrop-blur-xl border-t border-surface-container-high/70 shadow-[0_-8px_24px_-12px_rgba(0,0,0,0.12)] pb-[env(safe-area-inset-bottom,0px)]">
           <div className="max-w-[680px] mx-auto px-4 py-3 flex flex-col gap-2">
             {mostrarTeclado && !modoQuiz && (
               <TecladoMatematico onInsertar={insertarFormula} onCerrar={() => setMostrarTeclado(false)} />
@@ -1232,7 +1288,7 @@ function ConversacionTutor({
                 ))}
               </div>
             ) : (
-              <form onSubmit={onResponder} className="flex items-center gap-2 bg-surface-container-lowest rounded-2xl shadow-elevation-2 p-2">
+              <form onSubmit={onResponder} className="flex items-center gap-2 bg-surface-container-lowest rounded-full shadow-elevation-2 border border-surface-container-high p-1.5 pl-2 focus-within:border-primary/40 transition-colors">
                 <input
                   type="text"
                   value={inputRespuesta}
@@ -1240,13 +1296,13 @@ function ConversacionTutor({
                   placeholder="Escribí tu intento para este paso..."
                   disabled={cargando}
                   autoFocus
-                  className="flex-1 min-w-0 px-3 py-2.5 rounded-xl bg-surface-container-low text-on-surface placeholder:text-outline outline-none focus:bg-surface-container-high transition-colors disabled:opacity-60 text-body-md"
+                  className="flex-1 min-w-0 px-3 py-2.5 bg-transparent text-on-surface placeholder:text-outline outline-none disabled:opacity-60 text-body-lg"
                 />
                 <button
                   type="submit"
                   disabled={cargando || !inputRespuesta.trim()}
                   aria-label="Enviar mi respuesta"
-                  className="boton-degradado min-w-[44px] min-h-[44px] rounded-full shadow-elevation-1 disabled:opacity-50 active:scale-[0.98] transition-all duration-200 flex items-center justify-center flex-shrink-0"
+                  className="boton-degradado min-w-[48px] min-h-[48px] rounded-full disabled:opacity-50 active:scale-[0.95] transition-all duration-200 flex items-center justify-center flex-shrink-0"
                 >
                   <Icono nombre="send" size={20} />
                 </button>

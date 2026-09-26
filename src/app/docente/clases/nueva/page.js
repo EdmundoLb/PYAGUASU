@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useSyncExternalStore } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import Icono from "@/components/Icono";
 import FormularioCrearClase from "@/components/FormularioCrearClase";
+import EncabezadoPagina from "@/components/EncabezadoPagina";
 import {
   leerPerfilActivo,
   perfilActivoServidor,
@@ -38,18 +37,13 @@ export default function NuevaClasePage() {
 
   return (
     <>
-      <header className="sticky top-0 z-10 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
-        <div className="h-1 bg-gradient-to-r from-primary via-secondary-container to-tertiary" />
-        <div className="max-w-[680px] mx-auto h-16 px-4 flex items-center gap-2">
-          <Link href="/docente" className="min-h-[44px] inline-flex items-center gap-1.5 text-body-sm text-secondary underline underline-offset-2">
-            <Icono nombre="arrow_back" size={16} />
-            Tus clases
-          </Link>
-        </div>
-      </header>
+      <EncabezadoPagina volverA="/docente" etiquetaVolver="Volver a tus clases" titulo="Nueva clase" />
 
-      <main className="flex-1 w-full max-w-[680px] mx-auto px-4 pt-6 pb-10 flex flex-col gap-5">
-        <h1 className="text-headline-lg tracking-tight leading-tight">Crear una clase nueva</h1>
+      <main className="flex-1 w-full max-w-[760px] mx-auto px-4 pt-6 pb-10 flex flex-col gap-5">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-[28px] font-bold tracking-tight leading-tight">Creá una clase</h1>
+          <p className="text-body-md text-on-surface-variant">Al crearla vas a recibir un código para que tus alumnos se unan.</p>
+        </div>
         {perfil && <FormularioCrearClase onCrear={crearClase} />}
       </main>
     </>

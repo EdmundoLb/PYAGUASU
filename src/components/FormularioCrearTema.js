@@ -44,7 +44,7 @@ export default function FormularioCrearTema({ onCrear }) {
       <button
         type="submit"
         disabled={!titulo.trim() || enviando}
-        className="min-h-[44px] rounded-full bg-primary text-on-primary font-semibold disabled:opacity-50 active:scale-[0.98] transition-all duration-200"
+        className="min-h-[44px] rounded-full boton-degradado font-semibold disabled:opacity-50 active:scale-[0.98] transition-all duration-200"
       >
         {enviando ? "Agregando..." : "Agregar tema"}
       </button>

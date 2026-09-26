@@ -108,11 +108,214 @@
   --shadow-elevation-3: 0 12px 32px -8px rgba(32, 40, 70, 0.14);
 }
 
+/* Colores de marca FIJOS (no cambian con el tema): para superficies que
+   siempre llevan texto blanco — botón principal, tarjetas "hero", la
+   mascota. Los tokens de arriba sí se invierten en modo oscuro. */
+:root {
+  --marca-profundo: #00248f;
+  --marca-azul: #253ea7;
+  --marca-azul-claro: #3d56c9;
+  --marca-naranja: #fd8041;
+  --marca-turquesa: #77d7c8;
+  color-scheme: light;
+}
+
+/* Modo oscuro automático (según el sistema): para estudiar de noche sin
+   encandilarse. Se redefinen los mismos tokens de @theme, así todas las
+   clases de Tailwind (bg-surface, text-primary…) se adaptan solas. Los
+   "-fixed" pasan a ser tintes oscuros suaves (en claro son pasteles). */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --color-surface: #0e1220;
+    --color-surface-dim: #0e1220;
+    --color-surface-bright: #343a4d;
+    --color-surface-container-lowest: #181d2d;
+    --color-surface-container-low: #141827;
+    --color-surface-container: #1d2233;
+    --color-surface-container-high: #262c3f;
+    --color-surface-container-highest: #30364a;
+    --color-on-surface: #e3e5f3;
+    --color-on-surface-variant: #b9bccd;
+    --color-inverse-surface: #e3e5f3;
+    --color-inverse-on-surface: #2c303b;
+    --color-outline: #8c8fa1;
+    --color-outline-variant: #3e4356;
+
+    --color-primary: #b9c3ff;
+    --color-on-primary: #0d1d6e;
+    --color-primary-container: #2b44b0;
+    --color-on-primary-container: #dde1ff;
+    --color-primary-fixed: #1f2c6b;
+    --color-primary-fixed-dim: #2a3a86;
+    --color-on-primary-fixed: #dde1ff;
+    --color-on-primary-fixed-variant: #b9c3ff;
+
+    --color-secondary: #ffb695;
+    --color-on-secondary: #4a1a00;
+    --color-secondary-container: #d8641f;
+    --color-on-secondary-container: #ffede5;
+    --color-secondary-fixed: #3f1d0b;
+    --color-secondary-fixed-dim: #57290f;
+    --color-on-secondary-fixed: #ffdbcc;
+    --color-on-secondary-fixed-variant: #ffb695;
+
+    --color-tertiary: #77d7c8;
+    --color-on-tertiary: #00302a;
+    --color-tertiary-container: #1c6d62;
+    --color-on-tertiary-container: #a9f7e9;
+    --color-tertiary-fixed: #0f3833;
+    --color-tertiary-fixed-dim: #174a43;
+    --color-on-tertiary-fixed: #a9f7e9;
+    --color-on-tertiary-fixed-variant: #77d7c8;
+
+    --color-error: #ffb4ab;
+    --color-on-error: #690005;
+    --color-error-container: #5c1116;
+    --color-on-error-container: #ffdad6;
+
+    --color-background: #0e1220;
+    --color-on-background: #e3e5f3;
+
+    --shadow-elevation-1: 0 1px 2px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.03);
+    --shadow-elevation-2: 0 4px 14px -4px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.04);
+    --shadow-elevation-3: 0 14px 34px -10px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  }
+}
+
 body {
   background: var(--color-surface);
   color: var(--color-on-surface);
   font-family: var(--font-display);
   position: relative;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Foco visible y consistente para teclado en TODA la app (antes cada
+   componente lo resolvía distinto o no lo resolvía). En @layer base para
+   que una utilidad de Tailwind (outline-none, ring…) pueda pisarlo; los
+   campos de texto quedan afuera porque ya tienen su propio estilo de foco. */
+@layer base {
+  :where(a, button, select, [role="tab"], [role="radio"]):focus-visible {
+    outline: 2.5px solid var(--color-secondary-container);
+    outline-offset: 2px;
+  }
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-secondary-container) 35%, transparent);
+}
+
+/* Superficie de marca: degradado azul fijo + texto blanco, igual en claro y
+   en oscuro. Para tarjetas "hero" (resultado, XP ganado, mi clase…). */
+.superficie-marca {
+  background:
+    radial-gradient(120% 140% at 100% 0%, color-mix(in srgb, var(--marca-naranja) 38%, transparent), transparent 55%),
+    linear-gradient(140deg, var(--marca-profundo) 0%, var(--marca-azul) 55%, var(--marca-azul-claro) 100%);
+  color: #fff;
+}
+
+/* Textura sutil de "papel cuadriculado" (cuaderno de física) para
+   superficies de marca, sin imágenes. */
+.cuadricula {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* Tarjeta tocable: se eleva un poco al pasar el mouse (solo en dispositivos
+   con hover real, así en celular no queda "pegada"). */
+.tarjeta-interactiva {
+  transition: transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 200ms, border-color 200ms, background-color 200ms;
+}
+@media (hover: hover) {
+  .tarjeta-interactiva:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-elevation-3);
+  }
+}
+.tarjeta-interactiva:active {
+  transform: scale(0.98);
+}
+
+/* Esqueleto de carga con brillo que recorre (en vez de "Cargando..."). */
+@keyframes brilloEsqueleto {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+.esqueleto {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-container) 0%,
+    var(--color-surface-container-high) 45%,
+    var(--color-surface-container) 90%
+  );
+  background-size: 200% 100%;
+  animation: brilloEsqueleto 1.4s ease-in-out infinite;
+}
+
+/* Entrada escalonada: los hijos directos aparecen uno detrás de otro. */
+@keyframes entradaSuave {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.escalonado > * {
+  animation: entradaSuave 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.escalonado > *:nth-child(2) { animation-delay: 60ms; }
+.escalonado > *:nth-child(3) { animation-delay: 120ms; }
+.escalonado > *:nth-child(4) { animation-delay: 180ms; }
+.escalonado > *:nth-child(5) { animation-delay: 240ms; }
+.escalonado > *:nth-child(6) { animation-delay: 300ms; }
+.escalonado > *:nth-child(n + 7) { animation-delay: 340ms; }
+
+/* Mascota grande (MascotaHero): flota, parpadea y el electrón orbita. */
+@keyframes flotar {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.flotar {
+  animation: flotar 4s ease-in-out infinite;
+}
+@keyframes parpadear {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+.parpadear {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: parpadear 4.5s ease-in-out infinite;
+}
+@keyframes orbitar {
+  to { transform: rotate(360deg); }
+}
+.orbitar {
+  transform-origin: 60px 64px;
+  animation: orbitar 9s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .escalonado > *,
+  .flotar,
+  .parpadear,
+  .orbitar,
+  .esqueleto {
+    animation: none;
+  }
+  .tarjeta-interactiva:hover {
+    transform: none;
+  }
 }
 
 /* Fondo "vivo": manchas de color grandes, difusas y muy tenues, tomadas de
@@ -150,14 +353,24 @@ body::before {
    ("empezar", "enviar", "resolver otro problema") — más enérgico que un
    color plano, pensado para el público adolescente de la app. */
 .boton-degradado {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-container) 55%, var(--color-secondary-container) 130%);
-  color: var(--color-on-primary);
-  transition: transform 200ms, filter 200ms;
+  background: linear-gradient(135deg, var(--marca-profundo) 0%, var(--marca-azul) 55%, var(--marca-naranja) 135%);
+  color: #fff;
+  box-shadow: 0 8px 20px -8px color-mix(in srgb, var(--marca-azul) 70%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  transition: transform 200ms, filter 200ms, box-shadow 200ms;
 }
 
-.boton-degradado:hover {
+.boton-degradado:hover:not(:disabled) {
   transform: translateY(-2px);
-  filter: brightness(1.04);
+  filter: brightness(1.08);
+  box-shadow: 0 12px 26px -8px color-mix(in srgb, var(--marca-azul) 80%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.boton-degradado:disabled {
+  cursor: not-allowed;
+  filter: saturate(0.4);
+  box-shadow: none;
 }
 
 .boton-degradado:active {

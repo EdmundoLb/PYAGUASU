@@ -36,8 +36,8 @@ export default function IndicadorProgreso({ pasoActual, totalPasos, racha = 0 })
           return (
             <div
               key={s}
-              className={`h-1.5 rounded-full transition-colors duration-300 flex items-center justify-center overflow-hidden ${
-                cerrado ? "bg-tertiary-container" : activo ? "bg-primary" : "bg-surface-container-highest"
+              className={`h-2 rounded-full transition-colors duration-300 flex items-center justify-center overflow-hidden ${
+                cerrado ? "bg-tertiary" : activo ? "boton-degradado" : "bg-surface-container-highest"
               }`}
             />
           );

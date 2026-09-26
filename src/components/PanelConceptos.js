@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Icono from "./Icono";
 import RenderizadorMatematico from "./RenderizadorMatematico";
 import SimuladorChoque from "./SimuladorChoque";
+import FuentesBibliograficas from "./FuentesBibliograficas";
 import { formulasParaIncisos } from "@/lib/conceptos/incisos";
 
 // Panel "Conceptos" de la pantalla del ejercicio: el material del docente
@@ -105,7 +106,7 @@ export default function PanelConceptos({ concepto, escena = null, enunciado = ""
         aria-label={`Conceptos: ${concepto.titulo}`}
       >
         {/* Encabezado */}
-        <div className="px-4 pt-4 pb-3 flex items-center justify-between gap-2 bg-gradient-to-r from-primary to-primary-container text-on-primary">
+        <div className="px-4 pt-4 pb-3 flex items-center justify-between gap-2 superficie-marca">
           <span className="flex items-center gap-2 min-w-0">
             <span className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center flex-shrink-0">
               <Icono nombre="auto_stories" size={20} />
@@ -218,6 +219,7 @@ export default function PanelConceptos({ concepto, escena = null, enunciado = ""
                   </span>
                 </p>
               </Tarjeta>
+              <FuentesBibliograficas fuentes={concepto.bibliografia} />
               <button
                 type="button"
                 onClick={() => setPestana("accion")}
@@ -337,6 +339,7 @@ export default function PanelConceptos({ concepto, escena = null, enunciado = ""
                   </span>
                 </p>
               </Tarjeta>
+              <FuentesBibliograficas fuentes={concepto.bibliografia} />
             </>
           )}
 
@@ -389,7 +392,7 @@ export default function PanelConceptos({ concepto, escena = null, enunciado = ""
           <button
             type="button"
             onClick={onCerrar}
-            className="w-full min-h-[48px] rounded-full bg-primary text-on-primary text-title-md font-semibold shadow-elevation-2 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
+            className="w-full min-h-[48px] rounded-full boton-degradado text-title-md font-semibold active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
           >
             <Icono nombre="arrow_back" size={20} />
             Volver al ejercicio

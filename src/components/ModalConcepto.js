@@ -3,7 +3,8 @@
 import { useEffect } from "react";
 import Icono from "./Icono";
 import RenderizadorMatematico from "./RenderizadorMatematico";
-import { GLOSARIO, contenidoEnTuEjercicio, incisosDelConcepto } from "@/lib/conceptos/glosario";
+import FuentesBibliograficas from "./FuentesBibliograficas";
+import { GLOSARIO, BIBLIOGRAFIA, contenidoEnTuEjercicio, incisosDelConcepto } from "@/lib/conceptos/glosario";
 
 // Repaso de UN concepto, abierto desde el chip "Repasar: …" de un mensaje
 // del tutor. Muestra el concepto (material del profe) y cómo se aplica al
@@ -40,7 +41,7 @@ export default function ModalConcepto({ id, escena, enunciado, ejercicioTerminad
         aria-modal="true"
         aria-label={`Repaso: ${concepto.titulo}`}
       >
-        <div className="px-4 pt-4 pb-3 flex items-center justify-between gap-2 bg-gradient-to-r from-primary to-primary-container text-on-primary rounded-t-2xl">
+        <div className="px-4 pt-4 pb-3 flex items-center justify-between gap-2 superficie-marca rounded-t-2xl">
           <span className="flex items-center gap-2 min-w-0">
             <span className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center flex-shrink-0">
               <Icono nombre={concepto.icono} size={20} />
@@ -90,6 +91,8 @@ export default function ModalConcepto({ id, escena, enunciado, ejercicioTerminad
               ))}
             </div>
           )}
+
+          <FuentesBibliograficas fuentes={BIBLIOGRAFIA} />
 
           {enTuEjercicio.length > 0 && (
             <div className="flex flex-col gap-2 p-3.5 rounded-2xl bg-secondary-fixed/60">

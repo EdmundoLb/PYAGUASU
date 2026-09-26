@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState, useSyncExternalStore } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Icono from "@/components/Icono";
 import ListaRanking from "@/components/ListaRanking";
+import EncabezadoPagina from "@/components/EncabezadoPagina";
+import EstadoVacio from "@/components/EstadoVacio";
 import NavegacionInferior from "@/components/NavegacionInferior";
 import {
   leerPerfilActivo,
@@ -65,46 +66,40 @@ export default function RankingPage() {
 
   return (
     <>
-      <header className="sticky top-0 z-10 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
-        <div className="h-1 bg-gradient-to-r from-primary via-secondary-container to-tertiary" />
-        <div className="max-w-[680px] mx-auto h-16 px-4 flex items-center gap-2">
-          <Link href="/dashboard" className="min-h-[44px] inline-flex items-center gap-1.5 text-body-sm text-secondary underline underline-offset-2">
-            <Icono nombre="arrow_back" size={16} />
-            Tu progreso
-          </Link>
-        </div>
-      </header>
+      <EncabezadoPagina volverA="/dashboard" etiquetaVolver="Volver a tu progreso" titulo="Ranking de tu clase" />
 
-      <main className="flex-1 w-full max-w-[680px] mx-auto px-4 pt-6 pb-24 flex flex-col gap-5">
-        <h1 className="text-headline-lg tracking-tight leading-tight flex items-center gap-2">
-          <Icono nombre="leaderboard" size={26} className="text-primary" />
-          Ranking de tu clase
-        </h1>
-
-        {cargando && <p className="text-body-sm text-on-surface-variant">Cargando...</p>}
+      <main className="flex-1 w-full max-w-[760px] mx-auto px-4 pt-8 pb-28 flex flex-col gap-5">
+        {(cargando || (perfil?.claseId && !ranking && !error)) && (
+          <div className="flex flex-col gap-3" aria-busy="true" aria-label="Cargando ranking">
+            <div className="h-48 rounded-3xl esqueleto" />
+            <div className="h-40 rounded-3xl esqueleto" />
+          </div>
+        )}
 
         {!cargando && perfil && !perfil.claseId && (
-          <form onSubmit={unirseAClase} className="flex flex-col gap-3 bg-surface-container-lowest rounded-2xl p-4 shadow-elevation-2">
-            <p className="text-body-sm text-on-surface-variant">
-              Todavía no estás en ninguna clase. Pedile a tu docente el código de invitación para unirte y ver el
-              ranking de tus compañeros.
-            </p>
-            <input
-              type="text"
-              value={codigo}
-              onChange={(e) => setCodigo(e.target.value)}
-              placeholder="Código de clase (ej. FIS3B01)"
-              className="w-full p-3 rounded-xl bg-surface-container-low text-on-surface placeholder:text-outline outline-none focus:bg-surface-container-high focus:ring-2 focus:ring-primary/30 transition-all text-body-md uppercase"
-            />
-            <button
-              type="submit"
-              disabled={!codigo.trim() || uniendose}
-              className="boton-degradado min-h-[52px] rounded-full text-title-md font-semibold shadow-elevation-2 disabled:opacity-50 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
-            >
-              <Icono nombre="group_add" size={20} />
-              {uniendose ? "Uniéndome..." : "Unirme a la clase"}
-            </button>
-          </form>
+          <EstadoVacio
+            titulo="Unite a tu clase"
+            descripcion="Pedile a tu docente el código de invitación para competir en el ranking con tus compañeros."
+          >
+            <form onSubmit={unirseAClase} className="flex flex-col sm:flex-row gap-2 w-full max-w-[420px]">
+              <input
+                type="text"
+                value={codigo}
+                onChange={(e) => setCodigo(e.target.value)}
+                placeholder="Ej. FIS3B01"
+                aria-label="Código de clase"
+                className="flex-1 min-h-[52px] px-5 rounded-full bg-surface-container-low border-2 border-transparent text-on-surface placeholder:text-outline outline-none focus:border-primary/40 transition-all font-mono text-title-md tracking-widest uppercase text-center sm:text-left"
+              />
+              <button
+                type="submit"
+                disabled={!codigo.trim() || uniendose}
+                className="boton-degradado min-h-[52px] px-6 rounded-full text-title-md font-semibold active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
+              >
+                <Icono nombre="group_add" size={20} />
+                {uniendose ? "Uniéndome..." : "Unirme"}
+              </button>
+            </form>
+          </EstadoVacio>
         )}
 
         {ranking && <ListaRanking ranking={ranking} alumnoActivoId={perfil?.id} />}

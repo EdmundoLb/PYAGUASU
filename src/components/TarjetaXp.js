@@ -15,13 +15,14 @@ export default function TarjetaXp({ perfil, variante = "compacta" }) {
     return (
       <Link
         href="/dashboard"
-        className="inline-flex items-center gap-1.5 pl-1 pr-3 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed text-label-sm font-semibold flex-shrink-0 active:scale-[0.96] transition-all duration-200"
+        aria-label={`Nivel ${nivel}, ${perfil.xp} XP. Ver mi progreso`}
+        className="inline-flex items-center gap-1.5 pl-1 pr-3 py-1 rounded-full bg-surface-container-lowest border border-surface-container-high shadow-elevation-1 text-label-md font-semibold text-on-surface flex-shrink-0 hover:border-primary/40 active:scale-[0.96] transition-all duration-200"
       >
-        <span className="w-6 h-6 rounded-full bg-tertiary text-on-tertiary flex items-center justify-center font-mono text-[11px] font-bold">
+        <span className="w-7 h-7 rounded-full boton-degradado flex items-center justify-center font-mono text-[12px] font-bold">
           {nivel}
         </span>
-        <Icono nombre="bolt" size={14} />
-        {perfil.xp} XP
+        <Icono nombre="bolt" size={16} className="text-secondary" />
+        <span className="font-mono tabular-nums">{perfil.xp}</span>
       </Link>
     );
   }
@@ -29,7 +30,6 @@ export default function TarjetaXp({ perfil, variante = "compacta" }) {
   return (
     <div className="flex flex-col gap-3 bg-surface-container-lowest rounded-2xl p-4 shadow-elevation-2">
       <div className="flex items-center gap-3">
-        <span className="text-4xl">{perfil.avatarEmoji}</span>
         <div className="flex flex-col">
           <span className="text-title-lg font-semibold">{perfil.nombre}</span>
           {perfil.racha > 0 && (

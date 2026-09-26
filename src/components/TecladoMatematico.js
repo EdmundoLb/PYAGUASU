@@ -50,7 +50,7 @@ export default function TecladoMatematico({ onInsertar, onCerrar }) {
         type="button"
         onClick={insertar}
         disabled={!listo}
-        className="min-h-[44px] rounded-full bg-primary text-on-primary font-semibold disabled:opacity-50 active:scale-[0.98] transition-all duration-200"
+        className="min-h-[44px] rounded-full boton-degradado font-semibold disabled:opacity-50 active:scale-[0.98] transition-all duration-200"
       >
         Insertar en mi respuesta
       </button>

@@ -7,10 +7,10 @@ const ETAPAS = ["Leyendo", "Verificando unidades", "Identificando fórmula", "Pr
 export default function TutorPensando({ etapa = 0 }) {
   return (
     <div className="mensaje-nuevo flex items-start gap-2">
-      <div className="w-7 h-7 rounded-full bg-primary-container text-on-primary flex items-center justify-center flex-shrink-0 shadow-elevation-1">
+      <div className="w-7 h-7 rounded-full superficie-marca flex items-center justify-center flex-shrink-0 shadow-elevation-1">
         <MascotaProfe estado="pensando" size={16} />
       </div>
-      <div className="px-4 py-3 rounded-2xl rounded-bl-sm bg-surface-container-lowest shadow-elevation-1 flex flex-col gap-1.5 min-w-[190px]">
+      <div className="px-4 py-3 rounded-3xl rounded-bl-md bg-surface-container-lowest border border-surface-container-high shadow-elevation-1 flex flex-col gap-1.5 min-w-[190px]">
         {ETAPAS.map((texto, i) => {
           const activa = i === etapa % ETAPAS.length;
           const pasada = i < etapa % ETAPAS.length;

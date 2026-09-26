@@ -14,7 +14,7 @@ import { useTypewriter } from "@/lib/ui/useTypewriter";
 const ACENTO_POR_ESTADO = {
   nueva: {
     borde: "border-primary",
-    avatar: "bg-primary text-on-primary",
+    avatar: "superficie-marca",
     etiqueta: "text-primary",
     texto: "Tu turno",
   },
@@ -34,7 +34,7 @@ const ACENTO_POR_ESTADO = {
   // como "Casi".
   ayuda: {
     borde: "border-primary",
-    avatar: "bg-primary-container text-on-primary",
+    avatar: "superficie-marca",
     etiqueta: "text-primary",
     texto: "Así se resuelve este paso",
   },
@@ -87,11 +87,11 @@ export default function BurbujaChat({
     const acento = ACENTO_POR_ESTADO[estadoTurno] || ACENTO_POR_ESTADO.nueva;
     return (
       <div
-        className={`mensaje-nuevo flex flex-col gap-2 p-4 rounded-2xl bg-surface-container-lowest border-l-4 ${acento.borde} shadow-elevation-2`}
+        className={`mensaje-nuevo flex flex-col gap-2 p-4 sm:p-5 rounded-3xl bg-surface-container-lowest border border-surface-container-high border-l-[5px] ${acento.borde} shadow-elevation-3`}
         onClick={completo ? undefined : saltarAlFinal}
       >
         <div className="flex items-center gap-2">
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 shadow-elevation-1 ${acento.avatar}`}>
+          <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 shadow-elevation-1 ${acento.avatar}`}>
             <MascotaProfe estado={estadoTurno} size={18} />
           </div>
           <span className={`font-mono text-label-sm uppercase tracking-wider font-bold ${acento.etiqueta}`}>
@@ -99,13 +99,13 @@ export default function BurbujaChat({
           </span>
         </div>
         <DiagramaEscena elementos={elementosEscena} />
-        <p className="text-body-lg leading-relaxed text-on-surface pl-10 -mt-1">
+        <p className="text-body-lg leading-relaxed text-on-surface pl-11 -mt-1">
           {/* Durante la escritura las fórmulas aparecen completas y ya
               renderizadas; antes se veía el LaTeX crudo ("$v$") hasta el final. */}
           <RenderizadorMatematico texto={texto} longitudVisible={completo ? undefined : textoRevelado.length} />
         </p>
         <SimuladorVariable variable={variableExplorable} />
-        <div className="pl-10">
+        <div className="pl-11">
           <ChipsConcepto conceptos={conceptos} onAbrir={onAbrirConcepto} />
         </div>
       </div>
@@ -113,17 +113,17 @@ export default function BurbujaChat({
   }
 
   return (
-    <div className={`mensaje-nuevo flex items-end gap-2 opacity-70 ${esTutor ? "justify-start" : "justify-end"}`}>
+    <div className={`mensaje-nuevo flex items-end gap-2 ${esTutor ? "justify-start" : "justify-end"}`}>
       {esTutor && (
-        <div className="w-7 h-7 rounded-full bg-primary-container text-on-primary flex items-center justify-center flex-shrink-0 shadow-elevation-1">
+        <div className="w-7 h-7 rounded-full superficie-marca flex items-center justify-center flex-shrink-0 shadow-elevation-1">
           <MascotaProfe estado="nueva" size={16} />
         </div>
       )}
       <div
         className={`max-w-[80%] px-3.5 py-2.5 text-body-md leading-relaxed shadow-elevation-1 ${
           esTutor
-            ? "bg-surface-container-lowest text-on-surface rounded-2xl rounded-bl-sm"
-            : "bg-primary text-on-primary rounded-2xl rounded-br-sm"
+            ? "bg-surface-container text-on-surface-variant rounded-3xl rounded-bl-md"
+            : "superficie-marca rounded-3xl rounded-br-md"
         }`}
       >
         <RenderizadorMatematico texto={texto} />
@@ -134,7 +134,7 @@ export default function BurbujaChat({
         )}
       </div>
       {!esTutor && (
-        <div className="w-7 h-7 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center flex-shrink-0 shadow-elevation-1">
+        <div className="w-7 h-7 rounded-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center flex-shrink-0 shadow-elevation-1">
           <Icono nombre="person" size={16} />
         </div>
       )}

@@ -76,7 +76,7 @@ export default function TarjetaXpGanada({ resultado }) {
     .filter(Boolean);
 
   return (
-    <div className="celebrar relative overflow-hidden flex flex-col gap-2.5 p-4 rounded-2xl bg-gradient-to-br from-primary via-primary-container to-secondary-container text-on-primary shadow-elevation-2">
+    <div className="celebrar relative overflow-hidden flex flex-col gap-2.5 p-4 rounded-2xl superficie-marca shadow-elevation-2">
       {resultado.subioDeNivel && <Confetti />}
 
       <div className="flex items-center justify-between gap-2">

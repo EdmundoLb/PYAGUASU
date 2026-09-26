@@ -71,7 +71,7 @@ export default function ModalSolucion({ pasos, resultadoFinal, analogiaCotidiana
         <button
           type="button"
           onClick={onCerrar}
-          className="min-h-[48px] rounded-full bg-primary text-on-primary text-title-md font-semibold shadow-elevation-2 active:scale-[0.98] transition-all duration-200"
+          className="min-h-[48px] rounded-full boton-degradado text-title-md font-semibold active:scale-[0.98] transition-all duration-200"
         >
           Cerrar
         </button>

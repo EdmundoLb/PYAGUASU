@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState, useSyncExternalStore, use as usePromise } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Icono from "@/components/Icono";
 import TablaAlumnosClase from "@/components/TablaAlumnosClase";
 import FormularioCrearTema from "@/components/FormularioCrearTema";
 import FormularioCrearTarea from "@/components/FormularioCrearTarea";
+import EncabezadoPagina from "@/components/EncabezadoPagina";
+import CodigoInvitacion from "@/components/CodigoInvitacion";
 import {
   leerPerfilActivo,
   perfilActivoServidor,
@@ -69,17 +70,9 @@ export default function DetalleClasePage({ params }) {
 
   return (
     <>
-      <header className="sticky top-0 z-10 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
-        <div className="h-1 bg-gradient-to-r from-primary via-secondary-container to-tertiary" />
-        <div className="max-w-[680px] mx-auto h-16 px-4 flex items-center gap-2">
-          <Link href="/docente" className="min-h-[44px] inline-flex items-center gap-1.5 text-body-sm text-secondary underline underline-offset-2">
-            <Icono nombre="arrow_back" size={16} />
-            Tus clases
-          </Link>
-        </div>
-      </header>
+      <EncabezadoPagina volverA="/docente" etiquetaVolver="Volver a tus clases" titulo={clase?.nombre || "Clase"} />
 
-      <main className="flex-1 w-full max-w-[680px] mx-auto px-4 pt-6 pb-10 flex flex-col gap-6">
+      <main className="flex-1 w-full max-w-[760px] mx-auto px-4 pt-6 pb-10 flex flex-col gap-7">
         {error && (
           <div className="rounded-2xl bg-error-container text-on-error-container p-4 text-body-sm flex items-start gap-2 shadow-elevation-1">
             <Icono nombre="error" size={20} className="flex-shrink-0 mt-0.5" />
@@ -89,16 +82,33 @@ export default function DetalleClasePage({ params }) {
 
         {clase && (
           <>
-            <section className="flex flex-col gap-1.5">
-              <h1 className="text-headline-lg tracking-tight leading-tight">{clase.nombre}</h1>
-              <span className="inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed text-label-sm font-mono font-bold">
-                <Icono nombre="key" size={14} />
-                Código para invitar alumnos: {clase.codigoInvitacion}
-              </span>
+            <section className="superficie-marca relative overflow-hidden rounded-3xl p-5 sm:p-6 shadow-elevation-3 flex flex-col gap-4">
+              <div className="cuadricula absolute inset-0 opacity-50 pointer-events-none" aria-hidden="true" />
+              <h1 className="relative text-[28px] font-bold leading-tight">{clase.nombre}</h1>
+              <div className="relative grid grid-cols-3 gap-2">
+                {[
+                  { valor: clase.alumnos.length, etiqueta: "alumnos" },
+                  {
+                    valor: clase.alumnos.length
+                      ? Math.round(clase.alumnos.reduce((t, a) => t + a.xp, 0) / clase.alumnos.length)
+                      : 0,
+                    etiqueta: "XP promedio",
+                  },
+                  { valor: clase.tareas.length, etiqueta: "tareas" },
+                ].map((d) => (
+                  <div key={d.etiqueta} className="flex flex-col gap-0.5 p-3 rounded-2xl bg-white/12">
+                    <span className="font-mono font-bold text-[22px] leading-none">{d.valor}</span>
+                    <span className="text-label-sm opacity-85">{d.etiqueta}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="relative">
+                <CodigoInvitacion codigo={clase.codigoInvitacion} />
+              </div>
             </section>
 
             <section className="flex flex-col gap-2.5">
-              <h2 className="text-title-md font-semibold flex items-center gap-1.5">
+              <h2 className="text-title-lg font-semibold flex items-center gap-2">
                 <Icono nombre="groups" size={18} className="text-primary" />
                 Alumnos y su progreso
               </h2>
@@ -106,13 +116,13 @@ export default function DetalleClasePage({ params }) {
             </section>
 
             <section className="flex flex-col gap-2.5">
-              <h2 className="text-title-md font-semibold flex items-center gap-1.5">
+              <h2 className="text-title-lg font-semibold flex items-center gap-2">
                 <Icono nombre="route" size={18} className="text-primary" />
                 Plan de contenido
               </h2>
               <div className="flex flex-col gap-2">
                 {clase.temas.map((tema) => (
-                  <div key={tema.id} className="p-3 rounded-xl bg-surface-container-lowest shadow-elevation-1">
+                  <div key={tema.id} className="p-4 rounded-2xl bg-surface-container-lowest border border-surface-container-high shadow-elevation-1">
                     <span className="text-body-md font-semibold">{tema.titulo}</span>
                     {tema.descripcion && (
                       <p className="text-body-sm text-on-surface-variant">{tema.descripcion}</p>
@@ -124,7 +134,7 @@ export default function DetalleClasePage({ params }) {
             </section>
 
             <section className="flex flex-col gap-2.5">
-              <h2 className="text-title-md font-semibold flex items-center gap-1.5">
+              <h2 className="text-title-lg font-semibold flex items-center gap-2">
                 <Icono nombre="assignment" size={18} className="text-primary" />
                 Tareas asignadas
               </h2>
@@ -133,9 +143,9 @@ export default function DetalleClasePage({ params }) {
                   <p className="text-body-sm text-on-surface-variant">Todavía no asignaste ninguna tarea.</p>
                 )}
                 {clase.tareas.map((tarea) => (
-                  <div key={tarea.id} className="flex items-center justify-between gap-2 p-3 rounded-xl bg-surface-container-lowest shadow-elevation-1">
+                  <div key={tarea.id} className="flex items-center justify-between gap-2 p-4 rounded-2xl bg-surface-container-lowest border border-surface-container-high shadow-elevation-1">
                     <span className="text-body-md font-semibold truncate">{tarea.titulo}</span>
-                    <span className="font-mono font-bold text-secondary flex-shrink-0">+{tarea.xpRecompensa} XP</span>
+                    <span className="px-2.5 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed font-mono text-label-md font-bold flex-shrink-0">+{tarea.xpRecompensa} XP</span>
                   </div>
                 ))}
               </div>
