@@ -1,0 +1,2135 @@
+{
+  "meta": {
+    "nombre": "Base léxica jopara — tutor de matemática y física",
+    "temas": [
+      "funciones",
+      "cinemática",
+      "trigonometría"
+    ],
+    "niveles_confianza": {
+      "Consolidado": "uso general",
+      "Aula/MEC": "terminología escolar, uso variable",
+      "Jopara coloquial": "forma oral, variable",
+      "Validar": "no usar sin revisión"
+    }
+  },
+  "reglas_ia": [
+    "Responder en jopara equilibrado: estructura y trato en guaraní; términos técnicos, fórmulas y unidades en castellano.",
+    "Usar la hoja 'Términos en castellano' como lista cerrada: esos conceptos no se traducen.",
+    "Priorizar entradas 'Consolidado'. Usar 'Aula/MEC' y 'Jopara coloquial' con moderación. No usar 'Validar' hasta revisarlas.",
+    "Al corregir: 1) reconocer lo que está bien, 2) señalar el paso exacto del error, 3) explicar el porqué, 4) corregir juntos con ja-/ña-, 5) alentar.",
+    "Preferir 'oĩ peteĩ jejavy'i' y 'ñamyatyrõ oñondive' antes que repetir 'rejavy'.",
+    "No inventar palabras guaraníes. Si no hay término en la base, usar el castellano con morfología guaraní (ej.: 'ñadespeja').",
+    "Respetar la ortografía: puso ('), tildes nasales (ã ẽ ĩ õ ũ ỹ) y g̃.",
+    "Consultar la hoja 'Errores a evitar' antes de generar cada respuesta."
+  ],
+  "lexico": [
+    {
+      "id": "L001",
+      "categoria": "Aula",
+      "termino": "Mba'éichapa",
+      "castellano": "Hola / ¿Cómo estás?",
+      "modulo": "Ambos",
+      "ejemplo": "Mba'éichapa! Jahecha ko ejercicio.",
+      "traduccion": "¡Hola! Veamos este ejercicio.",
+      "confianza": "Consolidado",
+      "nota": "Saludo de apertura."
+    },
+    {
+      "id": "L002",
+      "categoria": "Aula",
+      "termino": "Aguyje",
+      "castellano": "Gracias",
+      "modulo": "Ambos",
+      "ejemplo": "Aguyje reporandu haguére.",
+      "traduccion": "Gracias por preguntar.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L003",
+      "categoria": "Aula",
+      "termino": "Jajotopata",
+      "castellano": "Nos vemos",
+      "modulo": "FAQ",
+      "ejemplo": "Jajotopata próxima clase-pe.",
+      "traduccion": "Nos vemos en la próxima clase.",
+      "confianza": "Consolidado",
+      "nota": "Cierre."
+    },
+    {
+      "id": "L004",
+      "categoria": "Aula",
+      "termino": "Mbo'ehára",
+      "castellano": "Docente, profesor/a",
+      "modulo": "Ambos",
+      "ejemplo": "Eporandu nde mbo'ehárape.",
+      "traduccion": "Preguntale a tu profesor.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L005",
+      "categoria": "Aula",
+      "termino": "Temimbo'e",
+      "castellano": "Estudiante, alumno/a",
+      "modulo": "Ambos",
+      "ejemplo": "Opaite temimbo'e ikatu ojejavy.",
+      "traduccion": "Todo estudiante puede equivocarse.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L006",
+      "categoria": "Aula",
+      "termino": "Tembiapo",
+      "castellano": "Tarea, trabajo",
+      "modulo": "Ambos",
+      "ejemplo": "Ko tembiapo oguereko mbohapy paso.",
+      "traduccion": "Esta tarea tiene tres pasos.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L007",
+      "categoria": "Aula",
+      "termino": "Porandu",
+      "castellano": "Pregunta",
+      "modulo": "FAQ",
+      "ejemplo": "Mba'épa nde porandu?",
+      "traduccion": "¿Cuál es tu pregunta?",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L008",
+      "categoria": "Aula",
+      "termino": "Mbohovái",
+      "castellano": "Respuesta / responder",
+      "modulo": "Ambos",
+      "ejemplo": "Nde mbohovái hekopete.",
+      "traduccion": "Tu respuesta es correcta.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L009",
+      "categoria": "Aula",
+      "termino": "Techapyrã",
+      "castellano": "Ejemplo, por ejemplo",
+      "modulo": "Ambos",
+      "ejemplo": "Techapyrã: f(x) = 2x + 1.",
+      "traduccion": "Por ejemplo: f(x) = 2x + 1.",
+      "confianza": "Consolidado",
+      "nota": "Muy útil en FAQ."
+    },
+    {
+      "id": "L010",
+      "categoria": "Aula",
+      "termino": "Ñe'ẽ",
+      "castellano": "Palabra, idioma",
+      "modulo": "FAQ",
+      "ejemplo": "Ko ñe'ẽ he'ise…",
+      "traduccion": "Esta palabra significa…",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L011",
+      "categoria": "Aula",
+      "termino": "He'ise",
+      "castellano": "Significa",
+      "modulo": "FAQ",
+      "ejemplo": "Pendiente he'ise mboýpa ojupi pe recta.",
+      "traduccion": "Pendiente significa cuánto sube la recta.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L012",
+      "categoria": "Corrección",
+      "termino": "Jejavy",
+      "castellano": "Error, equivocación",
+      "modulo": "Corrector",
+      "ejemplo": "Oĩ peteĩ jejavy pe paso 2-pe.",
+      "traduccion": "Hay un error en el paso 2.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L013",
+      "categoria": "Corrección",
+      "termino": "Jejavy'i",
+      "castellano": "Pequeño error",
+      "modulo": "Corrector",
+      "ejemplo": "Oĩ peteĩ jejavy'i nde cálculo-pe.",
+      "traduccion": "Hay un pequeño error en tu cálculo.",
+      "confianza": "Consolidado",
+      "nota": "Más amable que 'rejavy'."
+    },
+    {
+      "id": "L014",
+      "categoria": "Corrección",
+      "termino": "Rejavy",
+      "castellano": "Te equivocaste",
+      "modulo": "Corrector",
+      "ejemplo": "Rejavy pe signo-pe.",
+      "traduccion": "Te equivocaste en el signo.",
+      "confianza": "Consolidado",
+      "nota": "No abusar: puede sonar acusador."
+    },
+    {
+      "id": "L015",
+      "categoria": "Corrección",
+      "termino": "Ndorejavýi",
+      "castellano": "No te equivocaste",
+      "modulo": "Corrector",
+      "ejemplo": "Ndorejavýi ko paso-pe.",
+      "traduccion": "En este paso no te equivocaste.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L016",
+      "categoria": "Corrección",
+      "termino": "Hekopete",
+      "castellano": "Correcto, como corresponde",
+      "modulo": "Corrector",
+      "ejemplo": "Pe paso 1 hekopete.",
+      "traduccion": "El paso 1 es correcto.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L017",
+      "categoria": "Corrección",
+      "termino": "Iporã",
+      "castellano": "Bien, está bien",
+      "modulo": "Ambos",
+      "ejemplo": "Iporã rejapo pe planteo.",
+      "traduccion": "Hiciste bien el planteo.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L018",
+      "categoria": "Corrección",
+      "termino": "Iporãiterei",
+      "castellano": "Muy bien, excelente",
+      "modulo": "Corrector",
+      "ejemplo": "Iporãiterei! Opaite paso hekopete.",
+      "traduccion": "¡Excelente! Todos los pasos son correctos.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L019",
+      "categoria": "Corrección",
+      "termino": "Vai",
+      "castellano": "Mal",
+      "modulo": "Corrector",
+      "ejemplo": "Rembohasa vai pe término.",
+      "traduccion": "Pasaste mal el término.",
+      "confianza": "Consolidado",
+      "nota": "Usar junto al verbo, no suelto."
+    },
+    {
+      "id": "L020",
+      "categoria": "Corrección",
+      "termino": "Ndaha'éi upéicha",
+      "castellano": "No es así",
+      "modulo": "Corrector",
+      "ejemplo": "Ndaha'éi upéicha: pe resultado ha'e 7.",
+      "traduccion": "No es así: el resultado es 7.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L021",
+      "categoria": "Corrección",
+      "termino": "Oĩ va'erã",
+      "castellano": "Debería haber / debería ir",
+      "modulo": "Corrector",
+      "ejemplo": "Ko'ápe oĩ va'erã peteĩ signo negativo.",
+      "traduccion": "Aquí debería ir un signo negativo.",
+      "confianza": "Consolidado",
+      "nota": "Va'erã = obligación."
+    },
+    {
+      "id": "L022",
+      "categoria": "Corrección",
+      "termino": "Emyatyrõ",
+      "castellano": "Corregí (vos)",
+      "modulo": "Corrector",
+      "ejemplo": "Emyatyrõ pe paso 3.",
+      "traduccion": "Corregí el paso 3.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L023",
+      "categoria": "Corrección",
+      "termino": "Ñamyatyrõ oñondive",
+      "castellano": "Corrijamos juntos",
+      "modulo": "Corrector",
+      "ejemplo": "Ñamyatyrõ oñondive ko paso.",
+      "traduccion": "Corrijamos juntos este paso.",
+      "confianza": "Consolidado",
+      "nota": "Preferible: inclusivo, no culpabiliza."
+    },
+    {
+      "id": "L024",
+      "categoria": "Corrección",
+      "termino": "Emañamína",
+      "castellano": "Fijate (con cortesía)",
+      "modulo": "Corrector",
+      "ejemplo": "Emañamína pe exponente-re.",
+      "traduccion": "Fijate en el exponente.",
+      "confianza": "Consolidado",
+      "nota": "-mína = cortesía."
+    },
+    {
+      "id": "L025",
+      "categoria": "Corrección",
+      "termino": "Ehechakuaa",
+      "castellano": "Notá, date cuenta",
+      "modulo": "Corrector",
+      "ejemplo": "Ehechakuaa mba'épa oiko pe signo ndive.",
+      "traduccion": "Notá qué pasa con el signo.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L026",
+      "categoria": "Corrección",
+      "termino": "Ehecha jey",
+      "castellano": "Mirá de nuevo, revisá",
+      "modulo": "Corrector",
+      "ejemplo": "Ehecha jey nde paso 2.",
+      "traduccion": "Revisá tu paso 2.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L027",
+      "categoria": "Corrección",
+      "termino": "Eñeha'ã jey",
+      "castellano": "Intentá de nuevo",
+      "modulo": "Corrector",
+      "ejemplo": "Eñeha'ã jey, reikuaáma mba'éicha.",
+      "traduccion": "Intentá de nuevo, ya sabés cómo.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L028",
+      "categoria": "Corrección",
+      "termino": "Ani rekyhyje",
+      "castellano": "No tengas miedo",
+      "modulo": "Corrector",
+      "ejemplo": "Ani rekyhyje jejavýgui.",
+      "traduccion": "No tengas miedo de equivocarte.",
+      "confianza": "Consolidado",
+      "nota": "Aliento."
+    },
+    {
+      "id": "L029",
+      "categoria": "Corrección",
+      "termino": "Ani nderesarái",
+      "castellano": "No te olvides",
+      "modulo": "Corrector",
+      "ejemplo": "Ani nderesarái pe unidad.",
+      "traduccion": "No te olvides la unidad.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L030",
+      "categoria": "Corrección",
+      "termino": "Ndejehegui",
+      "castellano": "Por vos mismo/a",
+      "modulo": "Corrector",
+      "ejemplo": "Eñeha'ã ejuhu ndejehegui.",
+      "traduccion": "Intentá encontrarlo por vos mismo.",
+      "confianza": "Consolidado",
+      "nota": "Pregunta socrática."
+    },
+    {
+      "id": "L031",
+      "categoria": "Corrección",
+      "termino": "Hesakã",
+      "castellano": "Está claro",
+      "modulo": "Ambos",
+      "ejemplo": "Hesakãpa ko paso?",
+      "traduccion": "¿Está claro este paso?",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L032",
+      "categoria": "Corrección",
+      "termino": "Ñamyesakã",
+      "castellano": "Aclaremos, expliquemos",
+      "modulo": "Ambos",
+      "ejemplo": "Ñamyesakã mba'érepa oñemoambue pe signo.",
+      "traduccion": "Aclaremos por qué cambia el signo.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L033",
+      "categoria": "Corrección",
+      "termino": "Mbeguekatu",
+      "castellano": "Despacio, con calma",
+      "modulo": "Ambos",
+      "ejemplo": "Jahecha mbeguekatu.",
+      "traduccion": "Veamos con calma.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L034",
+      "categoria": "Corrección",
+      "termino": "Peteĩteĩ",
+      "castellano": "Uno por uno",
+      "modulo": "Ambos",
+      "ejemplo": "Jahecha peteĩteĩ umi paso.",
+      "traduccion": "Veamos los pasos uno por uno.",
+      "confianza": "Consolidado",
+      "nota": "Alternativa a 'paso a paso'."
+    },
+    {
+      "id": "L035",
+      "categoria": "Corrección",
+      "termino": "Ndaipóri problema",
+      "castellano": "No hay problema",
+      "modulo": "Corrector",
+      "ejemplo": "Rejavy? Ndaipóri problema.",
+      "traduccion": "¿Te equivocaste? No hay problema.",
+      "confianza": "Jopara coloquial",
+      "nota": ""
+    },
+    {
+      "id": "L036",
+      "categoria": "Interrogativo",
+      "termino": "Mba'épa",
+      "castellano": "¿Qué?",
+      "modulo": "Ambos",
+      "ejemplo": "Mba'épa ojehecha ko gráfico-pe?",
+      "traduccion": "¿Qué se ve en este gráfico?",
+      "confianza": "Consolidado",
+      "nota": "-pa marca la pregunta."
+    },
+    {
+      "id": "L037",
+      "categoria": "Interrogativo",
+      "termino": "Mba'érepa",
+      "castellano": "¿Por qué?",
+      "modulo": "Ambos",
+      "ejemplo": "Mba'érepa oñemoambue pe signo?",
+      "traduccion": "¿Por qué cambia el signo?",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L038",
+      "categoria": "Interrogativo",
+      "termino": "Mba'éichapa",
+      "castellano": "¿Cómo?",
+      "modulo": "Ambos",
+      "ejemplo": "Mba'éichapa ñadespeja x?",
+      "traduccion": "¿Cómo despejamos x?",
+      "confianza": "Consolidado",
+      "nota": "También es saludo."
+    },
+    {
+      "id": "L039",
+      "categoria": "Interrogativo",
+      "termino": "Mboýpa",
+      "castellano": "¿Cuánto/s?",
+      "modulo": "Ambos",
+      "ejemplo": "Mboýpa ha'e pe velocidad?",
+      "traduccion": "¿Cuánto es la velocidad?",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L040",
+      "categoria": "Interrogativo",
+      "termino": "Moõpa",
+      "castellano": "¿Dónde?",
+      "modulo": "Ambos",
+      "ejemplo": "Moõpa oĩ pe jejavy?",
+      "traduccion": "¿Dónde está el error?",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L041",
+      "categoria": "Interrogativo",
+      "termino": "Araka'épa",
+      "castellano": "¿Cuándo?",
+      "modulo": "FAQ",
+      "ejemplo": "Araka'épa jaipuru coseno?",
+      "traduccion": "¿Cuándo usamos coseno?",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L042",
+      "categoria": "Interrogativo",
+      "termino": "Mávapa",
+      "castellano": "¿Quién?",
+      "modulo": "FAQ",
+      "ejemplo": "Mávapa ohechauka…",
+      "traduccion": "¿Quién muestra…?",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L043",
+      "categoria": "Interrogativo",
+      "termino": "Mba'e gotyo",
+      "castellano": "¿Hacia dónde?",
+      "modulo": "FAQ",
+      "ejemplo": "Mba'e gotyo oho pe móvil?",
+      "traduccion": "¿Hacia dónde va el móvil?",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L044",
+      "categoria": "Conector",
+      "termino": "ha",
+      "castellano": "y",
+      "modulo": "Ambos",
+      "ejemplo": "masa ha velocidad",
+      "traduccion": "masa y velocidad",
+      "confianza": "Consolidado",
+      "nota": "No confundir con ha'e."
+    },
+    {
+      "id": "L045",
+      "categoria": "Conector",
+      "termino": "térã",
+      "castellano": "o",
+      "modulo": "Ambos",
+      "ejemplo": "seno térã coseno",
+      "traduccion": "seno o coseno",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L046",
+      "categoria": "Conector",
+      "termino": "ha ikatu",
+      "castellano": "pero, en cambio",
+      "modulo": "Ambos",
+      "ejemplo": "Pe fórmula iporã, ha ikatu pe cuenta ndaha'éi.",
+      "traduccion": "La fórmula está bien, pero la cuenta no.",
+      "confianza": "Consolidado",
+      "nota": "Corregido por el equipo (26/09): antes figuraba como \"ha katu\"."
+    },
+    {
+      "id": "L047",
+      "categoria": "Conector",
+      "termino": "upéi",
+      "castellano": "después, luego",
+      "modulo": "Ambos",
+      "ejemplo": "Ñadespeja raẽ, upéi ñareemplaza.",
+      "traduccion": "Primero despejamos, después reemplazamos.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L048",
+      "categoria": "Conector",
+      "termino": "raẽ",
+      "castellano": "primero, antes",
+      "modulo": "Ambos",
+      "ejemplo": "Ejapo raẽ pe paréntesis.",
+      "traduccion": "Hacé primero el paréntesis.",
+      "confianza": "Consolidado",
+      "nota": "Va después del verbo."
+    },
+    {
+      "id": "L049",
+      "categoria": "Conector",
+      "termino": "upévare",
+      "castellano": "por eso",
+      "modulo": "Ambos",
+      "ejemplo": "Oguejy, upévare negativa.",
+      "traduccion": "Baja, por eso es negativa.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L050",
+      "categoria": "Conector",
+      "termino": "upéicharõ",
+      "castellano": "entonces, en ese caso",
+      "modulo": "Ambos",
+      "ejemplo": "Upéicharõ, x ha'e 4.",
+      "traduccion": "Entonces, x es 4.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L051",
+      "categoria": "Conector",
+      "termino": "-rõ / -ramo",
+      "castellano": "si (condicional)",
+      "modulo": "Ambos",
+      "ejemplo": "x = 3 ramo, f(3) = 7.",
+      "traduccion": "Si x = 3, f(3) = 7.",
+      "confianza": "Consolidado",
+      "nota": "Sufijo o partícula pospuesta."
+    },
+    {
+      "id": "L052",
+      "categoria": "Conector",
+      "termino": "jave",
+      "castellano": "cuando, mientras",
+      "modulo": "Ambos",
+      "ejemplo": "Ho'a jave, pe velocidad okakuaa.",
+      "traduccion": "Cuando cae, la velocidad aumenta.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L053",
+      "categoria": "Conector",
+      "termino": "-rire",
+      "castellano": "después de, si",
+      "modulo": "Ambos",
+      "ejemplo": "Ñadespejárire, ñareemplaza.",
+      "traduccion": "Después de despejar, reemplazamos.",
+      "confianza": "Jopara coloquial",
+      "nota": ""
+    },
+    {
+      "id": "L054",
+      "categoria": "Conector",
+      "termino": "hag̃ua",
+      "castellano": "para (finalidad)",
+      "modulo": "Ambos",
+      "ejemplo": "Ñañepyrũ hag̃ua, jahai pe fórmula.",
+      "traduccion": "Para empezar, escribimos la fórmula.",
+      "confianza": "Consolidado",
+      "nota": "Si la fuente no muestra g̃, escribir 'hagua'."
+    },
+    {
+      "id": "L055",
+      "categoria": "Conector",
+      "termino": "avei",
+      "castellano": "también",
+      "modulo": "Ambos",
+      "ejemplo": "Ko'ápe avei oñemoambue pe signo.",
+      "traduccion": "Aquí también cambia el signo.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L056",
+      "categoria": "Conector",
+      "termino": "-nte",
+      "castellano": "solo, solamente",
+      "modulo": "Ambos",
+      "ejemplo": "Peteĩnte valor.",
+      "traduccion": "Un solo valor.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L057",
+      "categoria": "Conector",
+      "termino": "jepe",
+      "castellano": "aunque, incluso",
+      "modulo": "FAQ",
+      "ejemplo": "Ho'a jepe, pe masa ndoñemoambuéi.",
+      "traduccion": "Aunque cae, la masa no cambia.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L058",
+      "categoria": "Posposición",
+      "termino": "-pe / -me",
+      "castellano": "en, a",
+      "modulo": "Ambos",
+      "ejemplo": "pe paso 2-pe",
+      "traduccion": "en el paso 2",
+      "confianza": "Consolidado",
+      "nota": "-me tras palabra nasal."
+    },
+    {
+      "id": "L059",
+      "categoria": "Posposición",
+      "termino": "-gui",
+      "castellano": "de, desde",
+      "modulo": "Ambos",
+      "ejemplo": "Oñepyrũ reposo-gui.",
+      "traduccion": "Parte del reposo.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L060",
+      "categoria": "Posposición",
+      "termino": "rehe / -re",
+      "castellano": "sobre, a, por (causa)",
+      "modulo": "Ambos",
+      "ejemplo": "Emañamína pe signo-re.",
+      "traduccion": "Fijate en el signo.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L061",
+      "categoria": "Posposición",
+      "termino": "ndive",
+      "castellano": "con",
+      "modulo": "Ambos",
+      "ejemplo": "Ñambojoja pe resultado ndive.",
+      "traduccion": "Lo comparamos con el resultado.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L062",
+      "categoria": "Posposición",
+      "termino": "rupi",
+      "castellano": "por, a través de",
+      "modulo": "Ambos",
+      "ejemplo": "Jejavy rupi jaikuaa.",
+      "traduccion": "A través del error aprendemos.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L063",
+      "categoria": "Posposición",
+      "termino": "peve",
+      "castellano": "hasta",
+      "modulo": "Ambos",
+      "ejemplo": "t = 0 guive t = 5 peve",
+      "traduccion": "desde t = 0 hasta t = 5",
+      "confianza": "Consolidado",
+      "nota": "Se combina con guive (desde)."
+    },
+    {
+      "id": "L064",
+      "categoria": "Posposición",
+      "termino": "guive",
+      "castellano": "desde",
+      "modulo": "Ambos",
+      "ejemplo": "t = 0 guive",
+      "traduccion": "desde t = 0",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L065",
+      "categoria": "Posposición",
+      "termino": "pa'ũme",
+      "castellano": "entre (dos)",
+      "modulo": "Ambos",
+      "ejemplo": "mokõi bloque pa'ũme",
+      "traduccion": "entre dos bloques",
+      "confianza": "Consolidado",
+      "nota": "Va después del sustantivo."
+    },
+    {
+      "id": "L066",
+      "categoria": "Posposición",
+      "termino": "gotyo",
+      "castellano": "hacia",
+      "modulo": "Ambos",
+      "ejemplo": "akatúa gotyo",
+      "traduccion": "hacia la derecha",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L067",
+      "categoria": "Posposición",
+      "termino": "ykére",
+      "castellano": "al lado de",
+      "modulo": "FAQ",
+      "ejemplo": "pe cateto oĩva ángulo ykére",
+      "traduccion": "el cateto que está al lado del ángulo",
+      "confianza": "Consolidado",
+      "nota": "Útil para 'cateto adyacente'."
+    },
+    {
+      "id": "L068",
+      "categoria": "Partícula",
+      "termino": "niko",
+      "castellano": "enfático (afirmación)",
+      "modulo": "Ambos",
+      "ejemplo": "Pe fórmula niko iporã.",
+      "traduccion": "La fórmula sí está bien.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L069",
+      "categoria": "Partícula",
+      "termino": "piko",
+      "castellano": "enfático (pregunta)",
+      "modulo": "FAQ",
+      "ejemplo": "Mba'éicha piko ojejapo?",
+      "traduccion": "¿Y cómo se hace?",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L070",
+      "categoria": "Partícula",
+      "termino": "nipo",
+      "castellano": "quizás",
+      "modulo": "Corrector",
+      "ejemplo": "Nipo nderesarái pe signo.",
+      "traduccion": "Quizás te olvidaste el signo.",
+      "confianza": "Consolidado",
+      "nota": "Suaviza la corrección."
+    },
+    {
+      "id": "L071",
+      "categoria": "Partícula",
+      "termino": "katu",
+      "castellano": "en cambio, sí (enfático)",
+      "modulo": "Ambos",
+      "ejemplo": "Pe masa katu ndoñemoambuéi.",
+      "traduccion": "La masa, en cambio, no cambia.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L072",
+      "categoria": "Partícula",
+      "termino": "voi",
+      "castellano": "pues, justamente",
+      "modulo": "FAQ",
+      "ejemplo": "Upéva voi pe pendiente.",
+      "traduccion": "Eso justamente es la pendiente.",
+      "confianza": "Jopara coloquial",
+      "nota": ""
+    },
+    {
+      "id": "L073",
+      "categoria": "Partícula",
+      "termino": "ndaje",
+      "castellano": "dicen que (reportativo)",
+      "modulo": "—",
+      "ejemplo": "—",
+      "traduccion": "—",
+      "confianza": "Consolidado",
+      "nota": "NO usar para afirmaciones del tutor: indica rumor."
+    },
+    {
+      "id": "L074",
+      "categoria": "Verbo",
+      "termino": "japo",
+      "castellano": "hacer",
+      "modulo": "Ambos",
+      "ejemplo": "Jajapo / Ejapo pe cuenta.",
+      "traduccion": "Hagamos / Hacé la cuenta.",
+      "confianza": "Consolidado",
+      "nota": "1pl: jajapo · imperativo: ejapo"
+    },
+    {
+      "id": "L075",
+      "categoria": "Verbo",
+      "termino": "hecha",
+      "castellano": "ver",
+      "modulo": "Ambos",
+      "ejemplo": "Jahecha / Ehecha pe gráfico.",
+      "traduccion": "Veamos / Mirá el gráfico.",
+      "confianza": "Consolidado",
+      "nota": "jahecha · ehecha"
+    },
+    {
+      "id": "L076",
+      "categoria": "Verbo",
+      "termino": "hai",
+      "castellano": "escribir",
+      "modulo": "Ambos",
+      "ejemplo": "Jahai / Ehai pe fórmula.",
+      "traduccion": "Escribamos / Escribí la fórmula.",
+      "confianza": "Consolidado",
+      "nota": "jahai · ehai"
+    },
+    {
+      "id": "L077",
+      "categoria": "Verbo",
+      "termino": "moĩ",
+      "castellano": "poner, colocar",
+      "modulo": "Ambos",
+      "ejemplo": "Ñamoĩ pe valor x-pe.",
+      "traduccion": "Pongamos el valor en x.",
+      "confianza": "Consolidado",
+      "nota": "ñamoĩ · emoĩ (nasal)"
+    },
+    {
+      "id": "L078",
+      "categoria": "Verbo",
+      "termino": "ikuaa",
+      "castellano": "saber, conocer",
+      "modulo": "Ambos",
+      "ejemplo": "Jaikuaa pe velocidad.",
+      "traduccion": "Conocemos la velocidad.",
+      "confianza": "Consolidado",
+      "nota": "jaikuaa · eikuaa"
+    },
+    {
+      "id": "L079",
+      "categoria": "Verbo",
+      "termino": "ñepyrũ",
+      "castellano": "empezar",
+      "modulo": "Ambos",
+      "ejemplo": "Ñañepyrũ pe paso 1-gui.",
+      "traduccion": "Empecemos por el paso 1.",
+      "confianza": "Consolidado",
+      "nota": "ñañepyrũ · eñepyrũ"
+    },
+    {
+      "id": "L080",
+      "categoria": "Verbo",
+      "termino": "mohu'ã",
+      "castellano": "terminar",
+      "modulo": "Ambos",
+      "ejemplo": "Ñamohu'ã pe ejercicio.",
+      "traduccion": "Terminemos el ejercicio.",
+      "confianza": "Consolidado",
+      "nota": "ñamohu'ã · emohu'ã"
+    },
+    {
+      "id": "L081",
+      "categoria": "Verbo",
+      "termino": "heka",
+      "castellano": "buscar",
+      "modulo": "Ambos",
+      "ejemplo": "Jaheka pe incógnita.",
+      "traduccion": "Busquemos la incógnita.",
+      "confianza": "Consolidado",
+      "nota": "jaheka · eheka"
+    },
+    {
+      "id": "L082",
+      "categoria": "Verbo",
+      "termino": "juhu",
+      "castellano": "encontrar",
+      "modulo": "Ambos",
+      "ejemplo": "Jajuhu pe jejavy.",
+      "traduccion": "Encontramos el error.",
+      "confianza": "Consolidado",
+      "nota": "jajuhu · ejuhu"
+    },
+    {
+      "id": "L083",
+      "categoria": "Verbo",
+      "termino": "iporavo",
+      "castellano": "elegir",
+      "modulo": "Ambos",
+      "ejemplo": "Jaiporavo pe fórmula.",
+      "traduccion": "Elegimos la fórmula.",
+      "confianza": "Consolidado",
+      "nota": "jaiporavo · eiporavo"
+    },
+    {
+      "id": "L084",
+      "categoria": "Verbo",
+      "termino": "ipuru",
+      "castellano": "usar",
+      "modulo": "Ambos",
+      "ejemplo": "Jaipuru Pitágoras.",
+      "traduccion": "Usamos Pitágoras.",
+      "confianza": "Consolidado",
+      "nota": "jaipuru · eipuru"
+    },
+    {
+      "id": "L085",
+      "categoria": "Verbo",
+      "termino": "porandu",
+      "castellano": "preguntar",
+      "modulo": "FAQ",
+      "ejemplo": "Ikatu reporandu.",
+      "traduccion": "Podés preguntar.",
+      "confianza": "Consolidado",
+      "nota": "japorandu · eporandu"
+    },
+    {
+      "id": "L086",
+      "categoria": "Verbo",
+      "termino": "pytyvõ",
+      "castellano": "ayudar",
+      "modulo": "FAQ",
+      "ejemplo": "Ropytyvõta.",
+      "traduccion": "Te voy a ayudar.",
+      "confianza": "Consolidado",
+      "nota": "ñapytyvõ · epytyvõ"
+    },
+    {
+      "id": "L087",
+      "categoria": "Verbo",
+      "termino": "moambue",
+      "castellano": "cambiar",
+      "modulo": "Ambos",
+      "ejemplo": "Pe signo oñemoambue.",
+      "traduccion": "El signo cambia.",
+      "confianza": "Consolidado",
+      "nota": "oñemoambue = se cambia"
+    },
+    {
+      "id": "L088",
+      "categoria": "Verbo",
+      "termino": "myatyrõ",
+      "castellano": "corregir, arreglar",
+      "modulo": "Corrector",
+      "ejemplo": "Ñamyatyrõ pe paso.",
+      "traduccion": "Corrijamos el paso.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L089",
+      "categoria": "Verbo",
+      "termino": "hesa'ỹijo",
+      "castellano": "analizar",
+      "modulo": "Ambos",
+      "ejemplo": "Ñahesa'ỹijo pe gráfico.",
+      "traduccion": "Analicemos el gráfico.",
+      "confianza": "Consolidado",
+      "nota": "ñahesa'ỹijo (nasal)"
+    },
+    {
+      "id": "L090",
+      "categoria": "Verbo",
+      "termino": "jesareko",
+      "castellano": "observar con atención",
+      "modulo": "Ambos",
+      "ejemplo": "Ejesareko pe unidad-re.",
+      "traduccion": "Prestá atención a la unidad.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L091",
+      "categoria": "Verbo",
+      "termino": "hechauka",
+      "castellano": "mostrar",
+      "modulo": "Ambos",
+      "ejemplo": "Pe pendiente ohechauka mboýpa ojupi.",
+      "traduccion": "La pendiente muestra cuánto sube.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L092",
+      "categoria": "Verbo",
+      "termino": "ikotevẽ",
+      "castellano": "necesitar",
+      "modulo": "Ambos",
+      "ejemplo": "Ko'ápe oñeikotevẽ coseno.",
+      "traduccion": "Aquí se necesita coseno.",
+      "confianza": "Consolidado",
+      "nota": "oñeikotevẽ = se necesita"
+    },
+    {
+      "id": "L093",
+      "categoria": "Verbo",
+      "termino": "ikatu",
+      "castellano": "poder",
+      "modulo": "Ambos",
+      "ejemplo": "Ikatu reipuru seno.",
+      "traduccion": "Podés usar seno.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L094",
+      "categoria": "Verbo",
+      "termino": "mbohasa",
+      "castellano": "pasar, trasladar",
+      "modulo": "Corrector",
+      "ejemplo": "Ñambohasa pe 3 ambue lado-pe.",
+      "traduccion": "Pasemos el 3 al otro lado.",
+      "confianza": "Validar",
+      "nota": "En aula es más común 'japasa'."
+    },
+    {
+      "id": "L095",
+      "categoria": "Verbo",
+      "termino": "me'ẽ",
+      "castellano": "dar",
+      "modulo": "Ambos",
+      "ejemplo": "Ome'ẽ peteĩnte valor.",
+      "traduccion": "Da un solo valor.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L096",
+      "categoria": "Operación",
+      "termino": "mbojoapy",
+      "castellano": "sumar / suma",
+      "modulo": "Ambos",
+      "ejemplo": "Ñambojoapy mokõi término.",
+      "traduccion": "Sumamos dos términos.",
+      "confianza": "Aula/MEC",
+      "nota": "Muchos alumnos entienden más 'jasuma'."
+    },
+    {
+      "id": "L097",
+      "categoria": "Operación",
+      "termino": "mboguepy",
+      "castellano": "restar / resta",
+      "modulo": "Ambos",
+      "ejemplo": "Ñamboguepy 5 ambue lado-pe.",
+      "traduccion": "Restamos 5 en el otro lado.",
+      "confianza": "Aula/MEC",
+      "nota": "Alternativa jopara: 'jarresta'."
+    },
+    {
+      "id": "L098",
+      "categoria": "Operación",
+      "termino": "mbohetapa",
+      "castellano": "multiplicar",
+      "modulo": "Ambos",
+      "ejemplo": "Ñambohetapa masa ha velocidad.",
+      "traduccion": "Multiplicamos masa y velocidad.",
+      "confianza": "Aula/MEC",
+      "nota": "Alternativa jopara: 'jamultiplica'."
+    },
+    {
+      "id": "L099",
+      "categoria": "Operación",
+      "termino": "mboja'o",
+      "castellano": "dividir",
+      "modulo": "Ambos",
+      "ejemplo": "Ñamboja'o 10 mokõime.",
+      "traduccion": "Dividimos 10 entre 2.",
+      "confianza": "Aula/MEC",
+      "nota": "Alternativa jopara: 'jadivide'."
+    },
+    {
+      "id": "L100",
+      "categoria": "Operación",
+      "termino": "papa",
+      "castellano": "contar, calcular",
+      "modulo": "Ambos",
+      "ejemplo": "Japapa mboýpa.",
+      "traduccion": "Calculamos cuánto es.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L101",
+      "categoria": "Operación",
+      "termino": "joja",
+      "castellano": "igual",
+      "modulo": "Ambos",
+      "ejemplo": "Mokõive lado ojoja.",
+      "traduccion": "Ambos lados son iguales.",
+      "confianza": "Consolidado",
+      "nota": "ojoja = son iguales"
+    },
+    {
+      "id": "L102",
+      "categoria": "Operación",
+      "termino": "ndojojái",
+      "castellano": "no son iguales, distinto",
+      "modulo": "Ambos",
+      "ejemplo": "Umi resultado ndojojái.",
+      "traduccion": "Los resultados no coinciden.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L103",
+      "categoria": "Operación",
+      "termino": "tuichave",
+      "castellano": "mayor",
+      "modulo": "Ambos",
+      "ejemplo": "x tuichave 3-gui.",
+      "traduccion": "x es mayor que 3.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L104",
+      "categoria": "Operación",
+      "termino": "michĩve",
+      "castellano": "menor",
+      "modulo": "Ambos",
+      "ejemplo": "x michĩve 3-gui.",
+      "traduccion": "x es menor que 3.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L105",
+      "categoria": "Operación",
+      "termino": "hetave",
+      "castellano": "más (cantidad)",
+      "modulo": "Ambos",
+      "ejemplo": "Hetave tiempo, hetave distancia.",
+      "traduccion": "Más tiempo, más distancia.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L106",
+      "categoria": "Operación",
+      "termino": "sa'ive",
+      "castellano": "menos (cantidad)",
+      "modulo": "Ambos",
+      "ejemplo": "Sa'ive velocidad.",
+      "traduccion": "Menos velocidad.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L107",
+      "categoria": "Operación",
+      "termino": "mbyte",
+      "castellano": "mitad, centro",
+      "modulo": "Ambos",
+      "ejemplo": "Pe mbyte 10-gui ha'e 5.",
+      "traduccion": "La mitad de 10 es 5.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L108",
+      "categoria": "Operación",
+      "termino": "papapy",
+      "castellano": "número",
+      "modulo": "Ambos",
+      "ejemplo": "Peteĩ papapy negativo.",
+      "traduccion": "Un número negativo.",
+      "confianza": "Aula/MEC",
+      "nota": ""
+    },
+    {
+      "id": "L109",
+      "categoria": "Número",
+      "termino": "peteĩ",
+      "castellano": "uno",
+      "modulo": "Ambos",
+      "ejemplo": "peteĩ bloque",
+      "traduccion": "un bloque",
+      "confianza": "Consolidado",
+      "nota": "Tras numeral, sin plural."
+    },
+    {
+      "id": "L110",
+      "categoria": "Número",
+      "termino": "mokõi",
+      "castellano": "dos",
+      "modulo": "Ambos",
+      "ejemplo": "mokõi bloque",
+      "traduccion": "dos bloques",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L111",
+      "categoria": "Número",
+      "termino": "mbohapy",
+      "castellano": "tres",
+      "modulo": "Ambos",
+      "ejemplo": "mbohapy paso",
+      "traduccion": "tres pasos",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L112",
+      "categoria": "Número",
+      "termino": "irundy",
+      "castellano": "cuatro",
+      "modulo": "Ambos",
+      "ejemplo": "irundy término",
+      "traduccion": "cuatro términos",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L113",
+      "categoria": "Número",
+      "termino": "po",
+      "castellano": "cinco",
+      "modulo": "Ambos",
+      "ejemplo": "po segundo",
+      "traduccion": "cinco segundos",
+      "confianza": "Consolidado",
+      "nota": "En cifras conviene usar dígitos."
+    },
+    {
+      "id": "L114",
+      "categoria": "Número",
+      "termino": "peteĩha / mokõiha / mbohapyha",
+      "castellano": "primero / segundo / tercero",
+      "modulo": "Ambos",
+      "ejemplo": "pe paso mokõiha",
+      "traduccion": "el segundo paso",
+      "confianza": "Consolidado",
+      "nota": "Ordinal con -ha."
+    },
+    {
+      "id": "L115",
+      "categoria": "Movimiento",
+      "termino": "guata",
+      "castellano": "caminar, avanzar",
+      "modulo": "FAQ",
+      "ejemplo": "Pe móvil oguata 2 m/s-pe.",
+      "traduccion": "El móvil avanza a 2 m/s.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L116",
+      "categoria": "Movimiento",
+      "termino": "ñani",
+      "castellano": "correr",
+      "modulo": "FAQ",
+      "ejemplo": "Pe auto oñani pya'e.",
+      "traduccion": "El auto corre rápido.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L117",
+      "categoria": "Movimiento",
+      "termino": "ho'a",
+      "castellano": "caer",
+      "modulo": "Ambos",
+      "ejemplo": "Pe mba'e ho'a.",
+      "traduccion": "El objeto cae.",
+      "confianza": "Consolidado",
+      "nota": "3.ª persona irregular: ho'a."
+    },
+    {
+      "id": "L118",
+      "categoria": "Movimiento",
+      "termino": "mombo",
+      "castellano": "lanzar, tirar",
+      "modulo": "Ambos",
+      "ejemplo": "Omombo yvate gotyo.",
+      "traduccion": "Lo lanza hacia arriba.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L119",
+      "categoria": "Movimiento",
+      "termino": "jupi",
+      "castellano": "subir",
+      "modulo": "Ambos",
+      "ejemplo": "Pe función ojupi.",
+      "traduccion": "La función crece (sube).",
+      "confianza": "Consolidado",
+      "nota": "Útil para función creciente."
+    },
+    {
+      "id": "L120",
+      "categoria": "Movimiento",
+      "termino": "guejy",
+      "castellano": "bajar",
+      "modulo": "Ambos",
+      "ejemplo": "Pe función oguejy.",
+      "traduccion": "La función decrece (baja).",
+      "confianza": "Consolidado",
+      "nota": "Útil para función decreciente."
+    },
+    {
+      "id": "L121",
+      "categoria": "Movimiento",
+      "termino": "jere",
+      "castellano": "girar",
+      "modulo": "FAQ",
+      "ejemplo": "Pe rueda ojere.",
+      "traduccion": "La rueda gira.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L122",
+      "categoria": "Movimiento",
+      "termino": "joko",
+      "castellano": "frenar, detener",
+      "modulo": "Ambos",
+      "ejemplo": "Pe auto ojoko.",
+      "traduccion": "El auto frena.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L123",
+      "categoria": "Movimiento",
+      "termino": "pyta",
+      "castellano": "quedarse quieto, detenerse",
+      "modulo": "Ambos",
+      "ejemplo": "Opyta = reposo.",
+      "traduccion": "Se queda quieto = reposo.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L124",
+      "categoria": "Movimiento",
+      "termino": "pya'e / pya'eve",
+      "castellano": "rápido / más rápido",
+      "modulo": "Ambos",
+      "ejemplo": "Oho pya'eve.",
+      "traduccion": "Va más rápido.",
+      "confianza": "Consolidado",
+      "nota": "Descriptivo; no reemplaza 'velocidad'."
+    },
+    {
+      "id": "L125",
+      "categoria": "Movimiento",
+      "termino": "mbegue",
+      "castellano": "lento",
+      "modulo": "Ambos",
+      "ejemplo": "Oho mbegue.",
+      "traduccion": "Va lento.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L126",
+      "categoria": "Movimiento",
+      "termino": "okakuaa",
+      "castellano": "aumenta, crece",
+      "modulo": "Ambos",
+      "ejemplo": "Pe velocidad okakuaa.",
+      "traduccion": "La velocidad aumenta.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L127",
+      "categoria": "Movimiento",
+      "termino": "yvate",
+      "castellano": "arriba, alto",
+      "modulo": "Ambos",
+      "ejemplo": "yvate gotyo",
+      "traduccion": "hacia arriba",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L128",
+      "categoria": "Movimiento",
+      "termino": "guýpe",
+      "castellano": "abajo, debajo",
+      "modulo": "Ambos",
+      "ejemplo": "eje x guýpe",
+      "traduccion": "debajo del eje x",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L129",
+      "categoria": "Movimiento",
+      "termino": "akatúa / asu",
+      "castellano": "derecha / izquierda",
+      "modulo": "Ambos",
+      "ejemplo": "akatúa gotyo",
+      "traduccion": "hacia la derecha",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L130",
+      "categoria": "Movimiento",
+      "termino": "tenonde / tapykue",
+      "castellano": "adelante / atrás",
+      "modulo": "Ambos",
+      "ejemplo": "oho tapykue gotyo",
+      "traduccion": "va hacia atrás",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L131",
+      "categoria": "Movimiento",
+      "termino": "mombyry / hi'aguĩ",
+      "castellano": "lejos / cerca",
+      "modulo": "Ambos",
+      "ejemplo": "Oĩ mombyry origen-gui.",
+      "traduccion": "Está lejos del origen.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L132",
+      "categoria": "Movimiento",
+      "termino": "tape",
+      "castellano": "camino, trayecto",
+      "modulo": "FAQ",
+      "ejemplo": "Pe tape ojapóva pe móvil.",
+      "traduccion": "El trayecto que hace el móvil.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L133",
+      "categoria": "Movimiento",
+      "termino": "ypy",
+      "castellano": "origen, inicio",
+      "modulo": "Ambos",
+      "ejemplo": "ypy guive",
+      "traduccion": "desde el inicio",
+      "confianza": "Consolidado",
+      "nota": "'Origen de coordenadas': mejor en castellano."
+    },
+    {
+      "id": "L134",
+      "categoria": "Tiempo",
+      "termino": "ko'ág̃a",
+      "castellano": "ahora",
+      "modulo": "Ambos",
+      "ejemplo": "Ko'ág̃a ñareemplaza.",
+      "traduccion": "Ahora reemplazamos.",
+      "confianza": "Consolidado",
+      "nota": "Sin g̃: 'ko'ãga'."
+    },
+    {
+      "id": "L135",
+      "categoria": "Tiempo",
+      "termino": "upe jave",
+      "castellano": "en ese momento",
+      "modulo": "Ambos",
+      "ejemplo": "Upe jave, v = 0.",
+      "traduccion": "En ese momento, v = 0.",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L136",
+      "categoria": "Tiempo",
+      "termino": "aravo",
+      "castellano": "hora",
+      "modulo": "FAQ",
+      "ejemplo": "peteĩ aravo",
+      "traduccion": "una hora",
+      "confianza": "Consolidado",
+      "nota": ""
+    },
+    {
+      "id": "L137",
+      "categoria": "Tiempo",
+      "termino": "aravo'i",
+      "castellano": "minuto",
+      "modulo": "FAQ",
+      "ejemplo": "po aravo'i",
+      "traduccion": "cinco minutos",
+      "confianza": "Aula/MEC",
+      "nota": "Para 'segundo' usar castellano."
+    },
+    {
+      "id": "L138",
+      "categoria": "Forma",
+      "termino": "apu'a",
+      "castellano": "redondo",
+      "modulo": "FAQ",
+      "ejemplo": "Peteĩ mba'e apu'a.",
+      "traduccion": "Un objeto redondo.",
+      "confianza": "Consolidado",
+      "nota": "'Círculo' en castellano."
+    },
+    {
+      "id": "L139",
+      "categoria": "Forma",
+      "termino": "ta'ãnga",
+      "castellano": "imagen, dibujo",
+      "modulo": "Ambos",
+      "ejemplo": "Ehecha pe ta'ãnga.",
+      "traduccion": "Mirá la imagen.",
+      "confianza": "Consolidado",
+      "nota": "Para 'gráfico' conviene el castellano."
+    },
+    {
+      "id": "L140",
+      "categoria": "Forma",
+      "termino": "tysýi",
+      "castellano": "fila, hilera, recto",
+      "modulo": "FAQ",
+      "ejemplo": "Opytáva tysýipe.",
+      "traduccion": "Que queda en fila.",
+      "confianza": "Validar",
+      "nota": "No usar como 'recta' matemática sin validar."
+    }
+  ],
+  "morfologia": [
+    {
+      "tipo": "Prefijo personal",
+      "forma": "a-",
+      "significado": "yo",
+      "ejemplo": "ajapo (hago)",
+      "nota": "Con raíz nasal no cambia: añepyrũ."
+    },
+    {
+      "tipo": "Prefijo personal",
+      "forma": "re-",
+      "significado": "vos",
+      "ejemplo": "rejapo (hacés/hiciste)",
+      "nota": "Para señalar el paso del alumno."
+    },
+    {
+      "tipo": "Prefijo personal",
+      "forma": "o-",
+      "significado": "él / ella / ellos",
+      "ejemplo": "ojapo (hace)",
+      "nota": "Descripciones: 'pe función ojupi'."
+    },
+    {
+      "tipo": "Prefijo personal",
+      "forma": "ja- / ña-",
+      "significado": "nosotros (incluye al alumno)",
+      "ejemplo": "jajapo · ñañepyrũ",
+      "nota": "ña- si la raíz es nasal. Preferido para explicar."
+    },
+    {
+      "tipo": "Prefijo personal",
+      "forma": "ro-",
+      "significado": "nosotros (excluye al alumno)",
+      "ejemplo": "rojapo",
+      "nota": "Casi no se usa en la app."
+    },
+    {
+      "tipo": "Prefijo personal",
+      "forma": "pe-",
+      "significado": "ustedes",
+      "ejemplo": "pejapo",
+      "nota": "Si la app habla a un grupo."
+    },
+    {
+      "tipo": "Imperativo",
+      "forma": "e-",
+      "significado": "(vos) hacé…",
+      "ejemplo": "ejapo, ehecha, eñeha'ã",
+      "nota": "Igual con raíz nasal: eñepyrũ."
+    },
+    {
+      "tipo": "Negación",
+      "forma": "nd- … -i",
+      "significado": "no",
+      "ejemplo": "ndojojái, ndaha'éi",
+      "nota": "Circunfijo: rodea al verbo. Con nasal: n- … -i."
+    },
+    {
+      "tipo": "Voz pasiva/refleja",
+      "forma": "je- / ñe-",
+      "significado": "se (impersonal/pasiva)",
+      "ejemplo": "ojejapo (se hace), oñemoambue",
+      "nota": "ñe- si la raíz es nasal."
+    },
+    {
+      "tipo": "Causativo",
+      "forma": "mbo- / mo-",
+      "significado": "hacer que…",
+      "ejemplo": "mbohasa (hacer pasar)",
+      "nota": "mo- si la raíz es nasal."
+    },
+    {
+      "tipo": "Sufijo",
+      "forma": "-pa",
+      "significado": "interrogativo",
+      "ejemplo": "mboýpa, mba'épa",
+      "nota": "Si hay -pa, la pregunta ya está marcada."
+    },
+    {
+      "tipo": "Sufijo",
+      "forma": "-pa",
+      "significado": "completamente, todo",
+      "ejemplo": "ojapopa (hizo todo)",
+      "nota": "Diferente del -pa interrogativo."
+    },
+    {
+      "tipo": "Sufijo",
+      "forma": "-ma",
+      "significado": "ya",
+      "ejemplo": "reikuaáma (ya sabés)",
+      "nota": ""
+    },
+    {
+      "tipo": "Sufijo",
+      "forma": "-ta",
+      "significado": "futuro",
+      "ejemplo": "jajapóta (haremos)",
+      "nota": ""
+    },
+    {
+      "tipo": "Sufijo",
+      "forma": "-kuri",
+      "significado": "pasado reciente",
+      "ejemplo": "rejapokuri (hiciste recién)",
+      "nota": ""
+    },
+    {
+      "tipo": "Sufijo",
+      "forma": "-va",
+      "significado": "relativo (que…)",
+      "ejemplo": "orekóva (que tiene)",
+      "nota": "Reemplaza 'que' + verbo."
+    },
+    {
+      "tipo": "Sufijo",
+      "forma": "-kuéra / -nguéra",
+      "significado": "plural",
+      "ejemplo": "umi temimbo'ekuéra",
+      "nota": "No usar tras numeral."
+    },
+    {
+      "tipo": "Sufijo",
+      "forma": "-ha",
+      "significado": "ordinal / agente",
+      "ejemplo": "mokõiha (segundo)",
+      "nota": ""
+    },
+    {
+      "tipo": "Sufijo",
+      "forma": "-ve",
+      "significado": "más (comparativo)",
+      "ejemplo": "tuichave, pya'eve",
+      "nota": ""
+    },
+    {
+      "tipo": "Sufijo",
+      "forma": "-iterei",
+      "significado": "muy",
+      "ejemplo": "iporãiterei",
+      "nota": ""
+    },
+    {
+      "tipo": "Sufijo",
+      "forma": "-'i / -mi",
+      "significado": "diminutivo",
+      "ejemplo": "jejavy'i (errorcito)",
+      "nota": "Suaviza la corrección."
+    },
+    {
+      "tipo": "Sufijo",
+      "forma": "-mína",
+      "significado": "cortesía",
+      "ejemplo": "emañamína",
+      "nota": "Tono amable en imperativos."
+    },
+    {
+      "tipo": "Partícula",
+      "forma": "va'erã",
+      "significado": "deber, obligación",
+      "ejemplo": "oĩ va'erã (debería ir)",
+      "nota": ""
+    },
+    {
+      "tipo": "Partícula",
+      "forma": "hína",
+      "significado": "acción en curso",
+      "ejemplo": "ojupi hína (está subiendo)",
+      "nota": ""
+    },
+    {
+      "tipo": "Regla",
+      "forma": "Armonía nasal",
+      "significado": "ja-/ña-, je-/ñe-, mbo-/mo- según la raíz",
+      "ejemplo": "jajapo / ñamoĩ",
+      "nota": "En préstamos del castellano el uso es variable."
+    },
+    {
+      "tipo": "Regla",
+      "forma": "Plural tras numeral",
+      "significado": "no se marca plural",
+      "ejemplo": "mokõi bloque (no 'mokõi bloquekuéra')",
+      "nota": ""
+    },
+    {
+      "tipo": "Regla",
+      "forma": "Orden poseedor-poseído",
+      "significado": "el dueño va primero",
+      "ejemplo": "bloque peteĩha velocidad",
+      "nota": "En jopara también es aceptable 'la velocidad del primer bloque'."
+    },
+    {
+      "tipo": "Regla",
+      "forma": "Posposiciones",
+      "significado": "van después del sustantivo",
+      "ejemplo": "paso 2-pe, reposo-gui",
+      "nota": ""
+    }
+  ],
+  "terminos_castellano": [
+    {
+      "termino": "función",
+      "tema": "Funciones",
+      "uso_jopara": "Ko función ojupi.",
+      "nota": "Término curricular; no hay equivalente estable."
+    },
+    {
+      "termino": "variable / incógnita",
+      "tema": "Funciones",
+      "uso_jopara": "Jaheka pe incógnita.",
+      "nota": ""
+    },
+    {
+      "termino": "dominio / imagen (recorrido)",
+      "tema": "Funciones",
+      "uso_jopara": "Mba'épa ko función dominio?",
+      "nota": ""
+    },
+    {
+      "termino": "gráfica / gráfico",
+      "tema": "Funciones",
+      "uso_jopara": "Jahecha pe gráfico.",
+      "nota": "'Ta'ãnga' es imagen en general."
+    },
+    {
+      "termino": "pendiente",
+      "tema": "Funciones",
+      "uso_jopara": "Pe pendiente ha'e 2.",
+      "nota": ""
+    },
+    {
+      "termino": "ordenada al origen",
+      "tema": "Funciones",
+      "uso_jopara": "Pe ordenada al origen ha'e 1.",
+      "nota": ""
+    },
+    {
+      "termino": "ecuación",
+      "tema": "Funciones",
+      "uso_jopara": "Ñaresolve pe ecuación.",
+      "nota": ""
+    },
+    {
+      "termino": "despejar",
+      "tema": "Funciones",
+      "uso_jopara": "Ñadespeja x.",
+      "nota": "Forma jopara: ja-/ña- + despeja (variable)."
+    },
+    {
+      "termino": "coeficiente / exponente / raíz",
+      "tema": "Funciones",
+      "uso_jopara": "Emañamína pe exponente-re.",
+      "nota": ""
+    },
+    {
+      "termino": "posición / desplazamiento",
+      "tema": "Cinemática",
+      "uso_jopara": "Pe desplazamiento ha'e 10 m.",
+      "nota": ""
+    },
+    {
+      "termino": "velocidad",
+      "tema": "Cinemática",
+      "uso_jopara": "Pe velocidad ndoñemoambuéi.",
+      "nota": "'Pya'e' solo describe (rápido)."
+    },
+    {
+      "termino": "aceleración",
+      "tema": "Cinemática",
+      "uso_jopara": "Pe aceleración ha'e 2 m/s².",
+      "nota": ""
+    },
+    {
+      "termino": "tiempo",
+      "tema": "Cinemática",
+      "uso_jopara": "Pe tiempo ha'e 5 s.",
+      "nota": "'Ára' significa día/clima: no usar."
+    },
+    {
+      "termino": "MRU / MRUV",
+      "tema": "Cinemática",
+      "uso_jopara": "MRU-pe v ndoñemoambuéi.",
+      "nota": ""
+    },
+    {
+      "termino": "caída libre / gravedad",
+      "tema": "Cinemática",
+      "uso_jopara": "Caída libre-pe g ≈ 9,8 m/s².",
+      "nota": ""
+    },
+    {
+      "termino": "masa",
+      "tema": "Cinemática",
+      "uso_jopara": "Pe masa ha'e 5 kg.",
+      "nota": "NO traducir como 'pohýi' (peso)."
+    },
+    {
+      "termino": "fuerza / cantidad de movimiento / energía",
+      "tema": "Cinemática",
+      "uso_jopara": "Pe cantidad de movimiento ha'e 10 kg·m/s.",
+      "nota": ""
+    },
+    {
+      "termino": "vector / magnitud",
+      "tema": "Cinemática",
+      "uso_jopara": "Pe velocidad ha'e peteĩ vector.",
+      "nota": ""
+    },
+    {
+      "termino": "ángulo / grado / radián",
+      "tema": "Trigonometría",
+      "uso_jopara": "Pe ángulo ha'e 30°.",
+      "nota": ""
+    },
+    {
+      "termino": "seno / coseno / tangente",
+      "tema": "Trigonometría",
+      "uso_jopara": "Ko'ápe oñeikotevẽ coseno.",
+      "nota": ""
+    },
+    {
+      "termino": "hipotenusa / cateto opuesto / cateto adyacente",
+      "tema": "Trigonometría",
+      "uso_jopara": "Pe cateto oĩva ángulo ykére ha'e adyacente.",
+      "nota": ""
+    },
+    {
+      "termino": "triángulo rectángulo",
+      "tema": "Trigonometría",
+      "uso_jopara": "Peteĩ triángulo rectángulo-pe…",
+      "nota": ""
+    },
+    {
+      "termino": "teorema de Pitágoras",
+      "tema": "Trigonometría",
+      "uso_jopara": "Jaipuru Pitágoras.",
+      "nota": ""
+    },
+    {
+      "termino": "unidades y símbolos (m, s, kg, m/s, π, °)",
+      "tema": "Todos",
+      "uso_jopara": "Pe resultado oñehai m/s-pe.",
+      "nota": "Nunca traducir símbolos ni unidades."
+    }
+  ],
+  "errores_evitar": [
+    {
+      "error": "Traducir 'masa' como 'pohýi'",
+      "por_que": "'Pohýi' es pesado/peso; en física masa ≠ peso.",
+      "solucion": "Mantener 'masa'."
+    },
+    {
+      "error": "Usar 'ñembo'e' para 'estudiar'",
+      "por_que": "'Ñembo'e' se entiende sobre todo como 'rezar'.",
+      "solucion": "Usar 'jaikuaa' (conocer) o jopara 'jaestudia'."
+    },
+    {
+      "error": "Usar 'ára' para 'tiempo' físico",
+      "por_que": "'Ára' es día o clima.",
+      "solucion": "Mantener 'tiempo'."
+    },
+    {
+      "error": "Poner plural tras numeral",
+      "por_que": "'mokõi bloquekuéra' es redundante.",
+      "solucion": "'mokõi bloque'."
+    },
+    {
+      "error": "Doble marca de pregunta",
+      "por_que": "'¿Cuánto mboýpa…?' repite la pregunta.",
+      "solucion": "'Mboýpa…?' o '¿Cuánto…?', no ambos."
+    },
+    {
+      "error": "Mezclar preposición y posposición",
+      "por_que": "'entre mokõi bloque pa'ũme' duplica 'entre'.",
+      "solucion": "Elegir: 'entre mokõi bloque' o 'mokõi bloque pa'ũme'."
+    },
+    {
+      "error": "Usar 'ndaje' en explicaciones",
+      "por_que": "Significa 'dicen que': resta autoridad.",
+      "solucion": "Afirmar directamente o usar 'niko'."
+    },
+    {
+      "error": "Abusar de 'rejavy'",
+      "por_que": "Repetido suena acusador y desmotiva.",
+      "solucion": "Alternar con 'oĩ peteĩ jejavy'i' y 'ñamyatyrõ oñondive'."
+    },
+    {
+      "error": "Confundir 'ha' y 'ha'e'",
+      "por_que": "'ha' = y; 'ha'e' = es / él / ella.",
+      "solucion": "'masa ha velocidad'; 'x ha'e 4'."
+    },
+    {
+      "error": "Inventar neologismos técnicos",
+      "por_que": "El alumno no los reconoce y la IA puede errar.",
+      "solucion": "Usar el término en castellano con morfología guaraní."
+    },
+    {
+      "error": "Guaraní demasiado académico en FAQ",
+      "por_que": "Reduce la comprensión en estudiantes de jopara.",
+      "solucion": "Mantener jopara equilibrado: estructura guaraní, términos en castellano."
+    },
+    {
+      "error": "Traducir símbolos o unidades",
+      "por_que": "Rompe la notación científica.",
+      "solucion": "Dejar m, s, kg, π, ° tal cual."
+    },
+    {
+      "error": "Olvidar puso (') o tildes nasales",
+      "por_que": "'mbae' o 'mokoi' cambian o empobrecen la palabra.",
+      "solucion": "Respetar: mba'e, mokõi, ko'ág̃a."
+    },
+    {
+      "error": "Ignorar armonía nasal",
+      "por_que": "'jañepyrũ' es incorrecto.",
+      "solucion": "'ñañepyrũ' (raíz nasal)."
+    }
+  ],
+  "plantillas_corrector": [
+    {
+      "id": "P01",
+      "situacion": "Paso correcto",
+      "plantilla": "Iporãiterei! Pe paso {n} hekopete.",
+      "traduccion": "¡Excelente! El paso {n} es correcto.",
+      "variables": "{n}"
+    },
+    {
+      "id": "P02",
+      "situacion": "Error localizado",
+      "plantilla": "Iporã rejapo pe planteo. Oĩ peteĩ jejavy'i pe paso {n}-pe: rehai {escrito}, ha ikatu oĩ va'erã {correcto}.",
+      "traduccion": "Hiciste bien el planteo. Hay un pequeño error en el paso {n}: escribiste {escrito}, pero debería ser {correcto}.",
+      "variables": "{n}, {escrito}, {correcto}"
+    },
+    {
+      "id": "P03",
+      "situacion": "Explicar la causa",
+      "plantilla": "Mba'érepa? Porque {razón}.",
+      "traduccion": "¿Por qué? Porque {razón}.",
+      "variables": "{razón}"
+    },
+    {
+      "id": "P04",
+      "situacion": "Corregir juntos",
+      "plantilla": "Ñamyatyrõ oñondive: {corrección}.",
+      "traduccion": "Corrijamos juntos: {corrección}.",
+      "variables": "{corrección}"
+    },
+    {
+      "id": "P05",
+      "situacion": "Signo al pasar término",
+      "plantilla": "Rembohasa vai {término} ambue lado-pe. Ñambohasa jave, pe signo oñemoambue: {antes} → {después}.",
+      "traduccion": "Pasaste mal {término} al otro lado. Cuando lo pasamos, el signo cambia: {antes} → {después}.",
+      "variables": "{término}, {antes}, {después}"
+    },
+    {
+      "id": "P06",
+      "situacion": "Fórmula equivocada",
+      "plantilla": "Pe cuenta iporã, ha ikatu reiporavo vai pe fórmula. Ko'ápe jaipuru {fórmula} porque {razón}.",
+      "traduccion": "La cuenta está bien, pero elegiste mal la fórmula. Aquí usamos {fórmula} porque {razón}.",
+      "variables": "{fórmula}, {razón}"
+    },
+    {
+      "id": "P07",
+      "situacion": "Función trigonométrica",
+      "plantilla": "Reipuru {usada}, ha ikatu ko'ápe oñeikotevẽ {correcta}, porque {razón}.",
+      "traduccion": "Usaste {usada}, pero aquí se necesita {correcta}, porque {razón}.",
+      "variables": "{usada}, {correcta}, {razón}"
+    },
+    {
+      "id": "P08",
+      "situacion": "Falta unidad",
+      "plantilla": "Nde resultado ndorekói unidad. Ani nderesarái: {magnitud} oñehai {unidad}-pe.",
+      "traduccion": "Tu resultado no tiene unidad. No te olvides: {magnitud} se escribe en {unidad}.",
+      "variables": "{magnitud}, {unidad}"
+    },
+    {
+      "id": "P09",
+      "situacion": "Pista socrática",
+      "plantilla": "Emañamína pe paso {n}-re. Mba'épa oiko {elemento} ndive? Eñeha'ã ejuhu ndejehegui.",
+      "traduccion": "Fijate en el paso {n}. ¿Qué pasa con {elemento}? Intentá encontrarlo por vos mismo.",
+      "variables": "{n}, {elemento}"
+    },
+    {
+      "id": "P10",
+      "situacion": "Resultado no coincide",
+      "plantilla": "Nde resultado ndojojái pe mbohovái hekopete ndive. Jahecha jey pe paso {n}.",
+      "traduccion": "Tu resultado no coincide con la respuesta correcta. Revisemos el paso {n}.",
+      "variables": "{n}"
+    },
+    {
+      "id": "P11",
+      "situacion": "Aliento",
+      "plantilla": "Ani rekyhyje jejavýgui: jejavy rupi jaikuaa. Eñeha'ã jey!",
+      "traduccion": "No tengas miedo de equivocarte: con el error aprendemos. ¡Intentá de nuevo!",
+      "variables": ""
+    },
+    {
+      "id": "P12",
+      "situacion": "Cierre",
+      "plantilla": "Ko'ág̃a rehechakuaáma moõpa oĩ pe jejavy. Eñeha'ã jey ko ejercicio.",
+      "traduccion": "Ahora ya viste dónde está el error. Intentá de nuevo este ejercicio.",
+      "variables": ""
+    }
+  ],
+  "faq_ejemplos": [
+    {
+      "id": "F01",
+      "tema": "Funciones",
+      "pregunta": "Mba'épa peteĩ función?",
+      "respuesta": "Peteĩ función ha'e peteĩ regla ome'ẽva peteĩnte valor de y opa valor de x-pe. Techapyrã: f(x) = 2x + 1; x = 3 ramo, f(3) = 7.",
+      "traduccion": "Una función es una regla que asigna un único valor de y a cada valor de x. Ej.: f(x) = 2x + 1; si x = 3, f(3) = 7."
+    },
+    {
+      "id": "F02",
+      "tema": "Funciones",
+      "pregunta": "Mba'épa ohechauka pe pendiente?",
+      "respuesta": "Pe pendiente ohechauka mboýpa ojupi térã oguejy pe recta. m = (y₂ − y₁)/(x₂ − x₁). m positiva ramo, pe recta ojupi; m negativa ramo, oguejy.",
+      "traduccion": "La pendiente muestra cuánto sube o baja la recta. Si m es positiva, sube; si es negativa, baja."
+    },
+    {
+      "id": "F03",
+      "tema": "Funciones",
+      "pregunta": "Mba'éichapa ñadespeja x?",
+      "respuesta": "Jaheja x ha'eñónte peteĩ lado-pe. Ñambohasa umi término ambue lado-pe ha pe signo oñemoambue. Techapyrã: 2x + 3 = 11 → 2x = 8 → x = 4.",
+      "traduccion": "Dejamos x sola en un lado; los términos que pasan cambian de signo. Ej.: 2x + 3 = 11 → x = 4."
+    },
+    {
+      "id": "F04",
+      "tema": "Cinemática",
+      "pregunta": "Mba'e diferencia oĩ velocidad ha aceleración apytépe?",
+      "respuesta": "Velocidad ohechauka mboy pya'e ha mba'e gotyo oho pe móvil. Aceleración katu ohechauka mboýpa oñemoambue pe velocidad peteĩ segundo-pe.",
+      "traduccion": "La velocidad indica qué tan rápido y hacia dónde va el móvil; la aceleración, cuánto cambia la velocidad por segundo."
+    },
+    {
+      "id": "F05",
+      "tema": "Cinemática",
+      "pregunta": "Mba'épa MRU?",
+      "respuesta": "MRU-pe pe móvil oho tysýi rupi ha pe velocidad ndoñemoambuéi. Fórmula: x = x₀ + v·t.",
+      "traduccion": "En el MRU el móvil va en línea recta y la velocidad no cambia. x = x₀ + v·t."
+    },
+    {
+      "id": "F06",
+      "tema": "Cinemática",
+      "pregunta": "Mba'éicha ojejapo caída libre?",
+      "respuesta": "Peteĩ mba'e ho'a jave, pe velocidad okakuaa g ≈ 9,8 m/s² rupi. Pe masa ndoñemoambuéi pe resultado.",
+      "traduccion": "Cuando un objeto cae, su velocidad aumenta a razón de g ≈ 9,8 m/s². La masa no cambia el resultado."
+    },
+    {
+      "id": "F07",
+      "tema": "Trigonometría",
+      "pregunta": "Mba'épa seno?",
+      "respuesta": "Peteĩ triángulo rectángulo-pe: seno = cateto opuesto / hipotenusa. Pe cateto opuesto oĩ ángulo rovái.",
+      "traduccion": "En un triángulo rectángulo, seno = cateto opuesto / hipotenusa. El opuesto está frente al ángulo."
+    },
+    {
+      "id": "F08",
+      "tema": "Trigonometría",
+      "pregunta": "Araka'épa jaipuru coseno?",
+      "respuesta": "Jaipuru coseno jaikuaa térã jaheka ramo pe cateto oĩva ángulo ykére (adyacente) ha pe hipotenusa.",
+      "traduccion": "Usamos coseno cuando conocemos o buscamos el cateto adyacente y la hipotenusa."
+    },
+    {
+      "id": "F09",
+      "tema": "Trigonometría",
+      "pregunta": "Mba'éicha ahasa grado-gui radián-pe?",
+      "respuesta": "Emultiplica pe grado π/180 rehe. Techapyrã: 180° = π rad; 90° = π/2 rad.",
+      "traduccion": "Multiplicá los grados por π/180. Ej.: 180° = π rad; 90° = π/2 rad."
+    }
+  ]
+}

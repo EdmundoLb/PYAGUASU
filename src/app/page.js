@@ -21,6 +21,9 @@ import NavegacionInferior from "@/components/NavegacionInferior";
 import RenderizadorMatematico from "@/components/RenderizadorMatematico";
 import TecladoMatematico from "@/components/TecladoMatematico";
 import PanelConceptos from "@/components/PanelConceptos";
+import ModalConcepto from "@/components/ModalConcepto";
+import TarjetaEnunciado from "@/components/TarjetaEnunciado";
+import { detectarConceptos } from "@/lib/conceptos/glosario";
 import { buscarConcepto } from "@/lib/conceptos";
 import { extraerEscenaDeEnunciado } from "@/lib/fisica/escenaChoque";
 import { PREGUNTAS_DIAGNOSTICO, calcularEstiloPredominante } from "@/lib/quiz/diagnostico";
@@ -530,7 +533,8 @@ export default function Home() {
       if (turno.completado && estado.sesionTutorId) {
         completarSesionMock({
           sesionId: estado.sesionTutorId,
-          temaDetectado: turno.tema,
+          // El tema llega en el primer turno (los siguientes lo mandan vacío).
+          temaDetectado: turno.tema || estado.tema,
           errores: erroresTotales,
           rachaMaxima: rachaTrasTurno,
         })
@@ -953,7 +957,10 @@ function ConversacionTutor({
   // Datos del choque de ESTE ejercicio (de la IA en el primer turno, o leídos
   // del enunciado si el ejercicio empezó antes de que existiera el campo).
   const escenaChoque = estado.escenaChoque || extraerEscenaDeEnunciado(estado.enunciado);
+  // false (cerrado) o la pestaña con la que se abre el panel ("accion", "conceptos"…).
   const [mostrarConceptos, setMostrarConceptos] = useState(false);
+  // Id del concepto (lib/conceptos/glosario.js) abierto desde un chip "Repasar".
+  const [conceptoAbierto, setConceptoAbierto] = useState(null);
 
   function insertarFormula(latexConDolares) {
     setInputRespuesta((prev) => (prev ? `${prev} ${latexConDolares}` : latexConDolares));
@@ -963,23 +970,24 @@ function ConversacionTutor({
   return (
     <section className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 bg-surface-container-lowest rounded-2xl p-4 shadow-elevation-1">
-        <div className="flex items-center justify-between gap-2 flex-wrap">
-          {tema && (
-            <span className="px-2.5 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed text-label-sm font-mono font-semibold">
-              {tema}
-            </span>
-          )}
-          {concepto && (
-            <button
-              type="button"
-              onClick={() => setMostrarConceptos(true)}
-              className="concepto-disponible min-h-[40px] px-3.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-label-md font-semibold shadow-elevation-1 flex items-center gap-1.5 active:scale-[0.98] transition-all duration-200"
-            >
-              <Icono nombre="auto_stories" size={18} />
-              Conceptos
-            </button>
-          )}
-        </div>
+        {/* Enunciado arriba (antes no se veía durante el ejercicio) y debajo
+            los datos, la incógnita y el progreso. */}
+        <TarjetaEnunciado
+          enunciado={estado.enunciado}
+          tema={tema}
+          accion={
+            concepto && (
+              <button
+                type="button"
+                onClick={() => setMostrarConceptos("accion")}
+                className="concepto-disponible min-h-[40px] px-3.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-label-md font-semibold shadow-elevation-1 flex items-center gap-1.5 active:scale-[0.98] transition-all duration-200"
+              >
+                <Icono nombre="auto_stories" size={18} />
+                Conceptos
+              </button>
+            )
+          }
+        />
 
         {mostrarConceptos && concepto && (
           <PanelConceptos
@@ -987,17 +995,33 @@ function ConversacionTutor({
             escena={escenaChoque}
             enunciado={estado.enunciado}
             ejercicioTerminado={completado}
+            pestanaInicial={typeof mostrarConceptos === "string" ? mostrarConceptos : "accion"}
             onCerrar={() => setMostrarConceptos(false)}
           />
         )}
 
-        <IndicadorProgreso pasoActual={pasoActual} totalPasos={totalPasosEstimados} racha={estado.racha} />
+        {conceptoAbierto && (
+          <ModalConcepto
+            id={conceptoAbierto}
+            escena={escenaChoque}
+            enunciado={estado.enunciado}
+            ejercicioTerminado={completado}
+            onCerrar={() => setConceptoAbierto(null)}
+            onAbrirPanel={(pestana) => {
+              setConceptoAbierto(null);
+              setMostrarConceptos(pestana);
+            }}
+          />
+        )}
 
         {Array.isArray(datos) && datos.length > 0 && (
-          <div className="grid grid-cols-2 gap-2">
-            {datos.map((d, i) => (
-              <ChipDato key={i} etiqueta={d.etiqueta} valor={d.valor} />
-            ))}
+          <div className="flex flex-col gap-1.5">
+            <span className="text-label-sm font-mono uppercase tracking-wider text-on-surface-variant font-semibold">Datos del ejercicio</span>
+            <div className="grid grid-cols-2 gap-2">
+              {datos.map((d, i) => (
+                <ChipDato key={i} etiqueta={d.etiqueta} valor={d.valor} />
+              ))}
+            </div>
           </div>
         )}
 
@@ -1012,6 +1036,8 @@ function ConversacionTutor({
             </span>
           </div>
         )}
+
+        <IndicadorProgreso pasoActual={pasoActual} totalPasos={totalPasosEstimados} racha={estado.racha} />
       </div>
 
       {/* Chat de la conversación tutor <-> estudiante. El último mensaje del
@@ -1031,6 +1057,8 @@ function ConversacionTutor({
               estadoTurno={activa ? estadoTurnoActivo : undefined}
               elementosEscena={turno.elementosEscena}
               variableExplorable={turno.variableExplorable}
+              conceptos={concepto && turno.autor === "tutor" ? detectarConceptos(turno.texto) : []}
+              onAbrirConcepto={setConceptoAbierto}
             />
           );
         })}

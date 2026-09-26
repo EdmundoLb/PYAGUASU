@@ -40,6 +40,30 @@ const ACENTO_POR_ESTADO = {
   },
 };
 
+// Chips "Repasar: …" bajo un mensaje del tutor que menciona un concepto del
+// material del profe (ver lib/conceptos/glosario.js): abren el repaso.
+function ChipsConcepto({ conceptos, onAbrir }) {
+  if (!conceptos?.length || !onAbrir) return null;
+  return (
+    <div className="flex flex-wrap gap-1.5" role="group" aria-label="Repasar conceptos">
+      {conceptos.map((c) => (
+        <button
+          key={c.id}
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onAbrir(c.id);
+          }}
+          className="min-h-[40px] px-3 rounded-full bg-secondary-fixed text-on-secondary-fixed text-label-md font-semibold shadow-elevation-1 flex items-center gap-1.5 active:scale-[0.98] hover:-translate-y-0.5 transition-all duration-200"
+        >
+          <Icono nombre="auto_stories" size={16} />
+          Repasar: {c.titulo}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export default function BurbujaChat({
   autor,
   texto,
@@ -47,6 +71,8 @@ export default function BurbujaChat({
   estadoTurno = "nueva",
   elementosEscena = [],
   variableExplorable = null,
+  conceptos = [],
+  onAbrirConcepto,
 }) {
   const esTutor = autor === "tutor";
   // El efecto de "escribiendo" solo aplica al paso EN CURSO — el historial
@@ -79,6 +105,9 @@ export default function BurbujaChat({
           <RenderizadorMatematico texto={texto} longitudVisible={completo ? undefined : textoRevelado.length} />
         </p>
         <SimuladorVariable variable={variableExplorable} />
+        <div className="pl-10">
+          <ChipsConcepto conceptos={conceptos} onAbrir={onAbrirConcepto} />
+        </div>
       </div>
     );
   }
@@ -98,6 +127,11 @@ export default function BurbujaChat({
         }`}
       >
         <RenderizadorMatematico texto={texto} />
+        {esTutor && conceptos?.length > 0 && (
+          <div className="mt-2">
+            <ChipsConcepto conceptos={conceptos} onAbrir={onAbrirConcepto} />
+          </div>
+        )}
       </div>
       {!esTutor && (
         <div className="w-7 h-7 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center flex-shrink-0 shadow-elevation-1">

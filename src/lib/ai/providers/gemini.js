@@ -17,10 +17,13 @@ import { repararEscapesInvalidosEnJson } from '../../latex/escapes';
 //
 // .env.local: GEMINI_MODEL (principal) y GEMINI_MODEL_FALLBACK (lista
 // separada por comas). gemini-2.5-* ya no está habilitado para keys nuevas.
-const MODELO_GEMINI = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
+// Principal: gemini-3.8-flash. Medido el 26/09 con el prompt real (primer
+// turno de un choque): 6,2 s vs 12,6 s de gemini-3.6-flash (piensa la mitad
+// de tokens antes de responder), con igual o mejor calidad.
+const MODELO_GEMINI = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
 const MODELOS_RESPALDO = (
   process.env.GEMINI_MODEL_FALLBACK ||
-  'gemini-3.8-flash,gemini-3.7-flash,gemini-3.5-flash,gemini-flash-lite-latest,gemini-3.5-flash-lite'
+  'gemini-3.6-flash,gemini-3.7-flash,gemini-3.5-flash,gemini-flash-lite-latest,gemini-3.5-flash-lite'
 )
   .split(',')
   .map((m) => m.trim())
@@ -47,21 +50,39 @@ function construirContents({ historial, mensajeNuevo }) {
   return contents;
 }
 
-async function pedirTurno(ai, modelo, { contents, materia, learningLevel }, intentos) {
-  const respuesta = await conReintentos(
-    () =>
-    ai.models.generateContent({
-      model: modelo,
-      contents,
-      config: {
-        systemInstruction: construirInstruccionSistema({ materia, learningLevel }),
-        responseMimeType: 'application/json',
-        responseSchema: TURNO_JSON_SCHEMA,
-        temperature: 0.4,
-      },
-    }),
-    { intentos }
-  );
+// Nivel de "pensamiento" interno del modelo antes de responder: es lo que más
+// pesa en la demora. Medido el 26/09 con el prompt real y la base jopara
+// (gemini-3.8-flash): normal ≈ 12-14 s por turno, LOW ≈ 3 s, con jopara y
+// evaluación correctos. Los controles del servidor (verificación de cuentas,
+// evaluación, unidades, cierre prematuro) cubren los errores típicos de
+// razonar menos. .env.local: GEMINI_THINKING = LOW | MEDIUM | HIGH | normal.
+const NIVEL_PENSAMIENTO = (process.env.GEMINI_THINKING || 'LOW').toUpperCase();
+
+function configuracion({ materia, learningLevel, idioma }, conPensamiento) {
+  const config = {
+    systemInstruction: construirInstruccionSistema({ materia, learningLevel, idioma }),
+    responseMimeType: 'application/json',
+    responseSchema: TURNO_JSON_SCHEMA,
+    temperature: 0.4,
+  };
+  if (conPensamiento && NIVEL_PENSAMIENTO !== 'NORMAL') config.thinkingConfig = { thinkingLevel: NIVEL_PENSAMIENTO };
+  return config;
+}
+
+async function pedirTurno(ai, modelo, datos, intentos) {
+  const generar = (conPensamiento) =>
+    conReintentos(() => ai.models.generateContent({ model: modelo, contents: datos.contents, config: configuracion(datos, conPensamiento) }), {
+      intentos,
+    });
+  let respuesta;
+  try {
+    respuesta = await generar(true);
+  } catch (error) {
+    // Un modelo de respaldo que no admite el nivel de pensamiento responde
+    // 400: se reintenta sin esa opción en vez de cortar la cadena.
+    if (obtenerCodigoHttp(error) !== 400 || !/think/i.test(String(error?.message))) throw error;
+    respuesta = await generar(false);
+  }
 
   const texto = respuesta.text;
   if (!texto) {
@@ -107,7 +128,7 @@ export async function avanzarTurnoConGemini({ historial, idioma, materia, esInic
       try {
         // El principal de la primera key se reintenta (los picos suelen
         // durar segundos); el resto, una vez cada uno para recorrer rápido.
-        return await pedirTurno(ai, modelo, { contents, materia, learningLevel }, k === 0 && i === 0 ? 2 : 1);
+        return await pedirTurno(ai, modelo, { contents, materia, learningLevel, idioma }, k === 0 && i === 0 ? 2 : 1);
       } catch (error) {
         primerError ??= error;
         console.warn(`[gemini] key ${k + 1}, ${modelo} falló (${obtenerCodigoHttp(error) ?? error.message}); probando el siguiente...`);

@@ -158,7 +158,7 @@ export function construirContextoAprendizaje(learningLevel) {
     auditor:
       'contá el razonamiento de este problema como una narración hablada, en oraciones cortas y bien encadenadas ("primero... eso significa que... por eso..."), sin depender de diagramas ni de listas.',
     kinestesico:
-      'en vez de solo preguntar un dato, invitá a probar algo concreto con los números reales de este problema (ej. "¿qué pasaría con el resultado si m₂ fuera 0 en vez de 800 kg?"), nunca con una frase genérica tipo "cambiá un valor cualquiera". La pregunta tiene que seguir haciendo avanzar el razonamiento, nunca pedir que repita datos que ya tiene a la vista. Además, completá "variableExplorable" con ESA MISMA variable que mencionaste en la pregunta (nunca la incógnita del paso), para que el estudiante pueda moverla él mismo en vez de solo imaginarla — con su rango real y si al subirla el resultado de este paso sube (directa) o baja (inversa). No reveles ahí ningún número de resultado, solo la variable de entrada y la tendencia.',
+      'mantené UNA sola pregunta por turno: la del paso actual, con los números reales de este problema (nunca la reemplaces por una hipotética ni agregues una segunda pregunta del tipo "¿qué pasaría si…?"). Para que pueda probar con las manos, completá "variableExplorable" con una variable real de ESTE paso (nunca la incógnita que se está evaluando), con su rango real y si al subirla el resultado de este paso sube (directa) o baja (inversa); no reveles ahí ningún resultado. Si ayuda, sumá UNA frase corta que lo invite a moverla ("Mové el valor de m₂ y fijate cómo cambia"): una invitación, no una pregunta.',
   };
   const formato = formatos[learningLevel];
   if (!formato) return "";

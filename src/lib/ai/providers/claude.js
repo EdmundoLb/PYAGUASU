@@ -36,7 +36,7 @@ export async function avanzarTurnoConClaude({ historial, idioma, materia, esInic
     client.messages.create({
       model: MODELO_CLAUDE,
       max_tokens: 2048,
-      system: construirInstruccionSistema({ materia, learningLevel }),
+      system: construirInstruccionSistema({ materia, learningLevel, idioma }),
       messages: construirMessages({ historial, mensajeNuevo }),
       tools: [
         {

@@ -59,6 +59,33 @@ export function avanzoSinUnidad({ turno, mensaje = '', pedirAyuda = false }) {
 }
 
 /**
+ * true si el turno está pidiendo la unidad: el estudiante dio el número
+ * correcto sin unidad y el modelo (bien) no avanzó ni lo contó como error.
+ */
+export function estaPidiendoUnidad({ turno, mensaje = '', pedirAyuda = false }) {
+  if (pedirAyuda || turno?.correcta !== false || turno?.esIntento !== false) return false;
+  if (!turno?.verificacionRespuesta?.unidad?.trim() || !faltaUnidadEnRespuesta(mensaje)) return false;
+  const correcto = valorCorrectoDelPaso(turno);
+  if (correcto === null) return true;
+  const numeros = extraerNumeros(mensaje);
+  return numeros.length > 0 && coincide(numeros[numeros.length - 1], correcto);
+}
+
+// Unidades para elegir cuando el tutor pide la unidad y el modelo no mandó
+// opciones: la correcta + 3 distractores plausibles, en una posición al azar
+// (si fuera siempre la misma, el alumno aprendería a tocar esa).
+const UNIDADES_FRECUENTES = ['kg·m/s', 'm/s', 'kg', 'N', 'm/s²', 'J', 's', 'm'];
+const normalizarUnidad = (u) => u.toLowerCase().replace(/\s+/g, '').replace(/[*.]/g, '·').replace(/seg\b/g, 's').replace(/\^2/g, '²');
+
+export function opcionesDeUnidad(correcta) {
+  const norm = normalizarUnidad(correcta);
+  const distractores = UNIDADES_FRECUENTES.filter((u) => normalizarUnidad(u) !== norm).slice(0, 3);
+  const posicion = Math.floor(Math.random() * 4);
+  distractores.splice(posicion, 0, correcta);
+  return distractores;
+}
+
+/**
  * true si el modelo marcó como incorrecta una respuesta numérica que en
  * realidad coincide con el valor correcto del paso. Se mira el ÚLTIMO número
  * del mensaje (en "10 + (-30) = -20" la respuesta es -20).
@@ -72,6 +99,28 @@ export function esFalsoIncorrecto({ turno, mensaje = '', pedirAyuda = false }) {
   const numeros = extraerNumeros(mensaje);
   if (numeros.length === 0) return false;
   return coincide(numeros[numeros.length - 1], correcto);
+}
+
+/**
+ * Caso real: el alumno respondió "800" a "¿cuánto es p₁?" (1200 kg a 20 m/s)
+ * y el tutor contestó "Ñamyatyrõ oñondive: 12·2 = 24… 24000 kg·m/s" y pasó
+ * al auto 2 — le regaló el resultado en el PRIMER intento fallido. La
+ * escalera de pistas no lo permite nunca (solo "Mostrame este paso").
+ *
+ * true si el turno marca el intento como incorrecto y aun así muestra el
+ * valor correcto del paso en el mensaje o la pista, sin que ese
+ * número haya aparecido antes (si ya estaba en el enunciado, es un dato).
+ */
+export function reveloResultado({ turno, mensaje = '', historial = [], pedirAyuda = false }) {
+  if (pedirAyuda || turno?.correcta !== false || turno?.esIntento === false) return false;
+  const correcto = valorCorrectoDelPaso(turno);
+  if (correcto === null) return false;
+  const aparece = (texto) => extraerNumeros(texto).some((n) => coincide(Math.abs(n), Math.abs(correcto)));
+  const yaEstaba = [mensaje, ...historial.map((t) => t.texto)].some(aparece);
+  if (yaEstaba) return false;
+  // "formula" no se mira: en un intento fallido el servidor la vacía siempre
+  // (ver index.js), así que nunca llega al alumno.
+  return [turno.mensaje, turno.pista].some(aparece);
 }
 
 /**

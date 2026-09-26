@@ -13,6 +13,18 @@ const A = "['’´]";
 export const CORRECCIONES_VOCABULARIO = [
   // "No te preocupes": segunda persona del imperativo negativo.
   [new RegExp(`\\bani\\s+(?:o|re)jepy${A}apy\\b`, 'gi'), "ani ejepy'apy"],
+  // Vistas en pruebas del 26/09: "hekopeteĩnte" mezcla "hekopete" (correcto)
+  // con "-ĩnte"; "upéva da 24000" mete el verbo castellano "da" en guaraní
+  // (la base usa "ha'e" = es). ⚠️ Lingüista: confirmar.
+  [/\bhekopeteĩnte\b/gi, 'hekopete'],
+  [/\bupéva\s+da\b/gi, "upéva ha'e"],
+  // Corregido por el equipo (26/09): "ha katu" → "ha ikatu" (también en la base).
+  [/\bha\s+katu\b/gi, 'ha ikatu'],
+  // Base jopara, "Errores a evitar": armonía nasal (raíz nasal → ña-).
+  [/\bjañepyrũ/gi, 'ñañepyrũ'],
+  // Base jopara, "Errores a evitar": sin plural después de un numeral
+  // ("mokõi bloquekuéra" → "mokõi bloque").
+  [/\b(peteĩ|mokõi|mbohapy|irundy|po)\s+(\p{L}+?)(?:kuéra|nguéra)\b/giu, '$1 $2'],
 ];
 
 function conMismaMayuscula(original, reemplazo) {
@@ -24,7 +36,12 @@ function conMismaMayuscula(original, reemplazo) {
 export function corregirVocabulario(texto) {
   if (typeof texto !== 'string') return texto;
   return CORRECCIONES_VOCABULARIO.reduce(
-    (t, [patron, reemplazo]) => t.replace(patron, (encontrado) => conMismaMayuscula(encontrado, reemplazo)),
+    (t, [patron, reemplazo]) =>
+      t.replace(patron, (encontrado, ...grupos) => {
+        // "$1", "$2"… en el reemplazo = lo que capturó cada grupo del patrón.
+        const conGrupos = reemplazo.replace(/\$(\d)/g, (_, n) => (typeof grupos[n - 1] === 'string' ? grupos[n - 1] : ''));
+        return conMismaMayuscula(encontrado, conGrupos);
+      }),
     texto
   );
 }

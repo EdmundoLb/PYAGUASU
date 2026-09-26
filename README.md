@@ -84,10 +84,36 @@ cantidad de movimiento, desde `CONCEPTO.pdf`). Abre un panel con:
 - **Conceptos**, **Fórmulas** (con unidades) y un **Ejemplo** resuelto con
   números distintos del ejercicio de práctica (no regala la respuesta).
 
+Además, cuando el tutor menciona un concepto (ej. "velocidad final", "choque
+inelástico"), debajo de su mensaje aparece un chip **Repasar: …** que abre un
+modal con ese concepto aplicado al ejercicio: explicación, fórmula, "En tu
+ejercicio" (datos del alumno, resultados en "?" hasta terminar, e inciso al que
+corresponde) y acceso al simulador. La detección es determinística
+(`src/lib/conceptos/glosario.js`), sin costo de IA.
+
 El contenido vive en `src/lib/conceptos/` como datos: el profesor puede
 revisarlo ahí, y para sumar otro tema se agrega un archivo y se registra en
 `src/lib/conceptos/index.js`. La física del simulador está en
 `src/lib/fisica/choques.js` (con pruebas).
+
+## Vocabulario jopara (base del equipo)
+
+El tutor usa la **base léxica del equipo** como referencia principal:
+`src/lib/ai/jopara/base_jopara_tutor.json` (léxico, morfología, términos que
+no se traducen, errores a evitar y plantillas del corrector). El lingüista
+la actualiza ahí y el prompt se regenera solo (`src/lib/ai/jopara/guia.js`,
+en versión compacta; las entradas "Validar" no se usan). Se incluye solo
+cuando el idioma es jopara o guaraní. Los errores que se pueden corregir
+automáticamente van en `src/lib/ai/vocabulario.js`.
+
+## Velocidad de respuesta
+
+Medido con el prompt real (26/09): el modelo principal es
+`gemini-3.8-flash` con "pensamiento" `LOW` → ~3-4 s por turno (antes
+~12-14 s). Se puede cambiar con `GEMINI_MODEL` y `GEMINI_THINKING` en
+`.env.local` (ver `.env.local.example`). Los controles del servidor
+(cuentas, evaluación, unidades, cierre prematuro) cubren los errores típicos
+de razonar menos.
 
 ## Cómo pasar de Gemini a Claude
 

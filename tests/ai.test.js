@@ -293,6 +293,17 @@ describe('avanzarTurno (proveedor simulado)', () => {
     expect((await avanzarTurno({ esInicial: false, mensaje: '10 kg·m/s' })).escenaChoque).toBeNull();
   });
 
+  it('intento fallido que revela el resultado: pide rehacerlo como pista y saca la fórmula', async () => {
+    const historial = [{ autor: 'estudiante', texto: 'Un auto de 1200 kg a 20 m/s choca con otro de 800 kg en reposo.' }];
+    avanzarTurnoConGemini
+      .mockResolvedValueOnce({ ...turnoBase, correcta: false, mensaje: 'Ñamyatyrõ oñondive: upéva da $24000\\text{ kg·m/s}$.', formula: '$p_1 = 24000$', verificacionRespuesta: { expresion: '1200*20', unidad: 'kg·m/s' } })
+      .mockResolvedValueOnce({ ...turnoBase, correcta: false, mensaje: 'Oĩ peteĩ jejavy\'i: emañamína pe $m_1$-re.', formula: '$p_1 = 24000$' });
+    const turno = await avanzarTurno({ esInicial: false, mensaje: '800', historial });
+    expect(avanzarTurnoConGemini.mock.calls[1][0].mensaje).toMatch(/^\[SISTEMA_INTERNO\].*ESCALERA DE PISTAS/);
+    expect(turno.mensaje).toBe("Oĩ peteĩ jejavy'i: emañamína pe $m_1$-re.");
+    expect(turno.formula).toBe(''); // en un intento fallido no hay "fórmula confirmada"
+  });
+
   it('filtra las marcas internas de todos los textos visibles', async () => {
     avanzarTurnoConGemini.mockResolvedValue({
       ...turnoBase,

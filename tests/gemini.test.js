@@ -3,13 +3,15 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 // Simula la API de Google: `comportamiento(key, modelo)` decide qué responde.
 let comportamiento;
 const llamadas = [];
+const configs = [];
 vi.mock('@google/genai', () => ({
   GoogleGenAI: class {
     constructor({ apiKey }) {
       this.models = {
-        generateContent: async ({ model }) => {
+        generateContent: async ({ model, config }) => {
           llamadas.push(`${apiKey}:${model}`);
-          return comportamiento(apiKey, model);
+          configs.push(config);
+          return comportamiento(apiKey, model, config);
         },
       };
     }
@@ -28,6 +30,7 @@ describe('avanzarTurnoConGemini: cadena de respaldo', () => {
   beforeEach(async () => {
     vi.useFakeTimers({ toFake: ['setTimeout'] });
     llamadas.length = 0;
+    configs.length = 0;
     vi.stubEnv('GEMINI_MODEL', 'principal');
     vi.stubEnv('GEMINI_MODEL_FALLBACK', 'respaldo1,respaldo2');
     vi.stubEnv('GEMINI_API_KEY', 'keyA,keyB');
@@ -63,6 +66,21 @@ describe('avanzarTurnoConGemini: cadena de respaldo', () => {
     };
     expect(await correr()).toEqual({ mensaje: 'keyB/principal' });
     expect(llamadas.filter((l) => l.startsWith('keyA'))).toEqual(['keyA:principal']);
+  });
+
+  it('pide pensamiento LOW por defecto (respuestas ~3 s en vez de ~13 s)', async () => {
+    comportamiento = () => ok();
+    await correr();
+    expect(configs[0].thinkingConfig).toEqual({ thinkingLevel: 'LOW' });
+  });
+
+  it('si un modelo no admite el nivel de pensamiento (400), reintenta sin esa opción', async () => {
+    comportamiento = (key, modelo, config) => {
+      if (config.thinkingConfig) throw Object.assign(new Error('thinking_level is not supported for this model'), { status: 400 });
+      return ok(`${key}/${modelo}`);
+    };
+    expect(await correr()).toEqual({ mensaje: 'keyA/principal' });
+    expect(configs.map((c) => Boolean(c.thinkingConfig))).toEqual([true, false]);
   });
 
   it('si todo está saturado, devuelve el primer error (503)', async () => {

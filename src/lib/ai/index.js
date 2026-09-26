@@ -7,13 +7,22 @@ import { esCierrePrematuro, anularCierre } from './cierre';
 import { corregirVocabulario } from './vocabulario';
 import { esPedidoDeAyudaExplicito } from './pedidos';
 import { sanearEscena, extraerEscenaDeEnunciado } from '../fisica/escenaChoque';
-import { esFalsoIncorrecto, valorCorrectoDelPaso, quitarRespuestaDeSugerencias, avanzoSinUnidad } from './evaluacion';
+import {
+  esFalsoIncorrecto,
+  valorCorrectoDelPaso,
+  quitarRespuestaDeSugerencias,
+  avanzoSinUnidad,
+  reveloResultado,
+  estaPidiendoUnidad,
+  opcionesDeUnidad,
+} from './evaluacion';
 import {
   construirMensajeInicial,
   construirMensajeEstudiante,
   construirMensajeCorreccionEvaluacion,
   construirMensajeCorreccionUnidad,
   MENSAJE_CORRECCION_CALCULO,
+  MENSAJE_CORRECCION_REVELACION,
 } from './prompt';
 
 // Defensa en profundidad: aunque el schema ya restringe "icono" a un enum,
@@ -225,6 +234,33 @@ export async function avanzarTurno({
     } else if (turnoCorregido) {
       console.error('[unidades] El reintento volvió a avanzar sin unidad; se muestra el turno original.');
     }
+  }
+
+  // Intento fallido pero el tutor reveló el resultado del paso (ver
+  // evaluacion.js): se le pide que lo rehaga como pista. Solo se usa la
+  // corrección si ya no revela el resultado.
+  if (reveloResultado({ turno, mensaje, historial, pedirAyuda })) {
+    console.warn(`[escalera de pistas] "${mensaje}" fue incorrecto y el tutor reveló el resultado (${valorCorrectoDelPaso(turno)}). Reintentando...`);
+    const turnoCorregido = await pedirCorreccion(turno, MENSAJE_CORRECCION_REVELACION, 'escalera de pistas');
+    const sigueRevelando = turnoCorregido && reveloResultado({ turno: { ...turnoCorregido, verificacionRespuesta: turno.verificacionRespuesta }, mensaje, historial, pedirAyuda });
+    if (turnoCorregido && turnoCorregido.correcta === false && !sigueRevelando) {
+      turno = { ...turnoCorregido, verificacionRespuesta: turno.verificacionRespuesta };
+    } else if (turnoCorregido) {
+      console.error('[escalera de pistas] El reintento volvió a revelar el resultado; se muestra el turno original.');
+    }
+  }
+
+  // Una fórmula "confirmada" solo corresponde a un paso cerrado (acierto o
+  // "Mostrame este paso"): en un intento fallido no se agrega a "Ver fórmulas
+  // confirmadas", donde quedaría a la vista la cuenta resuelta.
+  if (turno.correcta === false && !pedirAyuda && turno.formula) {
+    turno = { ...turno, formula: '' };
+  }
+
+  // Pidiendo la unidad: si el modelo no ofreció opciones para tocar, se
+  // arman desde la unidad del paso (la correcta + distractores).
+  if (estaPidiendoUnidad({ turno, mensaje, pedirAyuda }) && (!Array.isArray(turno.opcionesRespuesta) || turno.opcionesRespuesta.length < 2)) {
+    turno = { ...turno, opcionesRespuesta: opcionesDeUnidad(turno.verificacionRespuesta.unidad.trim()) };
   }
 
   // Si sigue en el mismo paso, las sugerencias no pueden regalar la respuesta.

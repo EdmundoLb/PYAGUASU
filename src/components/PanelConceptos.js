@@ -59,8 +59,10 @@ function EtiquetaTuEjercicio() {
 // escena: { m1, v1, m2, v2, tipo } del ejercicio del alumno (o null).
 // ejercicioTerminado: mientras sea false, el simulador muestra los
 // resultados del ejercicio como "?" (los tiene que calcular el alumno).
-export default function PanelConceptos({ concepto, escena = null, enunciado = "", ejercicioTerminado = false, onCerrar }) {
-  const [pestana, setPestana] = useState("accion");
+// pestanaInicial: "accion" | "conceptos" | "formulas" | "ejemplo" (desde el
+// modal de un concepto se abre directo en el simulador o en los conceptos).
+export default function PanelConceptos({ concepto, escena = null, enunciado = "", ejercicioTerminado = false, pestanaInicial = "accion", onCerrar }) {
+  const [pestana, setPestana] = useState(pestanaInicial);
   // Cambia al cargar otros datos en el simulador, para reiniciarlo con ellos.
   const [simulacion, setSimulacion] = useState({
     clave: 0,

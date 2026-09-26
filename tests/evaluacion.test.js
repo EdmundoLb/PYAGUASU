@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { esFalsoIncorrecto, quitarRespuestaDeSugerencias, valorCorrectoDelPaso, faltaUnidadEnRespuesta, avanzoSinUnidad } from '@/lib/ai/evaluacion';
+import { esFalsoIncorrecto, quitarRespuestaDeSugerencias, valorCorrectoDelPaso, faltaUnidadEnRespuesta, avanzoSinUnidad, reveloResultado, estaPidiendoUnidad, opcionesDeUnidad } from '@/lib/ai/evaluacion';
 
 // Caso reportado: "sumá 10 kg·m/s y -30 kg·m/s"; el estudiante respondió
 // "-20 kg·m/s" (correcto) y el tutor dijo "¡Casi!", ofreciendo "-20" como opción.
@@ -72,6 +72,37 @@ describe('unidades', () => {
   });
 });
 
+describe('reveloResultado (escalera de pistas)', () => {
+  // Caso reportado: p₁ de un auto de 1200 kg a 20 m/s; el alumno dijo "800".
+  const historial = [{ autor: 'estudiante', texto: 'Un auto de 1200 kg a 20 m/s choca con otro de 800 kg en reposo...' }];
+  const revelo = {
+    correcta: false,
+    esIntento: true,
+    mensaje: 'Ñamyatyrõ oñondive: $12 \\cdot 2 = 24$, ha upe rire ñamoĩ mbohapy cero, upéva da $24000\\text{ kg·m/s}$. Ko\'ág̃a pe mokõiha auto: ¿mboýpa $p_2$?',
+    formula: '$p_1 = 24000\\text{ kg·m/s}$',
+    verificacionRespuesta: { expresion: '1200*20', unidad: 'kg·m/s' },
+  };
+
+  it('caso reportado: "800" incorrecto y el tutor mostró 24000 → hay que corregir', () => {
+    expect(reveloResultado({ turno: revelo, mensaje: '800', historial })).toBe(true);
+  });
+
+  it('una pista sin el resultado está bien (aunque use los datos del enunciado)', () => {
+    const pista = { ...revelo, mensaje: 'Oĩ peteĩ jejavy\'i: 800 kg ha\'e pe mokõiha auto masa. Emañamína: $p_1 = m_1 \\cdot v_1$, ¿mba\'épa pe $m_1$?', formula: '' };
+    expect(reveloResultado({ turno: pista, mensaje: '800', historial })).toBe(false);
+  });
+
+  it('no aplica a "Mostrame este paso", a aciertos ni a no-intentos', () => {
+    expect(reveloResultado({ turno: revelo, mensaje: '', historial, pedirAyuda: true })).toBe(false);
+    expect(reveloResultado({ turno: { ...revelo, correcta: true }, mensaje: '24000', historial })).toBe(false);
+    expect(reveloResultado({ turno: { ...revelo, esIntento: false }, mensaje: 'no sé', historial })).toBe(false);
+  });
+
+  it('si el valor ya estaba en la conversación (lo dijo el alumno o era un dato), no cuenta como revelar', () => {
+    expect(reveloResultado({ turno: revelo, mensaje: '24000', historial })).toBe(false);
+  });
+});
+
 describe('quitarRespuestaDeSugerencias', () => {
   it('caso reportado: saca el chip con la respuesta; si quedan menos de 2, no muestra chips', () => {
     expect(quitarRespuestaDeSugerencias(turnoReportado).opcionesRespuesta).toEqual(['$40\\text{ kg·m/s}$', '$-40\\text{ kg·m/s}$']);
@@ -87,5 +118,24 @@ describe('quitarRespuestaDeSugerencias', () => {
   it('si el estudiante acertó (avanza de paso), no toca las sugerencias', () => {
     const avanza = { ...turnoReportado, correcta: true };
     expect(quitarRespuestaDeSugerencias(avanza)).toBe(avanza);
+  });
+});
+
+describe('opciones de unidad', () => {
+  const pideUnidad = { correcta: false, esIntento: false, opcionesRespuesta: [], verificacionRespuesta: { expresion: '10 + (-30)', unidad: 'kg·m/s' } };
+
+  it('caso reportado: "-20" sin unidad → el tutor está pidiendo la unidad', () => {
+    expect(estaPidiendoUnidad({ turno: pideUnidad, mensaje: '-20' })).toBe(true);
+    expect(estaPidiendoUnidad({ turno: pideUnidad, mensaje: '-20 kg·m/s' })).toBe(false);
+    expect(estaPidiendoUnidad({ turno: { ...pideUnidad, esIntento: true }, mensaje: '40' })).toBe(false);
+  });
+
+  it('arma 4 opciones con la correcta incluida, sin repetir', () => {
+    for (const u of ['kg·m/s', 'm/s', 'N', 'kg*m/seg']) {
+      const ops = opcionesDeUnidad(u);
+      expect(ops).toHaveLength(4);
+      expect(ops).toContain(u);
+      expect(new Set(ops.map((o) => o.replace(/[*.]/g, '·').replace('seg', 's'))).size).toBe(4);
+    }
   });
 });

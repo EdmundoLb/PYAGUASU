@@ -37,11 +37,11 @@ export const TURNO_JSON_SCHEMA = {
   properties: {
     tema: {
       type: 'string',
-      description: 'Nombre corto del tema (ej. "Cantidad de movimiento"). Repetilo en cada turno.',
+      description: 'Nombre corto del tema (ej. "Cantidad de movimiento"). SOLO en el primer turno; en los siguientes, cadena vacía (la app ya lo tiene).',
     },
     datos: {
       type: 'array',
-      description: 'Datos conocidos extraídos del enunciado original. Repetilo en cada turno.',
+      description: 'Datos conocidos extraídos del enunciado original. SOLO en el primer turno; en los siguientes, array vacío (la app ya los tiene).',
       items: {
         type: 'object',
         properties: {
@@ -56,7 +56,7 @@ export const TURNO_JSON_SCHEMA = {
     },
     incognita: {
       type: 'string',
-      description: 'Qué se está buscando calcular. Repetilo en cada turno. Si es una variable o expresión, envolvela en $...$ (ej. "$v_f$").',
+      description: 'Qué se está buscando calcular. SOLO en el primer turno; en los siguientes, cadena vacía. Si es una variable o expresión, envolvela en $...$ (ej. "$v_f$").',
     },
     correcta: {
       type: 'boolean',
