@@ -25,36 +25,44 @@ export const CANAL = {
   KINESTESICO: "kinestesico",
 };
 
+// Textos revisados contra la base jopara del equipo (26/09): "che voi" (voi =
+// "pues, justamente") → "chejehegui" (por mí mismo, de "Ndejehegui", L030);
+// "peteĩteĩ" (uno por uno) → "umi paso peteĩteĩ"; en guaraní: hag̃ua,
+// ta'ãnga, ohechauka, ajavy, oñemoambue y opciones en 1ª persona.
+// Las 3 preguntas y todas sus respuestas en jopara fueron redactadas por el
+// equipo (26/09) con estructura guaraní + raíces castellanas.
+// ⚠️ LINGÜISTA: confirmar "chejehegui" (derivada, no está tal cual en la base).
 export const PREGUNTAS_DIAGNOSTICO = [
   {
     id: "concepto_nuevo",
     texto: {
-      jopara: "Néike, cuando aprendés un tema nuevo de física, ¿qué te ayuda iporãve a entenderlo?",
-      guarani: "Reikuaa porã haguã peteĩ mba'e pyahu física-pe, mba'épa ndéve iporãve?",
+      // Propuesta del equipo (26/09): estructura guaraní + raíces castellanas.
+      jopara: "Néike, py'aguasu! Reaprende jave peteĩ tema pyahu física-pe, mba'épa nepytyvõve reentende hag̃ua?",
+      guarani: "Néike, py'aguasu! Reikuaa porã hag̃ua peteĩ mba'e pyahu física-pe, mba'épa ndéve iporãve?",
       castellano: "Cuando aprendés un tema nuevo de física, ¿qué te ayuda más a entenderlo?",
     },
     opciones: [
       {
         canal: CANAL.VISUAL,
         texto: {
-          jopara: "Ver un gráfico, diagrama térã animación que muestre qué pasa",
-          guarani: "Ehecha peteĩ ta'anga térã animación, oechauka haguã mba'épa ojehu",
+          jopara: "Ahecha peteĩ gráfico, diagrama térã animación ohechaukáva mba'épa oiko",
+          guarani: "Ahecha peteĩ ta'ãnga térã animación, ohechauka hag̃ua mba'épa ojehu",
           castellano: "Ver un gráfico, diagrama o animación que muestre qué pasa",
         },
       },
       {
         canal: CANAL.AUDITIVO,
         texto: {
-          jopara: "Que me lo expliquen peteĩteĩ, hablado térã en un texto bien detallado",
-          guarani: "Oñemombe'u chéve peteĩteĩ, ñe'ẽme térã kuatiañe'ẽ detállepe",
+          jopara: "Oñemyesakã chéve umi paso peteĩteĩ, ñe'ẽ rupive térã peteĩ texto hesakã porãva-pe",
+          guarani: "Oñemombe'u chéve umi paso peteĩteĩ, ñe'ẽme térã kuatiañe'ẽ detállepe",
           castellano: "Que me lo expliquen paso a paso, hablado o en un texto bien detallado",
         },
       },
       {
         canal: CANAL.KINESTESICO,
         texto: {
-          jopara: "Probarlo che voi en un simulador, moviendo variables",
-          guarani: "Ajapo che voi peteĩ simulador-pe, amyi variable-kuéra",
+          jopara: "Añeha'ã chejehegui peteĩ simulador-pe, amongu'évo umi variable",
+          guarani: "Ajapo chejehegui peteĩ simulador-pe, amyi variable-kuéra",
           castellano: "Probarlo yo mismo/a en un simulador, moviendo variables",
         },
       },
@@ -63,32 +71,33 @@ export const PREGUNTAS_DIAGNOSTICO = [
   {
     id: "herramienta_resolucion",
     texto: {
-      jopara: "Para resolver peteĩ problema de física, ¿qué herramienta preferís usar?",
-      guarani: "Eresolve haguã peteĩ física mba'e apo, mba'e herramienta piko reipotave?",
+      // Propuesta del equipo (26/09), con el -pa de pregunta agregado.
+      jopara: "Rejapo hag̃ua peteĩ problema física-pegua, mba'e rupivépa rejaposeve?",
+      guarani: "Eresolve hag̃ua peteĩ física mba'e apo, mba'e herramienta piko reipotave?",
       castellano: "Para resolver un problema de física, ¿qué herramienta preferís usar?",
     },
     opciones: [
       {
         canal: CANAL.VISUAL,
         texto: {
-          jopara: "Un dibujo térã diagrama del problema, con flechas ha datos marcados",
-          guarani: "Peteĩ ta'anga térã diagrama upe mba'e apo-gui, flecha ha dato-ndive",
+          jopara: "Peteĩ dibujo térã diagrama problema rehegua, flecha ha dato marcado reheve",
+          guarani: "Peteĩ ta'ãnga térã diagrama upe mba'e apo-gui, flecha ha dato-ndive",
           castellano: "Un dibujo o diagrama del problema, con flechas y datos marcados",
         },
       },
       {
         canal: CANAL.AUDITIVO,
         texto: {
-          jopara: "Una explicación escrita térã narrada del razonamiento, peteĩteĩ",
-          guarani: "Peteĩ explicación ojehaíva térã oje'éva, peteĩteĩ",
+          jopara: "Peteĩ explicación ojehaíva térã oñemombe'úva, paso peteĩteĩ",
+          guarani: "Peteĩ explicación ojehaíva térã oje'éva, umi paso peteĩteĩ",
           castellano: "Una explicación escrita o narrada del razonamiento, paso por paso",
         },
       },
       {
         canal: CANAL.KINESTESICO,
         texto: {
-          jopara: "Un simulador donde ikatu mover variables ha ver qué cambia",
-          guarani: "Peteĩ simulador amyi haguã variable ha ahecha mba'épa ojekuaa",
+          jopara: "Peteĩ simulador ikatuhápe amongu'e umi variable ha ahecha mba'épa oñemoambue",
+          guarani: "Peteĩ simulador amyi hag̃ua variable ha ahecha mba'épa oñemoambue",
           castellano: "Un simulador donde puedo mover variables y ver qué cambia",
         },
       },
@@ -97,31 +106,32 @@ export const PREGUNTAS_DIAGNOSTICO = [
   {
     id: "ayuda_error",
     texto: {
-      jopara: "Cuando te equivocás en un ejercicio, ¿qué te ayuda iporãve a entender mamópa te trabaste?",
-      guarani: "Rejavy ramo peteĩ ejercicio-pe, mba'épa ndéve iporãve reikuaa haguã mamópa rejavy?",
+      // Propuesta del equipo (26/09).
+      jopara: "Rejavy jave peteĩ ejercicio-pe, mba'épa nepytyvõve reikuaa hag̃ua mamópa oĩ pe jejavy?",
+      guarani: "Rejavy ramo peteĩ ejercicio-pe, mba'épa ndéve iporãve reikuaa hag̃ua mamópa rejavy?",
       castellano: "Cuando te equivocás en un ejercicio, ¿qué te ayuda a entender dónde te trabaste?",
     },
     opciones: [
       {
         canal: CANAL.VISUAL,
         texto: {
-          jopara: "Ver el error marcado en un gráfico térã diagrama",
-          guarani: "Ehecha upe error peteĩ ta'anga-pe marcádo",
+          jopara: "Ahecha pe jejavy ojehaíva peteĩ gráfico térã diagrama-pe",
+          guarani: "Ahecha upe error peteĩ ta'ãnga-pe marcádo",
           castellano: "Ver el error marcado en un gráfico o diagrama",
         },
       },
       {
         canal: CANAL.AUDITIVO,
         texto: {
-          jopara: "Que me expliquen con palabras mamópa me confundí",
-          guarani: "Oñemombe'u chéve ñe'ẽme mamópa aikuaaseve",
+          jopara: "Oñemyesakã chéve ñe'ẽ rupive mamópa ajavy",
+          guarani: "Oñemombe'u chéve ñe'ẽme mamópa ajavy",
           castellano: "Que me expliquen con palabras dónde me confundí",
         },
       },
       {
         canal: CANAL.KINESTESICO,
         texto: {
-          jopara: "Volver a intentarlo cambiando algo ha ver qué resultado da",
+          jopara: "Añeha'ã jey, amoambuévo peteĩ mba'e, ha ahecha mba'e resultado-pa osẽ",
           guarani: "Ajapo jey amboje'ýi peteĩ mba'e ha ahecha mba'épa osẽ",
           castellano: "Volver a intentarlo cambiando algo y ver qué resultado da",
         },
