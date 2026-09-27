@@ -34,7 +34,7 @@ export default function PantallaRol({ onSeleccionar }) {
         {/* Punto que late: el mismo "Profe en línea" del encabezado */}
         <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-lowest border border-surface-container-high shadow-elevation-1 text-label-md font-semibold text-on-surface">
           <span className="w-2 h-2 rounded-full bg-tertiary pulso-presencia" aria-hidden="true" />
-          {"Mba'éichapa! Soy Profe Física"}
+          {"Néike, py'aguasu! Soy Profe Física"}
         </span>
         <h1 className="text-[38px] leading-[1.15] sm:text-[52px] font-bold tracking-tight text-on-surface">
           {/* "Física" en una cajita que brilla (idea de midu.dev) */}

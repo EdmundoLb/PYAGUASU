@@ -33,7 +33,7 @@
       "ejemplo": "Mba'éichapa! Jahecha ko ejercicio.",
       "traduccion": "¡Hola! Veamos este ejercicio.",
       "confianza": "Consolidado",
-      "nota": "Saludo de apertura."
+      "nota": "Saludo general. Para abrir un ejercicio el tutor usa 'Néike, py'aguasu!' (ver L141)."
     },
     {
       "id": "L002",
@@ -1563,6 +1563,17 @@
       "traduccion": "Que queda en fila.",
       "confianza": "Validar",
       "nota": "No usar como 'recta' matemática sin validar."
+    },
+    {
+      "id": "L141",
+      "categoria": "Aula",
+      "termino": "Néike, py'aguasu!",
+      "castellano": "¡Dale, valiente! (ánimo para arrancar sin miedo)",
+      "modulo": "Ambos",
+      "ejemplo": "Néike, py'aguasu! Jahecha ko ejercicio.",
+      "traduccion": "¡Dale, valiente! Veamos este ejercicio.",
+      "confianza": "Consolidado",
+      "nota": "Frase de la app, pedida por el equipo: abre el primer mensaje y da ánimo cuando el alumno se equivoca o le falta algo. néike = ánimo; py'aguasu = sin miedo (nombre de la app)."
     }
   ],
   "morfologia": [
@@ -1979,6 +1990,11 @@
       "error": "Ignorar armonía nasal",
       "por_que": "'jañepyrũ' es incorrecto.",
       "solucion": "'ñañepyrũ' (raíz nasal)."
+    },
+    {
+      "error": "Verbo castellano sin prefijo después de 'mboýpa' ('mboýpa vale')",
+      "por_que": "En jopara el verbo castellano toma el prefijo personal guaraní: 3ª persona o-.",
+      "solucion": "Decir 'mboýpa ovale'."
     }
   ],
   "plantillas_corrector": [

@@ -18,6 +18,9 @@ export const CORRECCIONES_VOCABULARIO = [
   // (la base usa "ha'e" = es). ⚠️ Lingüista: confirmar.
   [/\bhekopeteĩnte\b/gi, 'hekopete'],
   [/\bupéva\s+da\b/gi, "upéva ha'e"],
+  // Pedido por el equipo (26/09): el verbo castellano lleva el prefijo o- de
+  // 3ª persona después de "mboýpa" → "mboýpa ovale" (también en la base).
+  [/\bmbo[yý]pa\s+vale\b/gi, 'mboýpa ovale'],
   // Corregido por el equipo (26/09): "ha katu" → "ha ikatu" (también en la base).
   [/\bha\s+katu\b/gi, 'ha ikatu'],
   // Base jopara, "Errores a evitar": armonía nasal (raíz nasal → ña-).

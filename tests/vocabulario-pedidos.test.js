@@ -16,6 +16,21 @@ describe('corregirVocabulario', () => {
     expect(corregirVocabulario('umi temimbo\'ekuéra')).toBe('umi temimbo\'ekuéra'); // sin numeral: plural correcto
   });
 
+  it('"mboýpa vale" → "mboýpa ovale" (prefijo o- de 3ª persona)', () => {
+    expect(corregirVocabulario('¿mboýpa vale la cantidad de movimiento?')).toBe('¿mboýpa ovale la cantidad de movimiento?');
+    expect(corregirVocabulario('Mboýpa vale p1?')).toBe('Mboýpa ovale p1?');
+    expect(corregirVocabulario('mboypa vale')).toBe('mboýpa ovale');
+    expect(corregirVocabulario('¿mboýpa ovale?')).toBe('¿mboýpa ovale?'); // ya correcto: no cambia
+    expect(corregirVocabulario('Eso vale 20 m/s')).toBe('Eso vale 20 m/s'); // "vale" solo, en castellano: no se toca
+  });
+
+  it('el prompt abre con "Néike, py\'aguasu!" y pide "mboýpa ovale"', () => {
+    const s = construirInstruccionSistema({ materia: 'Física', idioma: 'jopara' });
+    expect(s).toContain("abrí el PRIMER mensaje con \"Néike, py'aguasu!\"");
+    expect(s).toContain('NUNCA "¿mboýpa vale…?"');
+    expect(s).not.toMatch(/Saludo[^\n]*"Mba'éichapa!"/);
+  });
+
   it('palabras mal armadas vistas en pruebas (26/09)', () => {
     expect(corregirVocabulario('Pe papapy -2.5 hekopeteĩnte oĩ!')).toBe('Pe papapy -2.5 hekopete oĩ!');
     expect(corregirVocabulario('upéva da 24000 kg·m/s')).toBe("upéva ha'e 24000 kg·m/s");

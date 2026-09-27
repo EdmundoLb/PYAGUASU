@@ -8,9 +8,9 @@ const OPCIONES = [
     descripcion: "Castellano mezclado con guaraní paraguayo, como se habla en el día a día.",
     // Una frase de muestra: se entiende mejor la diferencia "escuchando"
     // cómo te va a hablar el profe que leyendo una definición. Tomada de la
-    // base jopara del equipo (L001, confianza "Consolidado") — no inventar
-    // frases acá sin pasar por el lingüista.
-    muestra: "Mba'éichapa! Jahecha ko ejercicio.",
+    // base jopara del equipo (L141, el saludo de apertura del tutor) — no
+    // inventar frases acá sin pasar por el lingüista.
+    muestra: "Néike, py'aguasu! Jahecha ko ejercicio.",
     icono: "forum",
     acentoIcono: "bg-primary-fixed text-primary",
     recomendado: true,
@@ -22,7 +22,7 @@ const OPCIONES = [
     valor: "castellano",
     titulo: "Castellano",
     descripcion: "Español simple y directo, sin mezclar con guaraní.",
-    muestra: "¡Hola! Veamos este ejercicio.",
+    muestra: "¡Dale, sin miedo! Veamos este ejercicio.",
     icono: "chat",
     acentoIcono: "bg-secondary-fixed text-secondary",
   },
