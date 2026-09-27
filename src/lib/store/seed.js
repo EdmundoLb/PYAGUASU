@@ -73,13 +73,26 @@ export function seedInicial(db) {
     creadoEn: new Date().toISOString(),
   });
 
-  // Plan de contenido de Física.
+  // Plan de contenido de Física: SOLO choques, el único tema validado con
+  // la organización (27/09). Los tres tipos salen del material de
+  // lib/conceptos/choques.js. Es lo que ve el alumno en "Elegir un tema" y
+  // el docente en el plan de contenido de la clase de ejemplo.
   const temasDef = [
-    { titulo: 'Cinemática', descripcion: 'Movimiento, velocidad y aceleración.', dificultadSugerida: 'facil' },
-    { titulo: 'Dinámica y leyes de Newton', descripcion: 'Fuerzas y sus efectos sobre el movimiento.', dificultadSugerida: 'medio' },
-    { titulo: 'Cantidad de movimiento', descripcion: 'Choques e impulso.', dificultadSugerida: 'medio' },
-    { titulo: 'Trabajo y energía', descripcion: 'Trabajo mecánico, energía cinética y potencial.', dificultadSugerida: 'medio' },
-    { titulo: 'Estática y equilibrio', descripcion: 'Cuerpos en reposo y equilibrio de fuerzas.', dificultadSugerida: 'dificil' },
+    {
+      titulo: 'Choque perfectamente inelástico',
+      descripcion: 'Los cuerpos quedan unidos después del choque y se mueven juntos.',
+      dificultadSugerida: 'facil',
+    },
+    {
+      titulo: 'Choque de frente',
+      descripcion: 'Los cuerpos vienen en sentidos contrarios: uno tiene velocidad negativa.',
+      dificultadSugerida: 'medio',
+    },
+    {
+      titulo: 'Choque elástico',
+      descripcion: 'Los cuerpos rebotan y se separan después del choque.',
+      dificultadSugerida: 'dificil',
+    },
   ];
   const temas = temasDef.map((t, i) => {
     const id = crearId('tema');
@@ -120,9 +133,9 @@ export function seedInicial(db) {
 
   // Tareas asignadas por el docente (= sesiones de tutor configuradas).
   const tareasDef = [
-    { tema: temas[0], titulo: 'Practicá cinemática básica', dificultad: 'facil', xpRecompensa: 30 },
-    { tema: temas[2], titulo: 'Choques y cantidad de movimiento', dificultad: 'medio', xpRecompensa: 45 },
-    { tema: temas[3], titulo: 'Trabajo y energía en la vida real', dificultad: 'medio', xpRecompensa: 45 },
+    { tema: temas[0], titulo: 'Autos que quedan enganchados', dificultad: 'facil', xpRecompensa: 30 },
+    { tema: temas[1], titulo: 'Choque de frente en la ruta', dificultad: 'medio', xpRecompensa: 45 },
+    { tema: temas[2], titulo: 'Bolitas que rebotan', dificultad: 'dificil', xpRecompensa: 50 },
   ];
   const tareas = tareasDef.map(({ tema, titulo, dificultad, xpRecompensa }) => {
     const id = crearId('tarea');
@@ -147,24 +160,24 @@ export function seedInicial(db) {
   crearSesionHistorica(db, {
     alumnoId: alumnos[0].id,
     tareaId: tareas[0].id,
-    temaDetectado: 'Cinemática',
-    enunciado: 'Un auto acelera de 0 a 20 m/s en 5 segundos, ¿cuál es su aceleración?',
+    temaDetectado: 'Choque perfectamente inelástico',
+    enunciado: 'Un carrito de 2 kg a 3 m/s choca con otro de 1 kg en reposo y quedan unidos, ¿cuál es la velocidad final?',
     xpGanada: 35,
     diasAtras: 5,
   });
   crearSesionHistorica(db, {
     alumnoId: alumnos[0].id,
-    tareaId: tareas[1].id,
-    temaDetectado: 'Cantidad de movimiento',
+    tareaId: tareas[0].id,
+    temaDetectado: 'Choque perfectamente inelástico',
     enunciado: 'Un auto de 1200 kg viaja a 20 m/s y choca contra otro de 800 kg en reposo, quedan enganchados.',
     xpGanada: 45,
     diasAtras: 1,
   });
   crearSesionHistorica(db, {
     alumnoId: alumnos[1].id,
-    tareaId: tareas[0].id,
-    temaDetectado: 'Cinemática',
-    enunciado: 'Un ciclista recorre 100 m en 8 segundos, ¿cuál es su velocidad media?',
+    tareaId: tareas[1].id,
+    temaDetectado: 'Choque de frente',
+    enunciado: 'Un bloque de 4 kg a 5 m/s choca de frente con otro de 2 kg que viene a 3 m/s en sentido contrario; quedan unidos. ¿Cuál es la velocidad final?',
     xpGanada: 30,
     diasAtras: 3,
   });

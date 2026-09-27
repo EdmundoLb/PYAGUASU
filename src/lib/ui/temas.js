@@ -2,6 +2,10 @@
 // título, así un tema nuevo sin ícono propio igual se ve bien con el
 // genérico). Lo usan el selector de temas y el historial de progreso.
 const ICONOS_TEMA = [
+  // Tipos de choque (los únicos temas validados), antes que el genérico.
+  [/inel[aá]stic|unid|enganchad/i, "link"],
+  [/de frente|sentidos contrarios/i, "compare_arrows"],
+  [/(?<!in)el[aá]stic|rebot/i, "sports_handball"],
   [/cinem/i, "speed"],
   [/newton|din[aá]m|fuerza/i, "open_with"],
   [/cantidad de movimiento|choque|impulso/i, "sports_hockey"],

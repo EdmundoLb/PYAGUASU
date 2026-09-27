@@ -975,7 +975,14 @@ function SelectorTemaPractica({ onIniciarConTema }) {
 
           <button
             type="button"
-            onClick={() => onIniciarConTema({ tema: temaElegido.titulo, dificultad })}
+            // Título + descripción: "Choque de frente" solo no le dice a la IA
+            // si los cuerpos quedan unidos o rebotan.
+            onClick={() =>
+              onIniciarConTema({
+                tema: temaElegido.descripcion ? `${temaElegido.titulo} (${temaElegido.descripcion})` : temaElegido.titulo,
+                dificultad,
+              })
+            }
             className="boton-degradado min-h-[56px] rounded-full text-title-md font-semibold active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
           >
             <Icono nombre="auto_awesome" size={22} />

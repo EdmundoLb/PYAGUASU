@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { iniciarCapturaInstalacion } from "@/lib/ui/instalacion";
 
 // Componente sin UI: registra el service worker una sola vez. Da
 // instalabilidad (ícono de app, se abre sin barra del navegador) — no
@@ -36,6 +37,9 @@ function desinstalarEnDesarrollo() {
 
 export default function RegistrarServiceWorker() {
   useEffect(() => {
+    // Antes que nada: el aviso de "se puede instalar" llega una sola vez por
+    // carga y lo usa el botón BotonInstalar en cualquier pantalla.
+    iniciarCapturaInstalacion();
     if (!("serviceWorker" in navigator)) return;
     if (process.env.NODE_ENV !== "production") {
       desinstalarEnDesarrollo();

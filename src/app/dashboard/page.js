@@ -10,6 +10,7 @@ import BotonCerrarSesion from "@/components/BotonCerrarSesion";
 import EncabezadoPagina from "@/components/EncabezadoPagina";
 import AnilloNivel from "@/components/AnilloNivel";
 import EstadoVacio from "@/components/EstadoVacio";
+import BotonInstalar from "@/components/BotonInstalar";
 import { calcularNivel, xpParaSiguienteNivel } from "@/lib/gamificacion/niveles";
 import { iconoDeTema } from "@/lib/ui/temas";
 import { leerPerfilActivo, limpiarPerfilActivo } from "@/lib/identidad/perfilActivo";
@@ -164,6 +165,8 @@ export default function DashboardPage() {
                 </ul>
               )}
             </section>
+
+            <BotonInstalar />
 
             <BotonCerrarSesion className="self-center" />
           </div>

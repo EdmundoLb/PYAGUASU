@@ -1,5 +1,6 @@
 import Icono from "./Icono";
 import MascotaHero from "./MascotaHero";
+import BotonInstalar from "./BotonInstalar";
 
 const OPCIONES = [
   {
@@ -84,6 +85,7 @@ export default function PantallaRol({ onSeleccionar }) {
           <Icono nombre="lock_open" size={16} />
           Sin contraseña: elegís tu perfil de una lista.
         </p>
+        <BotonInstalar className="mt-2" />
       </section>
     </div>
   );

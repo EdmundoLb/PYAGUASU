@@ -22,14 +22,16 @@ const params = (o) => ({ params: Promise.resolve(o) });
 beforeEach(() => reiniciarDb());
 
 describe('seed', () => {
-  it('arranca con 1 docente, 6 alumnos, 5 temas, 3 tareas y 3 sesiones', () => {
+  it('arranca con 1 docente, 6 alumnos, 3 temas (solo choques), 3 tareas y 3 sesiones', () => {
     const db = obtenerDb();
     expect(listarPerfiles({ rol: 'docente' })).toHaveLength(1);
     expect(listarPerfiles({ rol: 'alumno' })).toHaveLength(6);
-    expect(db.temas.size).toBe(5);
+    expect(db.temas.size).toBe(3);
     expect(db.tareas.size).toBe(3);
     expect(db.sesiones.size).toBe(3);
-    expect(listarTemasPoblados().map((t) => t.orden)).toEqual([1, 2, 3, 4, 5]);
+    expect(listarTemasPoblados().map((t) => t.orden)).toEqual([1, 2, 3]);
+    // Solo choques: el único tema validado con la organización.
+    for (const t of listarTemasPoblados()) expect(t.titulo).toMatch(/^Choque /);
   });
 
   it('el ranking de la clase semilla está ordenado por XP', () => {
