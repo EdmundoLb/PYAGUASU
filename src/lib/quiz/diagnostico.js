@@ -154,7 +154,10 @@ export function calcularEstiloPredominante({ visualScore = 0, auditoryScore = 0,
 export function construirContextoAprendizaje(learningLevel) {
   const formatos = {
     visual:
-      'en cada paso, además del texto breve, completá "elementosEscena" con los objetos reales de este problema (nunca inventados): uno por cada dato relevante que el estudiante ya tiene en este paso, con una etiqueta corta usando el valor real (ej. "1200 kg, 20 m/s") y una dirección acorde al movimiento real de ese objeto en el problema. No es un texto para escribir aparte — es en vez del dibujo ASCII que se usaba antes. No uses ese campo para mostrar el resultado final antes de que corresponda revelarlo.',
+      // Antes pedía "elementosEscena" (íconos animados en el chat), que solo
+      // repetían los datos que ya se ven arriba: se sacó. Ahora la imagen va
+      // en el propio texto.
+      'ayudalo a "ver" el paso: describí en una frase corta lo que se vería en la escena real del problema (qué objeto se mueve, hacia dónde, qué cambia antes y después), y apoyá cada paso con la fórmula escrita en LaTeX para que la relación entre los datos se lea de un vistazo. Oraciones cortas, sin párrafos largos.',
     auditor:
       'contá el razonamiento de este problema como una narración hablada, en oraciones cortas y bien encadenadas ("primero... eso significa que... por eso..."), sin depender de diagramas ni de listas.',
     kinestesico:

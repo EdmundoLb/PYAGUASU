@@ -4,34 +4,6 @@
 
 import { CAMPOS_ALCANCE_SCHEMA } from './prompt';
 
-// Íconos de Material Symbols permitidos en "elementosEscena" (ver más abajo).
-// Whitelist cerrada a propósito: así la IA nunca puede "inventar" una
-// ligatura que no exista y termine mostrándose como texto roto en pantalla.
-export const ICONOS_ESCENA_PERMITIDOS = [
-  'directions_car',
-  'local_shipping',
-  'directions_bike',
-  'train',
-  'flight',
-  'directions_walk',
-  'directions_run',
-  'sports_soccer',
-  'circle',
-  'square',
-  'anchor',
-  'block',
-  'straighten',
-  'height',
-  'speed',
-  'scale',
-  'timer',
-  'bolt',
-  'arrow_forward',
-  'arrow_back',
-  'arrow_upward',
-  'arrow_downward',
-];
-
 export const TURNO_JSON_SCHEMA = {
   type: 'object',
   properties: {
@@ -125,20 +97,6 @@ export const TURNO_JSON_SCHEMA = {
           errorComun: { type: 'boolean' },
         },
         required: ['texto', 'correcta'],
-      },
-    },
-    elementosEscena: {
-      type: 'array',
-      description:
-        'OPCIONAL. Representación de la escena física de ESTE paso como objetos reales del problema (nunca inventados), solo para turnos donde tu instrucción de estilo te indique explícitamente usarla — en cualquier otro caso, array vacío. Máximo 5 elementos, uno por objeto/dato relevante YA conocido en este paso. Nunca incluyas acá el resultado final antes de que corresponda revelarlo.',
-      items: {
-        type: 'object',
-        properties: {
-          icono: { type: 'string', enum: ICONOS_ESCENA_PERMITIDOS },
-          etiqueta: { type: 'string', description: 'Texto corto, ej. "1200 kg, 20 m/s".' },
-          direccion: { type: 'string', enum: ['izquierda', 'derecha', 'arriba', 'abajo', 'ninguna'] },
-        },
-        required: ['icono', 'etiqueta', 'direccion'],
       },
     },
     variableExplorable: {

@@ -63,9 +63,12 @@ const GUIA_MATERIA_GENERICA = `
 - Aceptá respuestas equivalentes aunque estén dichas con otras palabras, si la idea central es correcta.`;
 
 // ---------------------------------------------------------------------------
-// Registro jopara. Principio: el guaraní lleva el afecto, los conectores, los
-// verbos cotidianos y las preguntas; el castellano lleva los términos técnicos,
-// los números y las fórmulas. Los ejemplos pesan más que las reglas.
+// Registro jopara. Principio: ~70% castellano y ~30% guaraní. La oración se
+// arma en castellano (explicación, términos técnicos, números, fórmulas) y el
+// guaraní entra en toques puntuales: saludo, ánimo, conectores, preguntas con
+// -pa y verbos guaranizados. Antes pedía "al menos 3 elementos en guaraní"
+// sin tope y los ejemplos eran casi todo guaraní: las respuestas salían ~75%
+// guaraní. Los ejemplos pesan más que las reglas.
 //
 // El vocabulario sale de la BASE LÉXICA DEL EQUIPO (jopara/base_jopara_tutor.json,
 // revisada por el lingüista), que se agrega completa al prompt (ver
@@ -75,17 +78,22 @@ const GUIA_MATERIA_GENERICA = `
 const GUIA_JOPARA = `
 Jopara = la mezcla natural de guaraní y castellano que se habla en la calle, en la casa y en el recreo en Paraguay. NO es guaraní académico ni "de diccionario". Imaginá a un profe joven de un colegio de Alto Paraná o Caaguazú charlando con sus alumnos.
 
-QUÉ VA EN GUARANÍ:
-- Saludos, ánimo y emociones.
-- Conectores y partículas cortas: ha, upéi, raẽ, upévare, upéicharõ, avei, katu, niko.
-- Preferí "nosotros" incluyéndolo (ja-/ña-) para acompañar: "jahecha", "ñañepyrũ", "ñamyatyrõ oñondive".
-- Preguntas con -pa: "Mboýpa…?", "Mba'épa…?", "Mba'érepa…?", "Hesakãpa?" (nunca doble marca: no "¿Cuánto mboýpa…?").
-- Verbos cotidianos de la base: jahecha/ehecha, jahai/ehai, jajapo/ejapo, eñeha'ã jey, emañamína, ehechakuaa.
+PROPORCIÓN (lo más importante de esta guía; manda sobre la regla de la base "estructura y trato en guaraní"):
+- Más o menos 70% castellano y 30% guaraní. La oración se arma en castellano y el guaraní entra en lugares puntuales.
+- Cada mensaje lleva entre 3 y 5 toques cortos de guaraní, repartidos (no todos en el saludo): por ejemplo un saludo o ánimo, un verbo guaranizado y una pregunta con -pa. Menos de 3 ya es castellano con una palabra decorativa.
+- Cada oración tiene su base en castellano. Nunca encadenes oraciones enteras en guaraní: eso ya es guaraní, no jopara. Esto vale también para los mensajes de ánimo y para las plantillas de corrección de la base: adaptalas a esta proporción.
+- Lo tiene que entender sin esfuerzo un estudiante que sabe poco guaraní.
 
-QUÉ QUEDA EN CASTELLANO:
+DÓNDE VA EL GUARANÍ (toques cortos):
+- Saludo, felicitación y ánimo, con frases cortas de la base: "Mba'éichapa!", "Iporãiterei!", "Hekopete!", "Ani ejepy'apy".
+- Algún conector o partícula corta: ha, upéi, avei, katu, niko.
+- Preguntas con -pa en frases cortas: "¿mboýpa te da la velocidad?", "Hesakãpa?" (nunca doble marca: no "¿Cuánto mboýpa…?").
+- Verbos castellanos guaranizados con ja-/ña- para acompañar: "jadivide", "ñadespeja", "jacalcula", "ñamyatyrõ oñondive".
+
+QUÉ VA EN CASTELLANO:
+- La estructura de la oración y la explicación del paso.
 - Todo término técnico de la materia (lista cerrada en la base): velocidad, masa, cantidad de movimiento, aceleración, energía, fuerza, ecuación, incógnita, fórmula.
 - Los números (siempre en cifras), las unidades y las fórmulas.
-- La parte exacta de un paso, cuando la claridad importa más que el estilo.
 
 VERBOS CASTELLANOS GUARANIZADOS (cuando no hay término en la base, así habla la gente de verdad):
 Prefijo guaraní + raíz castellana: jasuma, jarresta, jamultiplica, jadivide, ñadespeja, ñareemplaza, jacalcula.
@@ -101,6 +109,7 @@ GRAMÁTICA MÍNIMA QUE TENÉS QUE RESPETAR (ver también la morfología de la ba
 5. Ortografía: puso (') y nasales: mba'e, iporã, mokõi, ko'ág̃a, hag̃ua.
 
 EVITÁ SIEMPRE:
+- Oraciones enteras en guaraní una detrás de otra (se pierde el estudiante que sabe poco guaraní).
 - Números en guaraní.
 - "ndaje" en tus explicaciones (significa "dicen que": resta autoridad).
 - Traducir "masa" como "pohýi" (es peso) o "tiempo" como "ára" (es día/clima).
@@ -116,13 +125,13 @@ FRASES POR MOMENTO (todas de la base del equipo):
 - Cierre: "Aguyje!", "Jajotopata".
 
 EJEMPLOS:
+❌ MALO — demasiado guaraní (así salía antes, NO): "Mba'éichapa! Jahecha ko ejercicio oñondive. Peteĩ colectivo oho pya'e ha tekotevẽ ojoko porã."
 ❌ MALO — guaraní académico: "Ñamboja'o pa'ũ papapy ára rehe."
 ❌ MALO — castellano con una palabra decorativa: "Muy bien, ahora dividimos la distancia por el tiempo, iporã."
-✅ BUENO (acierto): "Iporãiterei! Pe paso hekopete: $v = \\frac{d}{t}$. Ko'ág̃a jadivide 100 m por 20 s: mboýpa ha'e pe velocidad?"
-✅ BUENO (error): "Iporã rejapo pe planteo. Oĩ peteĩ jejavy'i: emañamína las unidades-re, pe distancia oĩ km-pe ha pe tiempo segundo-pe. Mba'épa jajapo raẽ?"
-✅ BUENO (miedo): "Ani rekyhyje jejavýgui: jejavy rupi jaikuaa. Jahecha mbeguekatu: mba'épa oiko pe auto ndive?"
-
-PROPORCIÓN: cada mensaje lleva al menos 3 elementos en guaraní (saludo o ánimo, conector, verbo o pregunta), pero tiene que entenderse igual aunque el estudiante sepa poco guaraní.`;
+✅ BUENO (arranque): "Mba'éichapa! Vamos a ver este ejercicio juntos. Primero, ¿mboýpa es la velocidad inicial en m/s?"
+✅ BUENO (acierto): "Iporãiterei! Ese paso está hekopete: $v = \\frac{d}{t}$. Ahora jadivide 100 m por 20 s: ¿mboýpa te da la velocidad?"
+✅ BUENO (error): "Oĩ peteĩ jejavy'i: fijate que la distancia está en km y el tiempo en segundos. Ñamyatyrõ oñondive: ¿qué hacemos primero?"
+✅ BUENO (miedo): "Ani ejepy'apy, equivocarse es parte de aprender. Vamos despacito: ¿qué le pasa al auto después del choque?"`;
 
 const GUIA_GUARANI = `
 Escribí en guaraní paraguayo lo más completo y natural posible, evitando mezclar palabras en castellano salvo préstamos ya asentados en el habla cotidiana (los términos técnicos de la lista cerrada de la base, las unidades y los números — nunca en guaraní). Mantené el mismo tono cálido, cercano y paciente. Usá el vocabulario, la morfología y las plantillas de la base léxica del equipo; no inventes palabras que no estén ahí. Las mismas prohibiciones de la guía jopara aplican acá: nunca uses "tavy" ni ningún término despectivo o burlón.`;
@@ -144,6 +153,11 @@ function construirSeccionIdioma(idioma) {
   if (!idioma || idioma === 'guarani') secciones.push(`- Si el idioma pedido es "guarani":\n${GUIA_GUARANI}`);
   if (!idioma || idioma === 'castellano') secciones.push(`- Si el idioma pedido es "castellano":\n${GUIA_CASTELLANO}`);
   if (idioma !== 'castellano') secciones.push(`- Referencia de vocabulario para jopara y guaraní:\n${GUIA_BASE_JOPARA}`);
+  // La base del equipo dice "estructura y trato en guaraní": en modo jopara
+  // manda la PROPORCIÓN de la guía (~70% castellano). Va al final porque el
+  // modelo pesa más lo último que lee.
+  if (!idioma || idioma === 'jopara')
+    secciones.push('- Recordatorio para jopara: usá la base solo como vocabulario. La proporción manda: más o menos 70% castellano y 30% guaraní, con la oración armada en castellano y 3 a 5 toques cortos de guaraní repartidos en el mensaje.');
   return secciones.join('\n');
 }
 
@@ -308,7 +322,7 @@ export const MENSAJE_CORRECCION_CALCULO =
   '[SISTEMA_INTERNO] Tu cálculo del paso anterior no es matemáticamente correcto (se verificó automáticamente). Recalculá ese mismo paso con cuidado, con los mismos datos, y volvé a responder con el cálculo corregido.';
 
 const ETIQUETAS_IDIOMA = {
-  jopara: 'guaraní jopara (mezcla natural con castellano)',
+  jopara: 'jopara: castellano con toques de guaraní (más o menos 70% castellano y 30% guaraní)',
   guarani: 'guaraní paraguayo completo (sin mezclar castellano, salvo préstamos ya asentados)',
   castellano: 'castellano (español), sin mezclar con guaraní',
 };

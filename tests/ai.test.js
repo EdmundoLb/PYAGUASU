@@ -7,7 +7,7 @@ import {
   construirPrefijoIdioma,
   construirSolicitudProblemaGenerado,
 } from '@/lib/ai/prompt';
-import { TURNO_JSON_SCHEMA, ICONOS_ESCENA_PERMITIDOS } from '@/lib/ai/schema';
+import { TURNO_JSON_SCHEMA } from '@/lib/ai/schema';
 
 vi.mock('@/lib/ai/providers/gemini', () => ({ avanzarTurnoConGemini: vi.fn() }));
 vi.mock('@/lib/ai/providers/claude', () => ({ avanzarTurnoConClaude: vi.fn() }));
@@ -168,8 +168,8 @@ describe('schema', () => {
     expect(s).toMatch(/\(1\) qué principio o fórmula se usa y por qué, \(2\) los datos reemplazados con sus unidades, \(3\) el resultado/);
   });
 
-  it('el enum de íconos coincide con la whitelist', () => {
-    expect(TURNO_JSON_SCHEMA.properties.elementosEscena.items.properties.icono.enum).toBe(ICONOS_ESCENA_PERMITIDOS);
+  it('el esquema ya no pide la escena de íconos (se sacó del chat)', () => {
+    expect(TURNO_JSON_SCHEMA.properties.elementosEscena).toBeUndefined();
   });
 });
 
@@ -197,18 +197,12 @@ describe('avanzarTurno (proveedor simulado)', () => {
     await expect(avanzarTurno({ esInicial: true, enunciado: 'x' })).rejects.toThrow(/API key/);
   });
 
-  it('completa defaults y sanea escena / variable explorable', async () => {
+  it('completa defaults y sanea la variable explorable', async () => {
     avanzarTurnoConGemini.mockResolvedValue({
       ...turnoBase,
-      elementosEscena: [
-        { icono: 'directions_car', etiqueta: 'auto', direccion: 'derecha' },
-        { icono: 'rm -rf', etiqueta: 'malo', direccion: 'ninguna' },
-        { icono: 'speed', etiqueta: '', direccion: 'ninguna' },
-      ],
       variableExplorable: { etiqueta: 'm', valorActual: 50, valorMin: 100, valorMax: 10, tendencia: 'directa' },
     });
     const turno = await avanzarTurno({ esInicial: true, enunciado: 'Un auto...' });
-    expect(turno.elementosEscena).toHaveLength(1);
     expect(turno.variableExplorable).toBeNull();
     expect(turno.opciones).toEqual([]);
     expect(turno.opcionesRespuesta).toEqual([]);

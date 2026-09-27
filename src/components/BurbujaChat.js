@@ -1,7 +1,6 @@
 "use client";
 
 import Icono from "./Icono";
-import DiagramaEscena from "./DiagramaEscena";
 import SimuladorVariable from "./SimuladorVariable";
 import MascotaProfe from "./MascotaProfe";
 import RenderizadorMatematico from "./RenderizadorMatematico";
@@ -69,7 +68,6 @@ export default function BurbujaChat({
   texto,
   activa = false,
   estadoTurno = "nueva",
-  elementosEscena = [],
   variableExplorable = null,
   conceptos = [],
   onAbrirConcepto,
@@ -98,7 +96,6 @@ export default function BurbujaChat({
             {acento.texto}
           </span>
         </div>
-        <DiagramaEscena elementos={elementosEscena} />
         <p className="text-body-lg leading-relaxed text-on-surface pl-11 -mt-1">
           {/* Durante la escritura las fórmulas aparecen completas y ya
               renderizadas; antes se veía el LaTeX crudo ("$v$") hasta el final. */}

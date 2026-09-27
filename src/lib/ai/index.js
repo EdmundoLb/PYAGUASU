@@ -1,6 +1,5 @@
 import { avanzarTurnoConGemini } from './providers/gemini';
 import { avanzarTurnoConClaude } from './providers/claude';
-import { ICONOS_ESCENA_PERMITIDOS } from './schema';
 import { verificarCalculo } from './verificacion';
 import { repararEscapesEnObjeto } from '../latex/escapes';
 import { esCierrePrematuro, anularCierre } from './cierre';
@@ -29,16 +28,9 @@ import {
 // un proveedor podría no cumplirlo al 100% — un ícono desconocido se
 // renderiza como texto literal roto, así que filtramos antes de mandarlo
 // al frontend.
-function sanearElementosEscena(elementos) {
-  if (!Array.isArray(elementos)) return [];
-  return elementos
-    .filter((el) => el && ICONOS_ESCENA_PERMITIDOS.includes(el.icono) && el.etiqueta)
-    .slice(0, 5);
-}
-
 const TENDENCIAS_VALIDAS = ['directa', 'inversa'];
 
-// Misma defensa en profundidad que sanearElementosEscena: un rango roto
+// Defensa en profundidad: un rango roto
 // (min >= max, o el valor actual afuera del rango) haría que el slider del
 // frontend no tenga sentido — mejor no mostrar nada a mostrar algo inválido.
 function sanearVariableExplorable(variable) {
@@ -301,7 +293,6 @@ export async function avanzarTurno({
     opcionesRespuesta: Array.isArray(turno.opcionesRespuesta) ? turno.opcionesRespuesta : [],
     requiereOpcion: Boolean(turno.requiereOpcion),
     opciones: Array.isArray(turno.opciones) ? turno.opciones : [],
-    elementosEscena: sanearElementosEscena(turno.elementosEscena),
     variableExplorable: sanearVariableExplorable(turno.variableExplorable),
     proveedor,
   };

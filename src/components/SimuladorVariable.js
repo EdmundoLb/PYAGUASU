@@ -17,8 +17,7 @@ function calcularDuracion({ valorActual, tendencia }, valorSlider) {
   return Math.min(4, Math.max(0.3, duracion));
 }
 
-// Widget interactivo real (a diferencia de DiagramaEscena, que es un dibujo
-// de un solo tiro): el estudiante arrastra una variable de ESTE problema y
+// Widget interactivo: el estudiante arrastra una variable de ESTE problema y
 // ve un ícono acelerar/frenar según la tendencia que declaró la IA — nunca
 // un número de resultado, solo la tendencia. Solo aparece para el estilo de
 // aprendizaje que la IA decida llenar "variableExplorable" (ver
