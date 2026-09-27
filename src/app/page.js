@@ -97,7 +97,7 @@ const ESTADO_INICIAL = {
   kinestheticScore: 0,
   learningLevel: "", // 'visual' | 'auditor' | 'kinestesico', calculado al cerrar el test
   enunciado: "",
-  historial: [], // [{ autor: 'estudiante' | 'tutor', texto, elementosEscena?, variableExplorable? }]
+  historial: [], // [{ autor: 'estudiante' | 'tutor', texto, variableExplorable? }]
   tema: "",
   datos: [],
   incognita: "",
@@ -393,7 +393,6 @@ export default function Home() {
           {
             autor: "tutor",
             texto: turno.mensaje,
-            elementosEscena: turno.elementosEscena || [],
             variableExplorable: turno.variableExplorable || null,
           },
         ],
@@ -493,7 +492,6 @@ export default function Home() {
           {
             autor: "tutor",
             texto: turno.mensaje,
-            elementosEscena: turno.elementosEscena || [],
             variableExplorable: turno.variableExplorable || null,
           },
         ];
@@ -874,6 +872,13 @@ function PantallaInicio({ perfil, onCambiarPerfil, inputEnunciado, setInputEnunc
 
 const ETIQUETA_DIFICULTAD = { facil: "Fácil", medio: "Medio", dificil: "Difícil" };
 const ICONO_DIFICULTAD = { facil: "signal_cellular_1_bar", medio: "signal_cellular_3_bar", dificil: "signal_cellular_4_bar" };
+// Etiqueta de dificultad sugerida en cada tarjeta de tema (idea de las
+// etiquetas "Nuevo"/"Gratis" de midu.dev).
+const COLOR_DIFICULTAD = {
+  facil: "bg-tertiary-fixed text-on-tertiary-fixed",
+  medio: "bg-secondary-fixed text-on-secondary-fixed",
+  dificil: "bg-error-container text-on-error-container",
+};
 
 // Catálogo de temas para practicar sin necesidad de escribir un enunciado
 // propio ni pertenecer a ninguna clase — el tutor inventa un problema
@@ -897,7 +902,7 @@ function SelectorTemaPractica({ onIniciarConTema }) {
       <span className="text-title-md font-semibold text-on-surface">Elegí un tema y te armo un problema</span>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5" role="radiogroup" aria-label="Tema">
         {cargando &&
-          Array.from({ length: 5 }).map((_, i) => <span key={i} className="h-[92px] rounded-2xl esqueleto" aria-hidden="true" />)}
+          Array.from({ length: 5 }).map((_, i) => <span key={i} className="h-[120px] rounded-2xl esqueleto" aria-hidden="true" />)}
         {temas.map((tema) => {
           const elegido = temaElegido?.id === tema.id;
           return (
@@ -906,8 +911,12 @@ function SelectorTemaPractica({ onIniciarConTema }) {
               type="button"
               role="radio"
               aria-checked={elegido}
-              onClick={() => setTemaElegido(tema)}
-              className={`tarjeta-interactiva relative min-h-[92px] p-3 rounded-2xl border-2 text-left flex flex-col gap-2 ${
+              onClick={() => {
+                setTemaElegido(tema);
+                // Arranca en la dificultad que sugiere el tema (antes siempre "Medio").
+                if (ETIQUETA_DIFICULTAD[tema.dificultadSugerida]) setDificultad(tema.dificultadSugerida);
+              }}
+              className={`tarjeta-interactiva relative min-h-[120px] p-3 rounded-2xl border-2 text-left flex flex-col gap-2 ${
                 elegido
                   ? "border-primary bg-primary-fixed text-on-primary-fixed shadow-elevation-2"
                   : "border-surface-container-high bg-surface-container-low text-on-surface"
@@ -921,6 +930,19 @@ function SelectorTemaPractica({ onIniciarConTema }) {
                 <Icono nombre={iconoDeTema(tema.titulo)} size={20} />
               </span>
               <span className="text-body-sm font-semibold leading-tight">{tema.titulo}</span>
+              <span className="mt-auto flex flex-wrap gap-1">
+                {ETIQUETA_DIFICULTAD[tema.dificultadSugerida] && (
+                  <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wide ${COLOR_DIFICULTAD[tema.dificultadSugerida]}`}>
+                    {ETIQUETA_DIFICULTAD[tema.dificultadSugerida]}
+                  </span>
+                )}
+                {buscarConcepto({ tema: tema.titulo }) && (
+                  <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wide bg-primary-fixed text-on-primary-fixed">
+                    <Icono nombre="science" size={11} />
+                    Con simulador
+                  </span>
+                )}
+              </span>
               {elegido && <Icono nombre="check_circle" size={20} className="absolute top-2.5 right-2.5 text-primary" />}
             </button>
           );
@@ -1112,7 +1134,6 @@ function ConversacionTutor({
               texto={turno.texto}
               activa={activa}
               estadoTurno={activa ? estadoTurnoActivo : undefined}
-              elementosEscena={turno.elementosEscena}
               variableExplorable={turno.variableExplorable}
               conceptos={concepto && turno.autor === "tutor" ? detectarConceptos(turno.texto) : []}
               onAbrirConcepto={setConceptoAbierto}

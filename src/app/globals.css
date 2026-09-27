@@ -120,12 +120,13 @@
   color-scheme: light;
 }
 
-/* Modo oscuro automático (según el sistema): para estudiar de noche sin
-   encandilarse. Se redefinen los mismos tokens de @theme, así todas las
-   clases de Tailwind (bg-surface, text-primary…) se adaptan solas. Los
-   "-fixed" pasan a ser tintes oscuros suaves (en claro son pasteles). */
-@media (prefers-color-scheme: dark) {
-  :root {
+/* Modo oscuro: para estudiar de noche sin encandilarse. Lo activa
+   <html data-theme="oscuro">, que pone el script de layout.js según lo que
+   eligió el alumno con el botón sol/luna o, si nunca eligió, según el
+   sistema (ver lib/ui/tema.js). Se redefinen los mismos tokens de @theme,
+   así todas las clases de Tailwind (bg-surface, text-primary…) se adaptan
+   solas. Los "-fixed" pasan a ser tintes oscuros suaves (en claro son pasteles). */
+:root[data-theme="oscuro"] {
     color-scheme: dark;
     --color-surface: #0e1220;
     --color-surface-dim: #0e1220;
@@ -180,7 +181,6 @@
     --shadow-elevation-1: 0 1px 2px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.03);
     --shadow-elevation-2: 0 4px 14px -4px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.04);
     --shadow-elevation-3: 0 14px 34px -10px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.05);
-  }
 }
 
 body {
@@ -270,8 +270,10 @@ body {
     transform: translateY(0);
   }
 }
+/* "backwards" (no "both"): al terminar, la animación suelta el transform;
+   si no, pisa el efecto de hover/apretar de .tarjeta-interactiva y .tarjeta-3d. */
 .escalonado > * {
-  animation: entradaSuave 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation: entradaSuave 420ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
 }
 .escalonado > *:nth-child(2) { animation-delay: 60ms; }
 .escalonado > *:nth-child(3) { animation-delay: 120ms; }
@@ -365,6 +367,23 @@ body::before {
   animation: flotarFondo 22s ease-in-out infinite alternate;
 }
 
+/* Hoja de cuaderno cuadriculado de fondo (como la de la carpeta de física):
+   líneas finas con el color del texto al 6%, que se desvanecen hacia abajo
+   y a los costados para no molestar la lectura. Idea tomada de moure.dev. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--color-on-surface) 6%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--color-on-surface) 6%, transparent) 1px, transparent 1px);
+  background-size: 28px 28px;
+  -webkit-mask-image: radial-gradient(ellipse 90% 75% at 50% 0%, #000 35%, transparent 100%);
+  mask-image: radial-gradient(ellipse 90% 75% at 50% 0%, #000 35%, transparent 100%);
+}
+
 @keyframes flotarFondo {
   from {
     transform: translate3d(0, 0, 0) scale(1);
@@ -385,15 +404,22 @@ body::before {
 .boton-degradado {
   background: linear-gradient(135deg, var(--marca-profundo) 0%, var(--marca-azul) 55%, var(--marca-naranja) 135%);
   color: #fff;
-  box-shadow: 0 8px 20px -8px color-mix(in srgb, var(--marca-azul) 70%, transparent),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18);
-  transition: transform 200ms, filter 200ms, box-shadow 200ms;
+  transition: transform 150ms, filter 200ms, box-shadow 150ms;
 }
 
-.boton-degradado:hover:not(:disabled) {
+/* Solo en botones y links de verdad: sombra sólida abajo (botón "3D" que se
+   hunde al apretar, idea de moure.dev en versión juego) + sombra suave. La
+   clase también pinta barras de progreso, chips y el "IA" del logo, que no
+   llevan esta sombra. */
+:is(button, a).boton-degradado {
+  box-shadow: 0 4px 0 #001a6b, 0 10px 22px -8px color-mix(in srgb, var(--marca-azul) 70%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+:is(button, a).boton-degradado:hover:not(:disabled) {
   transform: translateY(-2px);
   filter: brightness(1.08);
-  box-shadow: 0 12px 26px -8px color-mix(in srgb, var(--marca-azul) 80%, transparent),
+  box-shadow: 0 6px 0 #001a6b, 0 14px 28px -8px color-mix(in srgb, var(--marca-azul) 80%, transparent),
     inset 0 1px 0 rgba(255, 255, 255, 0.22);
 }
 
@@ -403,8 +429,34 @@ body::before {
   box-shadow: none;
 }
 
-.boton-degradado:active {
+:is(button, a).boton-degradado:active:not(:disabled) {
   filter: brightness(0.96);
+  transform: translateY(3px) !important;
+  box-shadow: 0 1px 0 #001a6b, 0 4px 10px -6px color-mix(in srgb, var(--marca-azul) 60%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+/* Lo mismo para tarjetas tocables claras (opciones del quiz, chips de
+   respuesta): sombra sólida abajo que desaparece al apretar. */
+.tarjeta-3d {
+  box-shadow: 0 3px 0 var(--color-surface-container-highest);
+  transition: transform 150ms, box-shadow 150ms, background-color 200ms, border-color 200ms;
+}
+.tarjeta-3d:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 0 var(--color-surface-container-highest);
+}
+.tarjeta-3d:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 var(--color-surface-container-highest);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(button, a).boton-degradado:active:not(:disabled),
+  .tarjeta-3d:hover:not(:disabled),
+  .tarjeta-3d:active:not(:disabled) {
+    transform: none !important;
+  }
 }
 
 @keyframes mensajeNuevo {
@@ -484,104 +536,6 @@ body::before {
   animation: pulso-racha 1.6s ease-in-out infinite;
 }
 
-/* Diagrama de escena (perfil visual): cada ficha entra deslizándose desde
-   el lado OPUESTO a su dirección de movimiento y se asienta — de un solo
-   tiro, nunca en loop (mismo idioma que .mensaje-nuevo/.celebrar). El
-   ícono ya llegó a su lugar; la "estela" es una marca fija que aparece un
-   instante después y se queda quieta, como prueba de que venía en
-   movimiento. */
-@keyframes escenaLlega {
-  from {
-    opacity: 0;
-    transform: translate(var(--escena-offset-x, 0), var(--escena-offset-y, 0)) scale(0.7);
-  }
-  65% {
-    opacity: 1;
-  }
-  to {
-    opacity: 1;
-    transform: translate(0, 0) scale(1);
-  }
-}
-
-.escena-elemento {
-  animation: escenaLlega 620ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  animation-delay: var(--escena-stagger, 0ms);
-}
-
-.escena-elemento--derecha {
-  --escena-offset-x: -30px;
-}
-.escena-elemento--izquierda {
-  --escena-offset-x: 30px;
-}
-.escena-elemento--arriba {
-  --escena-offset-y: 30px;
-}
-.escena-elemento--abajo {
-  --escena-offset-y: -30px;
-}
-
-@keyframes escenaEstela {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 0.75;
-  }
-}
-
-.escena-icono {
-  position: relative;
-}
-
-.escena-icono::before {
-  content: "";
-  position: absolute;
-  width: 18px;
-  height: 3px;
-  border-radius: 2px;
-  opacity: 0;
-  pointer-events: none;
-  animation: escenaEstela 280ms ease-out both;
-  animation-delay: calc(280ms + var(--escena-stagger, 0ms));
-}
-
-/* Cada trazo se ubica AFUERA de la caja del ícono (nunca superpuesto al
-   glifo), del lado opuesto a la dirección de avance, con el color más
-   sólido pegado al ícono y desvaneciéndose hacia afuera. */
-.escena-elemento--derecha .escena-icono::before {
-  top: 50%;
-  left: -14px;
-  transform: translateY(-50%);
-  background: linear-gradient(to right, transparent, var(--color-primary));
-}
-.escena-elemento--izquierda .escena-icono::before {
-  top: 50%;
-  left: 44px;
-  transform: translateY(-50%);
-  background: linear-gradient(to left, transparent, var(--color-primary));
-}
-.escena-elemento--arriba .escena-icono::before {
-  width: 3px;
-  height: 18px;
-  top: 44px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: linear-gradient(to bottom, var(--color-primary), transparent);
-}
-.escena-elemento--abajo .escena-icono::before {
-  width: 3px;
-  height: 18px;
-  top: -14px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: linear-gradient(to top, var(--color-primary), transparent);
-}
-.escena-elemento--ninguna .escena-icono::before {
-  content: none;
-}
-
 /* Mascota "Profe Física": un "respirar" muy sutil para que el avatar nunca
    se sienta un ícono muerto, incluso sin interacción nueva. */
 @keyframes mascotaRespira {
@@ -618,15 +572,6 @@ body::before {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .escena-elemento {
-    animation: none;
-    opacity: 1;
-    transform: none;
-  }
-  .escena-icono::before {
-    animation: none;
-    opacity: 0.75;
-  }
   .mascota-viva {
     animation: none;
   }

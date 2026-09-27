@@ -21,7 +21,7 @@ export default function ChipsRespuesta({ opciones, onElegir, disabled }) {
           disabled={disabled}
           onClick={() => onElegir(texto)}
           aria-label={`Responder "${texto}"`}
-          className={`min-h-[44px] px-4 rounded-full text-body-sm font-medium shadow-elevation-1 active:scale-[0.98] hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:hover:translate-y-0 ${TINTES[i % TINTES.length]}`}
+          className={`min-h-[44px] px-4 rounded-full text-body-sm font-medium tarjeta-3d disabled:opacity-50 ${TINTES[i % TINTES.length]}`}
         >
           <RenderizadorMatematico texto={texto} />
         </button>

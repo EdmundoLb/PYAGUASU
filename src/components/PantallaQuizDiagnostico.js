@@ -58,7 +58,7 @@ export default function PantallaQuizDiagnostico({ idioma, indice, onResponder })
               key={opcion.canal}
               type="button"
               onClick={() => onResponder(opcion.canal)}
-              className={`tarjeta-interactiva min-h-[64px] w-full px-4 py-4 rounded-2xl bg-surface-container-lowest border-2 border-surface-container-high ${acento.borde} shadow-elevation-1 text-left text-body-lg font-medium flex items-center gap-3.5`}
+              className={`tarjeta-3d min-h-[64px] w-full px-4 py-4 rounded-2xl bg-surface-container-lowest border-2 border-surface-container-high ${acento.borde} text-left text-body-lg font-medium flex items-center gap-3.5`}
             >
               <span className={`w-9 h-9 rounded-xl flex items-center justify-center font-mono text-title-md font-bold flex-shrink-0 ${acento.letra}`}>
                 {String.fromCharCode(65 + i)}

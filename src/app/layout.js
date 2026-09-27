@@ -2,6 +2,8 @@ import { Lexend, JetBrains_Mono } from "next/font/google";
 import "katex/dist/katex.min.css";
 import "./globals.css";
 import RegistrarServiceWorker from "@/components/RegistrarServiceWorker";
+import AplicarTema from "@/components/AplicarTema";
+import { SCRIPT_TEMA_INICIAL } from "@/lib/ui/tema";
 
 const lexend = Lexend({
   variable: "--font-display",
@@ -42,9 +44,14 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="es"
+      data-theme="claro"
       className={`${lexend.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       <head>
+        {/* Pone el tema (claro/oscuro) antes de pintar, así no parpadea.
+            Ver lib/ui/tema.js y el botón sol/luna (BotonTema). */}
+        <script dangerouslySetInnerHTML={{ __html: SCRIPT_TEMA_INICIAL }} />
         {/* Material Symbols es una fuente de ligaduras: el HTML dice
             "waving_hand" y la fuente lo convierte en el ícono. Con
             display=optional (el default de Google Fonts) el navegador le da
@@ -62,6 +69,7 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className="min-h-full flex flex-col bg-surface text-on-surface">
+        <AplicarTema />
         {children}
         <RegistrarServiceWorker />
       </body>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import LogoMarca from "./LogoMarca";
 import Icono from "./Icono";
+import BotonTema from "./BotonTema";
 
 // Encabezado común de las pantallas secundarias (Progreso, Ranking, panel
 // docente). Antes cada página copiaba el suyo, con "volver" como link
@@ -22,7 +23,10 @@ export default function EncabezadoPagina({ volverA, etiquetaVolver = "Volver", t
           <LogoMarca size={38} className="rounded-[12px] shadow-elevation-1 flex-shrink-0" />
         )}
         <span className="flex-1 min-w-0 font-bold text-title-lg tracking-tight truncate">{titulo}</span>
-        {derecha && <div className="flex items-center gap-1.5 flex-shrink-0">{derecha}</div>}
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          <BotonTema />
+          {derecha}
+        </div>
       </div>
     </header>
   );

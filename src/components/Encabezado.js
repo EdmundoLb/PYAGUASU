@@ -11,6 +11,7 @@ import {
 } from "@/lib/sonido";
 import TarjetaXp from "./TarjetaXp";
 import LogoMarca from "./LogoMarca";
+import BotonTema from "./BotonTema";
 
 // Estado real de la conexión del dispositivo. Antes el encabezado decía
 // "Sin conexión" ante CUALQUIER error del tutor — por ejemplo cuando Gemini
@@ -114,7 +115,8 @@ export default function Encabezado({ perfilActivo, claseActiva, estadoTutor = "l
           </span>
         </Link>
 
-        <div className="flex items-center gap-1.5 flex-shrink-0">
+        <div className="flex items-center gap-0.5 sm:gap-1.5 flex-shrink-0">
+          <BotonTema />
           <button
             type="button"
             onClick={alternarSonido}
